@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is part of lignes-claires, https://github.com/arnaud-m/lignes-claires
+
+    Copyright (c) 2023, Université Côte d'Azur. All rights reserved.
+
+    Licensed under the BSD 3-clause license.
+    See LICENSE file in the project root for full license information.
+
+-->
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>fr.univ-cotedazur</groupId>
+    <artifactId>lignes-claires</artifactId>
+    <packaging>jar</packaging>
+    <version>0.1.0-SNAPSHOT</version>
+    <name>lignes-claires</name>
+    <description>Constraint-based One-Sided Minimzation Solver</description>
+    <url>https://github.com/arnaud-m/lignes-claires</url>
+    <licenses>
+        <license>
+            <name>BSD 3-Clause License</name>
+            <url>https://spdx.org/licenses/BSD-3-Clause.html</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Arnaud Malapert</name>
+            <email>arnaud.malapert@univ-cotedazur.fr</email>
+            <organization>Université Côte d'Azur</organization>
+            <organizationUrl>http://www.i3s.unice.fr/~malapert/</organizationUrl>
+        </developer>
+    </developers>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
+        <!-- Java source/target to use for compilation. -->
+        <javac.target>11</javac.target>
+        <javac.source>11</javac.source>
+    </properties>
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/args4j/args4j -->
+        <dependency>
+            <groupId>args4j</groupId>
+            <artifactId>args4j</artifactId>
+            <version>2.33</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+        <groupId>org.choco-solver</groupId>
+            <artifactId>choco-solver</artifactId>
+            <version>4.10.14</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+
+                <!-- defaults for compile and testCompile -->
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <showDeprecation>true</showDeprecation>
+                    <showWarnings>true</showWarnings>
+                    <!-- Only required when JAVA_HOME isn't at least Java 9 and when haven't
+                        configured the maven-toolchains-plugin -->
+                    <jdkToolchain>
+                        <version>11</version>
+                    </jdkToolchain>
+                    <release>11</release>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+            </plugin>
+	<plugin>
+		<groupId>com.mycila</groupId>
+		<artifactId>license-maven-plugin</artifactId>
+		<version>4.2</version>
+		<configuration>
+			<mapping>
+				<R>SCRIPT_STYLE</R>
+				<g4>DOUBLESLASH_STYLE</g4>
+				<template>JAVADOC_STYLE</template>
+			</mapping>
+			<licenseSets>
+				<licenseSet>
+					<properties>
+						<year>${maven.build.timestamp}</year>
+						<owner>Université Côte d'Azur</owner>
+						<project>${project.name}</project>
+						<prurl>${project.url}</prurl>
+					</properties>
+					<header>src/etc/header.txt</header>
+					<includes>
+						<include>src/*/java/**/*.java</include>
+						<include>**/pom.xml</include>
+					</includes>
+				</licenseSet>
+			</licenseSets>
+
+		</configuration>
+		<executions>
+			<execution>
+				<phase>compile</phase>
+				<goals>
+					<goal>format</goal>
+				</goals>
+			</execution>
+		</executions>
+	</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <!-- The jar goal is in the default lifecycle -->
+                <!-- <executions> -->
+                <!-- 	<execution> -->
+                <!-- 		<goals> -->
+                <!-- 			<goal>jar</goal> -->
+                <!-- 			<!-\- <goal>test-jar</goal> -\-> -->
+                <!-- 		</goals> -->
+                <!-- 	</execution> -->
+                <!-- </executions> -->
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>./src/assembly/with-dep.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
