@@ -8,6 +8,7 @@
  */
 package lignesclaires;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.OptionalInt;
 import java.util.logging.Level;
@@ -18,9 +19,11 @@ import lignesclaires.cmd.Verbosity;
 import lignesclaires.config.LignesClairesConfig;
 import lignesclaires.parser.BiGraphParser;
 import lignesclaires.parser.InvalidGraphFormatException;
+import lignesclaires.solver.OCSolution;
 import lignesclaires.solver.OCSolver;
 import lignesclaires.solver.OCSolverException;
 import lignesclaires.specs.IBipartiteGraph;
+import lignesclaires.specs.IBipartiteGraphDimension;
 import lignesclaires.specs.IOCSolver;
 
 public final class LignesClaires {
@@ -81,19 +84,44 @@ public final class LignesClaires {
 		default:
 			break;
 		}
+
+		switch (verbosity) {
+		case SILENT:
+			break;
+		case QUIET:
+			JULogUtil.setLevel(Level.INFO, OCSolution.LOGGER);
+			break;
+		default:
+			JULogUtil.setLevel(Level.WARNING, OCSolution.LOGGER);
+
+			break;
+		}
+
 	}
 
 	private static IOCSolver buildSolver(final LignesClairesConfig config) {
 		return new OCSolver();
 	}
 
+	private static IBipartiteGraph parse(final String graphfile, final BiGraphParser parser)
+			throws FileNotFoundException, InvalidGraphFormatException {
+		final File file = new File(graphfile);
+		final IBipartiteGraph bigraph = parser.parse(file);
+		if (LOGGER.isLoggable(Level.INFO)) {
+			LOGGER.log(Level.INFO, "Parse graph [OK]\ni {0}\n{1}", new Object[] { file.getName(), toDimacs(bigraph) });
+			if (LOGGER.isLoggable(Level.CONFIG)) {
+				LOGGER.log(Level.CONFIG, "Display graph:\n{0}", bigraph);
+			}
+		}
+		return bigraph;
+	}
+
 	private static int solve(final String graphfile, final BiGraphParser parser, final IOCSolver solver,
 			final LignesClairesConfig config) {
 		try {
-			final IBipartiteGraph bigraph = parser.parse(graphfile);
-			LOGGER.log(Level.INFO, "Parse graph file [OK]\n{0}:\n{1}", new Object[] { graphfile, bigraph });
+			final IBipartiteGraph bigraph = parse(graphfile, parser);
 			final boolean solved = solver.solve(bigraph, config);
-			LOGGER.log(Level.INFO, "Solve OCM [{1}]\n{0}", new Object[] { graphfile, solved });
+			LOGGER.log(Level.INFO, "Solve OCM [{0}]\n", solved);
 			return 0;
 		} catch (InvalidGraphFormatException | FileNotFoundException e) {
 			LOGGER.log(Level.SEVERE, e, () -> "Parse file " + graphfile + " [FAIL]");
@@ -101,6 +129,11 @@ public final class LignesClaires {
 			LOGGER.log(Level.SEVERE, "Choco OCM [FAIL]", e);
 		}
 		return 1;
+	}
+
+	public static String toDimacs(final IBipartiteGraphDimension dim) {
+		return String.format("c FIXED %d%nc FREE %d%nc EDGES %d", dim.getFixedCount(), dim.getFreeCount(),
+				dim.getEdgeCount());
 	}
 
 }

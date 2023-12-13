@@ -8,17 +8,25 @@
  */
 package lignesclaires;
 
+import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
 
-public class ConsoleHandler extends StreamHandler {
+public class OutputHandler extends StreamHandler {
 
-	public ConsoleHandler() {
+	private static class OutputFormat extends Formatter {
+
+		@Override
+		public String format(LogRecord rec) {
+			return formatMessage(rec) + "\n";
+		}
+	}
+
+	public OutputHandler() {
 		setOutputStream(System.out);
 		setLevel(Level.ALL); // Handlers should not filter, loggers should
-		setFormatter(new SimpleFormatter());
+		setFormatter(new OutputFormat());
 	}
 
 	@Override

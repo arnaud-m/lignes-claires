@@ -17,6 +17,7 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import lignesclaires.choco.ChocoLogger;
+import lignesclaires.solver.OCSolution;
 
 public final class JULogUtil {
 
@@ -50,7 +51,7 @@ public final class JULogUtil {
 	}
 
 	public static void configureLoggers(final Level level) {
-		setLevel(level, LignesClaires.LOGGER, ChocoLogger.LOGGER);
+		setLevel(level, LignesClaires.LOGGER, ChocoLogger.LOGGER, OCSolution.LOGGER);
 	}
 
 	public static void setLevel(final Level level, final Logger... loggers) {

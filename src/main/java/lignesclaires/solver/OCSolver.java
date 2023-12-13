@@ -8,9 +8,11 @@
  */
 package lignesclaires.solver;
 
-import org.chocosolver.solver.Solution;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import lignesclaires.choco.ChocoLogger;
+import lignesclaires.cmd.Verbosity;
 import lignesclaires.config.LignesClairesConfig;
 import lignesclaires.specs.IBipartiteGraph;
 import lignesclaires.specs.IOCSolver;
@@ -23,11 +25,16 @@ public class OCSolver implements IOCSolver {
 		mod.buildModel();
 		ChocoLogger.logOnModel(mod);
 		boolean solved = mod.getSolver().solve();
-		Solution s = new Solution(mod.getModel());
-		s.record();
-		System.out.println(s);
+		ChocoLogger.logOnSolution(mod, config.getVerbosity());
+		if (config.getVerbosity() == Verbosity.QUIET) {
+			System.out.println();
+		}
 		ChocoLogger.logOnSolver(mod);
 		return solved;
+	}
+
+	public static final String toString(int[] values, CharSequence delimiter) {
+		return IntStream.of(values).mapToObj(Integer::toString).collect(Collectors.joining(delimiter));
 	}
 
 }

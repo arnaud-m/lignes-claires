@@ -116,15 +116,20 @@ public class BipartiteGraph implements IBipartiteGraph {
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
-		b.append("BipartiteGraph [Free Layer]\n");
+		b.append("BipartiteGraph [");
 		final int n = getFreeCount();
+		b.append("fixed:").append(getFixedCount());
+		b.append(", free:").append(n);
+		b.append(", edges:").append(getEdgeCount());
+		b.append("][Free Layer]\n");
 		for (int i = 0; i < n; i++) {
 			b.append(i).append(": ").append(freeAdjLists[i]).append('\n');
 		}
+		b.deleteCharAt(b.length() - 1);
 		return b.toString();
 	}
 
-	public String toPaceString() {
+	public String toInputString() {
 		StringBuilder b = new StringBuilder();
 		b.append("p ocr");
 		b.append(" ").append(getFixedCount());
@@ -144,7 +149,7 @@ public class BipartiteGraph implements IBipartiteGraph {
 	public static void main(String[] args) {
 		BipartiteGraph bigraph = generate(Integer.parseInt(args[0]), Integer.parseInt(args[1]),
 				Double.parseDouble(args[2]), Long.parseLong(args[0]));
-		System.out.println(bigraph.toPaceString());
+		System.out.println(bigraph.toInputString());
 	}
 
 }

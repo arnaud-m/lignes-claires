@@ -9,6 +9,7 @@
 package lignesclaires.solver;
 
 import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.constraints.extension.Tuples;
 import org.chocosolver.solver.variables.IntVar;
 
@@ -75,6 +76,16 @@ public class OCModel implements IOCModel {
 	@Override
 	public final Model getModel() {
 		return model;
+	}
+
+	public final OCSolution recordSolution() {
+		final Solution s = new Solution(model, permutation);
+		s.record();
+		int[] values = new int[permutation.length];
+		for (int i = 0; i < permutation.length; i++) {
+			values[i] = s.getIntVal(permutation[i]);
+		}
+		return new OCSolution(bigraph, values);
 	}
 
 	public final CrossingCounts getCounts() {

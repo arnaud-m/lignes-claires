@@ -18,8 +18,12 @@ public interface IBipartiteGraphParser<E extends IBipartiteGraph> {
 
 	E parse(Scanner scanner) throws InvalidGraphFormatException;
 
+	default E parse(File file) throws FileNotFoundException, InvalidGraphFormatException {
+		return parse(new Scanner(file));
+	}
+
 	default E parse(String filepath) throws FileNotFoundException, InvalidGraphFormatException {
-		return parse(new Scanner(new File(filepath)));
+		return parse(new File(filepath));
 	}
 
 }
