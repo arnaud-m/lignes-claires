@@ -21,7 +21,7 @@ import lignesclaires.cmd.Verbosity;
  * A bean object that stores the common configuration. This is designed for
  * args4j command line, but it is not restricted to it.
  */
-public class PaceConfig {
+public class LignesClairesConfig {
 
 	@Option(name = "-h", aliases = { "--help" }, usage = "Output a usage message and exit.")
 	private boolean displayHelp;

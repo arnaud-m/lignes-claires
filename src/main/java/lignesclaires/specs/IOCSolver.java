@@ -6,14 +6,13 @@
  * Licensed under the BSD 3-clause license.
  * See LICENSE file in the project root for full license information.
  */
-package lignesclaires.solver;
+package lignesclaires.specs;
 
-public class CryptaChocoException extends Exception {
+import lignesclaires.config.LignesClairesConfig;
+import lignesclaires.solver.OCSolverException;
 
-    private static final long serialVersionUID = -2484196043007677114L;
+public interface IOCSolver {
 
-    public CryptaChocoException(final String message) {
-        super(message);
-    }
+	boolean solve(IBipartiteGraph bigraph, LignesClairesConfig config) throws OCSolverException;
 
 }

@@ -16,6 +16,8 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import lignesclaires.choco.ChocoLogger;
+
 public final class JULogUtil {
 
 	private static final String PROPERTIES = "logging.properties";
@@ -48,7 +50,7 @@ public final class JULogUtil {
 	}
 
 	public static void configureLoggers(final Level level) {
-		setLevel(level, LignesClaires.LOGGER);
+		setLevel(level, LignesClaires.LOGGER, ChocoLogger.LOGGER);
 	}
 
 	public static void setLevel(final Level level, final Logger... loggers) {

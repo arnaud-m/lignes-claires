@@ -16,7 +16,7 @@ import lignesclaires.bigraph.CrossingCounts;
 import lignesclaires.specs.IBipartiteGraph;
 import lignesclaires.specs.IOCModel;
 
-public class OneSideModel implements IOCModel {
+public class OCModel implements IOCModel {
 
 	private final IBipartiteGraph bigraph;
 
@@ -30,14 +30,13 @@ public class OneSideModel implements IOCModel {
 
 	private final IntVar objective;
 
-	public OneSideModel(IBipartiteGraph bigraph) {
+	public OCModel(IBipartiteGraph bigraph) {
 		super();
 		this.bigraph = bigraph;
 		counts = new CrossingCounts(bigraph.getCrossingCounts());
-		model = new Model("OSCM");
+		model = new Model("OCM");
 		final int n = bigraph.getFreeCount();
 		final int m = bigraph.getEdgeCount();
-
 		this.positions = model.intVarArray("pos", n, 0, n - 1, false);
 		this.permutation = model.intVarArray("seq", n, 0, n - 1, false);
 		model.inverseChanneling(positions, permutation).post();
@@ -70,7 +69,7 @@ public class OneSideModel implements IOCModel {
 	public void buildModel() {
 		postOrderedAdjacentNodes();
 		postObjective();
-		getSolver().showDecisions();
+		// getSolver().showDecisions();
 	}
 
 	@Override

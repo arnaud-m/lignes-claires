@@ -14,7 +14,7 @@ import java.util.Scanner;
 
 import lignesclaires.parser.InvalidGraphFormatException;
 
-public interface IParser<E extends IBipartiteGraph> {
+public interface IBipartiteGraphParser<E extends IBipartiteGraph> {
 
 	E parse(Scanner scanner) throws InvalidGraphFormatException;
 

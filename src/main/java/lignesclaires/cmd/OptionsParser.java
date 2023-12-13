@@ -25,7 +25,7 @@ import org.kohsuke.args4j.OptionHandlerFilter;
 import org.kohsuke.args4j.ParserProperties;
 import org.kohsuke.args4j.spi.OptionHandler;
 
-import lignesclaires.config.PaceConfig;
+import lignesclaires.config.LignesClairesConfig;
 
 public class OptionsParser {
 
@@ -35,11 +35,11 @@ public class OptionsParser {
 
 	private final Class<?> mainClass;
 
-	protected final PaceConfig config;
+	protected final LignesClairesConfig config;
 
 	private final String argumentName;
 
-	public OptionsParser(final Class<?> mainClass, final PaceConfig config, final String argumentName) {
+	public OptionsParser(final Class<?> mainClass, final LignesClairesConfig config, final String argumentName) {
 		super();
 		this.mainClass = mainClass;
 		this.config = config;
@@ -70,7 +70,7 @@ public class OptionsParser {
 		return !config.getArguments().isEmpty();
 	}
 
-	public final PaceConfig getConfig() {
+	public final LignesClairesConfig getConfig() {
 		return config;
 	}
 

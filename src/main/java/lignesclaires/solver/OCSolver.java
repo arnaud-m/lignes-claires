@@ -10,22 +10,23 @@ package lignesclaires.solver;
 
 import org.chocosolver.solver.Solution;
 
-import lignesclaires.config.PaceConfig;
+import lignesclaires.choco.ChocoLogger;
+import lignesclaires.config.LignesClairesConfig;
 import lignesclaires.specs.IBipartiteGraph;
-import lignesclaires.specs.IPaceSolver;
+import lignesclaires.specs.IOCSolver;
 
-public class PaceSolver implements IPaceSolver {
+public class OCSolver implements IOCSolver {
 
 	@Override
-	public boolean solve(IBipartiteGraph bigraph, PaceConfig config) throws CryptaChocoException {
-		OneSideModel mod = new OneSideModel(bigraph);
+	public boolean solve(IBipartiteGraph bigraph, LignesClairesConfig config) throws OCSolverException {
+		OCModel mod = new OCModel(bigraph);
 		mod.buildModel();
-		System.out.println(mod);
+		ChocoLogger.logOnModel(mod);
 		boolean solved = mod.getSolver().solve();
 		Solution s = new Solution(mod.getModel());
 		s.record();
 		System.out.println(s);
-		mod.getSolver().printStatistics();
+		ChocoLogger.logOnSolver(mod);
 		return solved;
 	}
 

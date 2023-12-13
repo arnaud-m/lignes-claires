@@ -13,9 +13,9 @@ import java.util.Scanner;
 
 import lignesclaires.bigraph.BipartiteGraph;
 import lignesclaires.specs.IBipartiteGraph;
-import lignesclaires.specs.IParser;
+import lignesclaires.specs.IBipartiteGraphParser;
 
-public class BiGraphParser implements IParser<IBipartiteGraph> {
+public class BiGraphParser implements IBipartiteGraphParser<IBipartiteGraph> {
 
 	@Override
 	public IBipartiteGraph parse(Scanner scanner) throws InvalidGraphFormatException {
