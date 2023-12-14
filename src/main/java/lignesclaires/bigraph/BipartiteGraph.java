@@ -9,6 +9,7 @@
 package lignesclaires.bigraph;
 
 import java.util.Random;
+import java.util.stream.Stream;
 
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.array.TIntArrayList;
@@ -64,6 +65,18 @@ public class BipartiteGraph implements IBipartiteGraph {
 		for (int i = 0; i < freeAdjLists.length; i++) {
 			freeAdjLists[i].sort();
 		}
+	}
+
+	private static int getMedian(TIntArrayList adjList) {
+		if (adjList.isEmpty()) {
+			return 0;
+		}
+		final int median = adjList.size() / 2;
+		return adjList.getQuick(median);
+	}
+
+	public int[] getFreeMedians() {
+		return Stream.of(freeAdjLists).mapToInt(BipartiteGraph::getMedian).toArray();
 	}
 
 	int getCrossingCount(int left, int right) {

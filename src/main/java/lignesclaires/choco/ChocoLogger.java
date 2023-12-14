@@ -14,9 +14,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 
-import lignesclaires.cmd.Verbosity;
 import lignesclaires.solver.OCModel;
 import lignesclaires.solver.OCSolution;
 import lignesclaires.specs.IChocoModel;
@@ -40,13 +40,19 @@ public final class ChocoLogger {
 		}
 	}
 
-	public static void logOnSolution(OCModel model, Verbosity verbosity) {
-		if (LOGGER.isLoggable(Level.INFO)) {
-			LOGGER.log(Level.INFO, "Display solution:\n{0}", model.recordSolution());
-		} else if (OCSolution.LOGGER.isLoggable(Level.INFO)) {
-			OCSolution.LOGGER.log(Level.INFO, "{0}", model.recordSolution().toOutputString());
+	public static void logOnSolutionFound(OCModel model, Solution solution) {
+		if (LOGGER.isLoggable(Level.FINE)) {
+			LOGGER.log(Level.FINE, "Display solution #{0}:\n{1}",
+					new Object[] { model.getSolver().getSolutionCount(), model.recordSolution(solution) });
 		}
+	}
 
+	public static void logOnSolution(OCModel model, Solution solution) {
+		if (LOGGER.isLoggable(Level.INFO)) {
+			LOGGER.log(Level.INFO, "Display solution:\n{0}", model.recordSolution(solution));
+		} else if (OCSolution.LOGGER.isLoggable(Level.INFO)) {
+			OCSolution.LOGGER.log(Level.INFO, "{0}", model.recordSolution(solution).toOutputString());
+		}
 	}
 
 	public static void logOnSolver(final IChocoModel m) {

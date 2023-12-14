@@ -33,7 +33,7 @@ public class LignesClairesConfig {
 	private int solutionLimit;
 
 	@Option(name = "--time", usage = "Limit the time taken by the solver (in seconds).")
-	private int timeLimit;
+	private long timeLimit;
 
 	/**
 	 * Receives other command line parameters than options.
@@ -57,7 +57,7 @@ public class LignesClairesConfig {
 		return solutionLimit;
 	}
 
-	public final int getTimeLimit() {
+	public final long getTimeLimit() {
 		return timeLimit;
 	}
 

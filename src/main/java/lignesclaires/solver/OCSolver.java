@@ -8,8 +8,7 @@
  */
 package lignesclaires.solver;
 
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import org.chocosolver.solver.Solution;
 
 import lignesclaires.choco.ChocoLogger;
 import lignesclaires.cmd.Verbosity;
@@ -23,18 +22,26 @@ public class OCSolver implements IOCSolver {
 	public boolean solve(IBipartiteGraph bigraph, LignesClairesConfig config) throws OCSolverException {
 		OCModel mod = new OCModel(bigraph);
 		mod.buildModel();
+		if (config.getTimeLimit() > 0) {
+			mod.getSolver().limitTime(config.getTimeLimit() * 1000);
+		}
+		if (config.getSolutionLimit() > 0) {
+			mod.getSolver().limitSolution(config.getSolutionLimit());
+		}
 		ChocoLogger.logOnModel(mod);
-		boolean solved = mod.getSolver().solve();
-		ChocoLogger.logOnSolution(mod, config.getVerbosity());
-		if (config.getVerbosity() == Verbosity.QUIET) {
-			System.out.println();
+		if (config.getVerbosity() == Verbosity.DEBUG) {
+			mod.getSolver().showDecisions();
+		}
+		final Solution s = mod.createSolution();
+		while (mod.getSolver().solve()) {
+			s.record();
+			ChocoLogger.logOnSolutionFound(mod, s);
+		}
+		if (mod.getSolver().getSolutionCount() > 0) {
+			ChocoLogger.logOnSolution(mod, s);
 		}
 		ChocoLogger.logOnSolver(mod);
-		return solved;
-	}
-
-	public static final String toString(int[] values, CharSequence delimiter) {
-		return IntStream.of(values).mapToObj(Integer::toString).collect(Collectors.joining(delimiter));
+		return mod.getSolver().hasEndedUnexpectedly();
 	}
 
 }

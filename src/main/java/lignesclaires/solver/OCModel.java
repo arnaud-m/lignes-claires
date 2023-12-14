@@ -70,6 +70,9 @@ public class OCModel implements IOCModel {
 	public void buildModel() {
 		postOrderedAdjacentNodes();
 		postObjective();
+		// getSolver().setSearch(Search.intVarSearch(new DomOverWDeg<>(positions, 0),
+		// new IntDomainMin(), positions));
+
 		// getSolver().showDecisions();
 	}
 
@@ -78,9 +81,11 @@ public class OCModel implements IOCModel {
 		return model;
 	}
 
-	public final OCSolution recordSolution() {
-		final Solution s = new Solution(model, permutation);
-		s.record();
+	public final Solution createSolution() {
+		return new Solution(model, permutation);
+	}
+
+	public final OCSolution recordSolution(final Solution s) {
 		int[] values = new int[permutation.length];
 		for (int i = 0; i < permutation.length; i++) {
 			values[i] = s.getIntVal(permutation[i]);
