@@ -1,0 +1,51 @@
+#+SETUPFILE: ~/.emacs.d/org-templates/base.org
+#+TITLE: Notes about the experimental protocol
+#+DESCRIPTION:
+#+KEYWORDS:
+#+TEXT:
+#+OPTIONS: H:2 num:nil toc:2
+#+LANGUAGE: en
+#+PROPERTY: header-args :results silent :exports code :session lignes-claires
+#+HTML_HEAD:    <link rel="stylesheet" type="text/css" href="http://www.i3s.unice.fr/~malapert/css/worg.min.css" />
+* Initialize
+** Create Symlinks
+
+#+BEGIN_SRC sh :results silent
+   ln -s ../../../target/lignes-clares-*-with-dependencies.jar .
+ #+END_SRC
+
+** Clear directories
+
+ #+BEGIN_SRC sh
+   rm -fr instances
+   mkdir instances/
+ #+END_SRC
+
+ #+BEGIN_SRC sh
+   rm -fr algorithms
+   mkdir algorithms/
+ #+END_SRC
+
+
+
+* Testing
+
+Change the file extension accordingly.
+
+** Solve instances in sequential
+   #+BEGIN_SRC sh
+     nohup gridjobs  -l -p '*.gr' &
+   #+END_SRC
+
+** Solve instances in parallel.
+   #+BEGIN_SRC sh
+     gridjobs  -d 0 -p '*.gr' | nohup parallel -j 20 &
+   #+END_SRC
+
+* Reporting
+
+#+BEGIN_SRC sh
+  gridres -z -k table-keys.txt
+#+END_SRC
+
+  Look for the files .res in the results directory.
