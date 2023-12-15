@@ -22,6 +22,7 @@ public class OCSolver implements IOCSolver {
 	public boolean solve(IBipartiteGraph bigraph, LignesClairesConfig config) throws OCSolverException {
 		OCModel mod = new OCModel(bigraph);
 		mod.buildModel();
+		mod.configureSearch(config.getSearch());
 		if (config.getTimeLimit() > 0) {
 			mod.getSolver().limitTime(config.getTimeLimit() * 1000);
 		}

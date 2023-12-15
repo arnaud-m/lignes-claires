@@ -8,8 +8,13 @@
  */
 package lignesclaires.bigraph;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Random;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Stream;
+
+import org.chocosolver.solver.variables.IntVar;
 
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.array.TIntArrayList;
@@ -67,19 +72,63 @@ public class BipartiteGraph implements IBipartiteGraph {
 		}
 	}
 
-	private static int getMedian(TIntArrayList adjList) {
+	private static double getMedian(TIntArrayList adjList) {
 		if (adjList.isEmpty()) {
 			return 0;
 		}
-		final int median = adjList.size() / 2;
-		return adjList.getQuick(median);
+		final int n = adjList.size();
+		if (n % 2 == 0) {
+			// For an even number of elements, average the middle two elements
+			final int middleRight = n / 2;
+			final int middleLeft = middleRight - 1;
+			return (adjList.getQuick(middleLeft) + adjList.getQuick(middleRight)) / 2.0;
+		} else {
+			// For an odd number of elements, return the middle element
+			return adjList.getQuick(n / 2);
+		}
 	}
 
 	public int[] getFreeMedians() {
-		return Stream.of(freeAdjLists).mapToInt(BipartiteGraph::getMedian).toArray();
+		return Stream.of(freeAdjLists).mapToDouble(BipartiteGraph::getMedian).mapToInt(x -> (int) x).toArray();
 	}
 
-	int getCrossingCount(int left, int right) {
+	private static double getBarycenter(TIntArrayList adjList) {
+		return adjList.isEmpty() ? 0 : 1.0 * adjList.sum() / adjList.size();
+	}
+
+	public <E> E[] permutateMedians(E[] vars) {
+		return permutateG(vars, BipartiteGraph::getMedian);
+	}
+
+	public <E> E[] permutateBarycenters(E[] vars) {
+		return permutateG(vars, BipartiteGraph::getBarycenter);
+	}
+
+	public <E> E[] permutateG(E[] vars, ToDoubleFunction<TIntArrayList> func) {
+		final int n = vars.length;
+		final Integer[] indices = new Integer[n];
+		final double[] values = new double[n];
+		for (int i = 0; i < n; i++) {
+			indices[i] = Integer.valueOf(i);
+			values[i] = func.applyAsDouble(freeAdjLists[i]);
+		}
+		Arrays.sort(indices, (Integer arg0, Integer arg1) -> Double.compare(values[arg0], values[arg1]));
+		return Stream.of(indices).map(i -> vars[i]).toArray(m -> (E[]) Array.newInstance(vars[0].getClass(), m));
+	}
+
+	public IntVar[] permutate(IntVar[] vars, ToDoubleFunction<TIntArrayList> func) {
+		final int n = vars.length;
+		final Integer[] indices = new Integer[n];
+		final double[] values = new double[n];
+		for (int i = 0; i < n; i++) {
+			indices[i] = Integer.valueOf(i);
+			values[i] = func.applyAsDouble(freeAdjLists[i]);
+		}
+		Arrays.sort(indices, (Integer arg0, Integer arg1) -> Double.compare(values[arg0], values[arg1]));
+		return Stream.of(indices).map(i -> vars[i]).toArray(m -> new IntVar[m]);
+	}
+
+	private int getCrossingCount(int left, int right) {
 		int count = 0;
 		final int nl = freeAdjLists[left].size();
 		final int nr = freeAdjLists[right].size();

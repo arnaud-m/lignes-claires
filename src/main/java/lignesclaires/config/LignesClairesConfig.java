@@ -16,6 +16,7 @@ import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 
 import lignesclaires.cmd.Verbosity;
+import lignesclaires.solver.OCSearch;
 
 /**
  * A bean object that stores the common configuration. This is designed for
@@ -28,6 +29,9 @@ public class LignesClairesConfig {
 
 	@Option(name = "-v", aliases = { "--verbose" }, usage = "Increase the verbosity of the program.")
 	private Verbosity verbosity = Verbosity.NORMAL;
+
+	@Option(name = "-s", aliases = { "--search" }, usage = "Set the search strategy of the solver.")
+	private OCSearch search = OCSearch.DEFAULT;
 
 	@Option(name = "--solution", usage = "Limit the number of solutions returned by the solver.")
 	private int solutionLimit;
@@ -51,6 +55,14 @@ public class LignesClairesConfig {
 
 	public final void setVerbosity(final Verbosity verbosity) {
 		this.verbosity = verbosity;
+	}
+
+	public final OCSearch getSearch() {
+		return search;
+	}
+
+	public final void setSearch(OCSearch search) {
+		this.search = search;
 	}
 
 	public final int getSolutionLimit() {

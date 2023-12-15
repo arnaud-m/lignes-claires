@@ -11,8 +11,12 @@ package lignesclaires.solver;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.constraints.extension.Tuples;
+import org.chocosolver.solver.search.strategy.Search;
+import org.chocosolver.solver.search.strategy.selectors.values.IntValueSelector;
+import org.chocosolver.solver.search.strategy.selectors.variables.DomOverWDeg;
 import org.chocosolver.solver.variables.IntVar;
 
+import lignesclaires.bigraph.BipartiteGraph;
 import lignesclaires.bigraph.CrossingCounts;
 import lignesclaires.specs.IBipartiteGraph;
 import lignesclaires.specs.IOCModel;
@@ -43,7 +47,6 @@ public class OCModel implements IOCModel {
 		model.inverseChanneling(positions, permutation).post();
 		objective = model.intVar("objective", 0, m * m);
 		model.setObjective(false, objective);
-
 	}
 
 	@Override
@@ -70,10 +73,29 @@ public class OCModel implements IOCModel {
 	public void buildModel() {
 		postOrderedAdjacentNodes();
 		postObjective();
-		// getSolver().setSearch(Search.intVarSearch(new DomOverWDeg<>(positions, 0),
-		// new IntDomainMin(), positions));
+	}
 
-		// getSolver().showDecisions();
+	public void configureSearch(OCSearch search) {
+		BipartiteGraph gr = (BipartiteGraph) bigraph;
+		switch (search) {
+		case MEDIAN: {
+			IntValueSelector valueSelector = new CenteredValueSelector(positions, gr.getFreeMedians());
+			getSolver().setSearch(Search.intVarSearch(new DomOverWDeg<>(positions, 0), valueSelector, positions));
+			break;
+		}
+		case PMEDIAN: {
+			getSolver().setSearch(Search.inputOrderLBSearch(gr.permutateMedians(positions)));
+			break;
+		}
+		case BARYCENTER: {
+			getSolver().setSearch(Search.inputOrderLBSearch(gr.permutateBarycenters(positions)));
+			break;
+		}
+		case DEFAULT:
+			break;
+		default:
+			break;
+		}
 	}
 
 	@Override

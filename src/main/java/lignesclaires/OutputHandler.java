@@ -19,7 +19,7 @@ public class OutputHandler extends StreamHandler {
 
 		@Override
 		public String format(LogRecord rec) {
-			return formatMessage(rec) + "\n";
+			return formatMessage(rec);
 		}
 	}
 
