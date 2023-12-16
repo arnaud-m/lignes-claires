@@ -11,12 +11,12 @@ package lignesclaires.bigraph;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.function.IntBinaryOperator;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Stream;
 
 import org.chocosolver.solver.variables.IntVar;
 
-import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.array.TIntArrayList;
 import lignesclaires.specs.IBipartiteGraph;
 
@@ -148,16 +148,29 @@ public class BipartiteGraph implements IBipartiteGraph {
 	}
 
 	@Override
-	public int[][] getCrossingCounts() {
+	public CrossingCounts getCrossingCounts() {
+		return getCrossingCounts(Math::min);
+	}
+
+	public CrossingCounts getRawCrossingCounts() {
+		return getCrossingCounts((x, y) -> 0);
+	}
+
+	protected CrossingCounts getCrossingCounts(final IntBinaryOperator op) {
 		final int n = freeAdjLists.length;
 		int[][] counts = new int[n][n];
+		int constant = 0;
 		for (int i = 0; i < n; i++) {
 			for (int j = i + 1; j < n; j++) {
 				counts[i][j] = getCrossingCount(i, j);
 				counts[j][i] = getCrossingCount(j, i);
+				final int val = op.applyAsInt(counts[i][j], counts[j][i]);
+				constant += val;
+				counts[i][j] -= val;
+				counts[j][i] -= val;
 			}
 		}
-		return counts;
+		return new CrossingCounts(counts, constant);
 	}
 
 	public static BipartiteGraph generate(int fixedCount, int freeCount, double density, long seed) {
@@ -192,7 +205,7 @@ public class BipartiteGraph implements IBipartiteGraph {
 	}
 
 	public String toInputString() {
-		StringBuilder b = new StringBuilder();
+		final StringBuilder b = new StringBuilder();
 		b.append("p ocr");
 		b.append(" ").append(getFixedCount());
 		b.append(" ").append(getFreeCount());
@@ -201,10 +214,12 @@ public class BipartiteGraph implements IBipartiteGraph {
 		final int n = getFixedCount();
 		for (int i = 0; i < n; i++) {
 			final int fixed = i + 1;
-			for (TIntIterator iter = fixedAdjLists[i].iterator(); iter.hasNext();) {
-				b.append(fixed).append(" ").append(iter.next() + n + 1).append('\n');
-			}
+			fixedAdjLists[i].forEach(j -> {
+				b.append(fixed).append(" ").append(j + n + 1).append('\n');
+				return true;
+			});
 		}
+		b.deleteCharAt(b.length() - 1);
 		return b.toString();
 	}
 

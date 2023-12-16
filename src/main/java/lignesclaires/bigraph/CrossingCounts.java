@@ -12,15 +12,15 @@ import java.util.Formatter;
 
 import org.chocosolver.solver.constraints.extension.Tuples;
 
-public class CrossingCounts {
+public final class CrossingCounts {
 
 	private final int[][] counts;
 	private int constant;
 
-	public CrossingCounts(int[][] crossingCounts) {
+	public CrossingCounts(int[][] crossingCounts, int constant) {
 		super();
 		this.counts = crossingCounts;
-		this.constant = 0;
+		this.constant = constant;
 	}
 
 	public int getCrossingCount(final int i, final int j) {
@@ -29,10 +29,6 @@ public class CrossingCounts {
 
 	public int getConstant() {
 		return constant;
-	}
-
-	public void setConstant(int constant) {
-		this.constant = constant;
 	}
 
 	public void normalizeCrossingCounts() {

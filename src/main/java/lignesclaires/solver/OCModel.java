@@ -8,8 +8,12 @@
  */
 package lignesclaires.solver;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
+import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.extension.Tuples;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.search.strategy.selectors.values.IntValueSelector;
@@ -18,6 +22,7 @@ import org.chocosolver.solver.variables.IntVar;
 
 import lignesclaires.bigraph.BipartiteGraph;
 import lignesclaires.bigraph.CrossingCounts;
+import lignesclaires.choco.PropBinaryDisjunction;
 import lignesclaires.specs.IBipartiteGraph;
 import lignesclaires.specs.IOCModel;
 
@@ -38,7 +43,8 @@ public class OCModel implements IOCModel {
 	public OCModel(IBipartiteGraph bigraph) {
 		super();
 		this.bigraph = bigraph;
-		counts = new CrossingCounts(bigraph.getCrossingCounts());
+		counts = bigraph.getCrossingCounts();
+		counts.normalizeCrossingCounts();
 		model = new Model("OCM");
 		final int n = bigraph.getFreeCount();
 		final int m = bigraph.getEdgeCount();
@@ -96,6 +102,7 @@ public class OCModel implements IOCModel {
 		default:
 			break;
 		}
+
 	}
 
 	@Override
@@ -127,16 +134,26 @@ public class OCModel implements IOCModel {
 		}
 	}
 
-	public IntVar createCostVariable(int i, int j) {
+	static boolean useCustomConstraint = false;
+
+	public Optional<IntVar> createCostVariable(int i, int j) {
 		final int cij = counts.getCrossingCount(i, j);
 		final int cji = counts.getCrossingCount(j, i);
-		final String name = "cost[" + i + "][" + j + "]";
+		assert (cij == 0 || cji == 0);
 		if (cij == cji) {
-			return model.intVar(name, cij);
+			return Optional.empty();
 		} else {
+			final String name = "cost[" + i + "][" + j + "]";
 			final IntVar cost = model.intVar(name, new int[] { cij, cji });
-			positions[i].lt(positions[j]).iff(cost.eq(cij)).decompose().post();
-			return cost;
+			if (useCustomConstraint) {
+				final IntVar[] vars = cij == 0 ? new IntVar[] { positions[i], positions[j], cost }
+						: new IntVar[] { positions[j], positions[i], cost };
+				Constraint c = new Constraint("BinaryDisjunction", new PropBinaryDisjunction(vars));
+				model.post(c);
+			} else {
+				positions[i].lt(positions[j]).iff(cost.eq(cij)).decompose().post();
+			}
+			return Optional.of(cost);
 		}
 	}
 
@@ -144,13 +161,16 @@ public class OCModel implements IOCModel {
 		final int n = bigraph.getFreeCount();
 		IntVar[] costs = new IntVar[n * (n - 1) / 2 + 1];
 		int k = 0;
+		costs[k++] = model.intVar(counts.getConstant());
 		for (int i = 0; i < n; i++) {
 			for (int j = i + 1; j < n; j++) {
-				costs[k++] = createCostVariable(i, j);
+				Optional<IntVar> cost = createCostVariable(i, j);
+				if (cost.isPresent()) {
+					costs[k++] = cost.get();
+				}
 			}
 		}
-		costs[k] = model.intVar(counts.getConstant());
-		model.sum(costs, "=", objective).post();
+		model.sum(Arrays.copyOf(costs, k), "=", objective).post();
 	}
 
 	@Override

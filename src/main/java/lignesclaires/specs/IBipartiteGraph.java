@@ -8,8 +8,10 @@
  */
 package lignesclaires.specs;
 
+import lignesclaires.bigraph.CrossingCounts;
+
 public interface IBipartiteGraph extends IBipartiteGraphDimension {
 
-	int[][] getCrossingCounts();
+	CrossingCounts getCrossingCounts();
 
 }
