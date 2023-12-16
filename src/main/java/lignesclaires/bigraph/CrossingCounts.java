@@ -31,21 +31,6 @@ public final class CrossingCounts {
 		return constant;
 	}
 
-	public void normalizeCrossingCounts() {
-		for (int i = 0; i < counts.length; i++) {
-			for (int j = i + 1; j < counts.length; j++) {
-				normalizeCrossingCount(i, j);
-			}
-		}
-	}
-
-	public final void normalizeCrossingCount(final int i, final int j) {
-		final int min = Math.min(counts[i][j], counts[j][i]);
-		constant += min;
-		counts[i][j] -= min;
-		counts[j][i] -= min;
-	}
-
 	public final Tuples getOrderedAdjacentNodes() {
 		Tuples tuples = new Tuples();
 		for (int i = 0; i < counts.length; i++) {
@@ -58,6 +43,13 @@ public final class CrossingCounts {
 			}
 		}
 		return tuples;
+	}
+
+	public String toDimacs() {
+		final StringBuilder b = new StringBuilder();
+		b.append("c COUNTS_CONSTANT ").append(constant);
+		b.append("c COUNTS_NONZEROS").append("?");
+		return b.toString();
 	}
 
 	@Override

@@ -21,7 +21,6 @@ import org.chocosolver.solver.search.strategy.selectors.variables.DomOverWDeg;
 import org.chocosolver.solver.variables.IntVar;
 
 import lignesclaires.bigraph.BipartiteGraph;
-import lignesclaires.bigraph.CrossingCounts;
 import lignesclaires.choco.PropBinaryDisjunction;
 import lignesclaires.specs.IBipartiteGraph;
 import lignesclaires.specs.IOCModel;
@@ -29,8 +28,6 @@ import lignesclaires.specs.IOCModel;
 public class OCModel implements IOCModel {
 
 	private final IBipartiteGraph bigraph;
-
-	private final CrossingCounts counts;
 
 	private final Model model;
 
@@ -43,8 +40,6 @@ public class OCModel implements IOCModel {
 	public OCModel(IBipartiteGraph bigraph) {
 		super();
 		this.bigraph = bigraph;
-		counts = bigraph.getCrossingCounts();
-		counts.normalizeCrossingCounts();
 		model = new Model("OCM");
 		final int n = bigraph.getFreeCount();
 		final int m = bigraph.getEdgeCount();
@@ -122,12 +117,8 @@ public class OCModel implements IOCModel {
 		return new OCSolution(bigraph, values);
 	}
 
-	public final CrossingCounts getCounts() {
-		return counts;
-	}
-
 	public void postOrderedAdjacentNodes() {
-		Tuples tuples = counts.getOrderedAdjacentNodes();
+		Tuples tuples = bigraph.getCrossingCounts().getOrderedAdjacentNodes();
 		final int n = bigraph.getFreeCount() - 1;
 		for (int i = 0; i < n; i++) {
 			model.table(permutation[i], permutation[i + 1], tuples).post();
@@ -137,8 +128,8 @@ public class OCModel implements IOCModel {
 	static boolean useCustomConstraint = false;
 
 	public Optional<IntVar> createCostVariable(int i, int j) {
-		final int cij = counts.getCrossingCount(i, j);
-		final int cji = counts.getCrossingCount(j, i);
+		final int cij = bigraph.getCrossingCounts().getCrossingCount(i, j);
+		final int cji = bigraph.getCrossingCounts().getCrossingCount(j, i);
 		assert (cij == 0 || cji == 0);
 		if (cij == cji) {
 			return Optional.empty();
@@ -161,7 +152,7 @@ public class OCModel implements IOCModel {
 		final int n = bigraph.getFreeCount();
 		IntVar[] costs = new IntVar[n * (n - 1) / 2 + 1];
 		int k = 0;
-		costs[k++] = model.intVar(counts.getConstant());
+		costs[k++] = model.intVar(bigraph.getCrossingCounts().getConstant());
 		for (int i = 0; i < n; i++) {
 			for (int j = i + 1; j < n; j++) {
 				Optional<IntVar> cost = createCostVariable(i, j);
@@ -175,7 +166,7 @@ public class OCModel implements IOCModel {
 
 	@Override
 	public String toString() {
-		return "OneSideModel [\n" + bigraph + "\n" + counts + "\n" + model + "]";
+		return "OneSideModel [\n" + bigraph + "\n" + model + "]";
 	}
 
 }
