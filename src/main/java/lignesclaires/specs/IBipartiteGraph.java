@@ -8,10 +8,21 @@
  */
 package lignesclaires.specs;
 
+import gnu.trove.list.TIntList;
 import lignesclaires.bigraph.CrossingCounts;
 
 public interface IBipartiteGraph extends IBipartiteGraphDimension {
 
 	CrossingCounts getCrossingCounts();
+
+	CrossingCounts getReducedCrossingCounts();
+
+	TIntList getFreeNeighbors(int free);
+
+	int getFreeNeighborsCount(int free);
+
+	TIntList getFixedNeighbors(int fixed);
+
+	int getFixedNeighborsCount(int fixed);
 
 }

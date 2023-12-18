@@ -31,7 +31,7 @@ public final class CrossingCounts {
 		return constant;
 	}
 
-	public final Tuples getOrderedAdjacentNodes() {
+	public final Tuples getTableReducedRuleLO2() {
 		Tuples tuples = new Tuples();
 		for (int i = 0; i < counts.length; i++) {
 			for (int j = i + 1; j < counts.length; j++) {
@@ -43,13 +43,6 @@ public final class CrossingCounts {
 			}
 		}
 		return tuples;
-	}
-
-	public String toDimacs() {
-		final StringBuilder b = new StringBuilder();
-		b.append("c COUNTS_CONSTANT ").append(constant);
-		b.append("c COUNTS_NONZEROS").append("?");
-		return b.toString();
 	}
 
 	@Override

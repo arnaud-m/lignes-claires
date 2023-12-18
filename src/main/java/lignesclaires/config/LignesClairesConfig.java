@@ -33,6 +33,9 @@ public class LignesClairesConfig {
 	@Option(name = "-s", aliases = { "--search" }, usage = "Set the search strategy of the solver.")
 	private OCSearch search = OCSearch.DEFAULT;
 
+	@Option(name = "-m", aliases = { "--model" }, usage = "Set the search strategy of the solver.")
+	private int modelMask = ~0; // Using bitwise NOT operator to set all bits to 1.
+
 	@Option(name = "--solution", usage = "Limit the number of solutions returned by the solver.")
 	private int solutionLimit;
 
@@ -63,6 +66,14 @@ public class LignesClairesConfig {
 
 	public final void setSearch(OCSearch search) {
 		this.search = search;
+	}
+
+	public final int getModelMask() {
+		return modelMask;
+	}
+
+	public final void setModelMask(int modelMask) {
+		this.modelMask = modelMask;
 	}
 
 	public final int getSolutionLimit() {

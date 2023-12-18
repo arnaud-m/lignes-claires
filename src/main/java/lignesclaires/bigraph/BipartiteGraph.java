@@ -12,10 +12,12 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Random;
-import java.util.function.IntBinaryOperator;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Stream;
 
+import gnu.trove.TCollections;
+import gnu.trove.iterator.TIntIterator;
+import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 import lignesclaires.specs.IBipartiteGraph;
 
@@ -27,8 +29,8 @@ public class BipartiteGraph implements IBipartiteGraph {
 	private final TIntArrayList[] freeAdjLists;
 	private int edgeCount = 0;
 
+	Optional<CrossingCounts> reducedCrossingCounts;
 	Optional<CrossingCounts> crossingCounts;
-	Optional<CrossingCounts> rawCrossingCounts;
 
 	protected BipartiteGraph(int fixedCount, int freeCount, int edgeCount) {
 		fixedAdjLists = new TIntArrayList[fixedCount];
@@ -40,23 +42,8 @@ public class BipartiteGraph implements IBipartiteGraph {
 		for (int i = 0; i < freeAdjLists.length; i++) {
 			freeAdjLists[i] = new TIntArrayList(capacity);
 		}
+		reducedCrossingCounts = Optional.empty();
 		crossingCounts = Optional.empty();
-		rawCrossingCounts = Optional.empty();
-	}
-
-	@Override
-	public int getFixedCount() {
-		return fixedAdjLists.length;
-	}
-
-	@Override
-	public int getFreeCount() {
-		return freeAdjLists.length;
-	}
-
-	@Override
-	public int getEdgeCount() {
-		return edgeCount;
 	}
 
 	protected void sort() {
@@ -68,7 +55,53 @@ public class BipartiteGraph implements IBipartiteGraph {
 		}
 	}
 
-	private static double getMedian(TIntArrayList adjList) {
+	@Override
+	public final int getFixedCount() {
+		return fixedAdjLists.length;
+	}
+
+	@Override
+	public final int getFreeCount() {
+		return freeAdjLists.length;
+	}
+
+	@Override
+	public final int getEdgeCount() {
+		return edgeCount;
+	}
+
+	public final TIntList getFreeNeighbors(final int free) {
+		return TCollections.unmodifiableList(freeAdjLists[free]);
+	}
+
+	public final int getFreeNeighborsCount(final int free) {
+		return freeAdjLists[free].size();
+	}
+
+	@Override
+	public TIntList getFixedNeighbors(int fixed) {
+		return TCollections.unmodifiableList(fixedAdjLists[fixed]);
+	}
+
+	@Override
+	public int getFixedNeighborsCount(int fixed) {
+		return fixedAdjLists[fixed].size();
+	}
+
+	public static final boolean isEqual(TIntList adjList1, TIntList adjList2) {
+		if (adjList1.size() == adjList2.size()) {
+			final TIntIterator it1 = adjList1.iterator();
+			final TIntIterator it2 = adjList2.iterator();
+			while (it1.hasNext()) {
+				if (it1.next() != it2.next())
+					return false;
+			}
+			return true;
+		}
+		return false;
+	}
+
+	public static double getMedian(TIntArrayList adjList) {
 		if (adjList.isEmpty()) {
 			return 0;
 		}
@@ -88,7 +121,7 @@ public class BipartiteGraph implements IBipartiteGraph {
 		return Stream.of(freeAdjLists).mapToDouble(BipartiteGraph::getMedian).mapToInt(x -> (int) x).toArray();
 	}
 
-	private static double getBarycenter(TIntArrayList adjList) {
+	private static double getBarycenter(TIntList adjList) {
 		return adjList.isEmpty() ? 0 : 1.0 * adjList.sum() / adjList.size();
 	}
 
@@ -112,7 +145,7 @@ public class BipartiteGraph implements IBipartiteGraph {
 		return Stream.of(indices).map(i -> vars[i]).toArray(m -> (E[]) Array.newInstance(vars[0].getClass(), m));
 	}
 
-	private int getCrossingCount(int left, int right) {
+	protected int getCrossingCount(int left, int right) {
 		int count = 0;
 		final int nl = freeAdjLists[left].size();
 		final int nr = freeAdjLists[right].size();
@@ -131,36 +164,39 @@ public class BipartiteGraph implements IBipartiteGraph {
 		return count;
 	}
 
-	@Override
-	public CrossingCounts getCrossingCounts() {
-		if (crossingCounts.isEmpty()) {
-			crossingCounts = Optional.of(getCrossingCounts(Math::min));
-		}
-		return crossingCounts.get();
-	}
-
-	public CrossingCounts getRawCrossingCounts() {
-		if (rawCrossingCounts.isEmpty()) {
-			rawCrossingCounts = Optional.of(getCrossingCounts((x, y) -> 0));
-		}
-		return rawCrossingCounts.get();
-	}
-
-	protected CrossingCounts getCrossingCounts(final IntBinaryOperator op) {
+	protected void computeCrossingCounts() {
 		final int n = freeAdjLists.length;
-		int[][] counts = new int[n][n];
+		final int[][] counts = new int[n][n];
+		final int[][] redCounts = new int[n][n];
 		int constant = 0;
 		for (int i = 0; i < n; i++) {
 			for (int j = i + 1; j < n; j++) {
 				counts[i][j] = getCrossingCount(i, j);
 				counts[j][i] = getCrossingCount(j, i);
-				final int val = op.applyAsInt(counts[i][j], counts[j][i]);
-				constant += val;
-				counts[i][j] -= val;
-				counts[j][i] -= val;
+				final int min = Math.min(counts[i][j], counts[j][i]);
+				constant += min;
+				redCounts[i][j] = counts[i][j] - min;
+				redCounts[j][i] = counts[j][i] - min;
 			}
 		}
-		return new CrossingCounts(counts, constant);
+		this.crossingCounts = Optional.of(new CrossingCounts(counts, 0));
+		this.reducedCrossingCounts = Optional.of(new CrossingCounts(redCounts, constant));
+	}
+
+	@Override
+	public final CrossingCounts getReducedCrossingCounts() {
+		if (reducedCrossingCounts.isEmpty()) {
+			computeCrossingCounts();
+		}
+		return reducedCrossingCounts.get();
+	}
+
+	@Override
+	public final CrossingCounts getCrossingCounts() {
+		if (crossingCounts.isEmpty()) {
+			computeCrossingCounts();
+		}
+		return crossingCounts.get();
 	}
 
 	public static BipartiteGraph generate(int fixedCount, int freeCount, double density, long seed) {
