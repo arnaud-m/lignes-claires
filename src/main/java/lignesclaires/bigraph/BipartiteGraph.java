@@ -274,7 +274,7 @@ public class BipartiteGraph implements IBipartiteGraph {
 
 	public static void main(String[] args) {
 		BipartiteGraph bigraph = generate(Integer.parseInt(args[0]), Integer.parseInt(args[1]),
-				Double.parseDouble(args[2]), Long.parseLong(args[0]));
+				Double.parseDouble(args[2]), Long.parseLong(args[3]));
 		System.out.println(bigraph.toInputString());
 	}
 
