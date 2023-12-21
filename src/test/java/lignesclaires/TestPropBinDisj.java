@@ -21,7 +21,7 @@ import org.junit.Test;
 
 import lignesclaires.choco.PropBinaryDisjunction;
 
-public class TestPropBinaryDisjunction {
+public class TestPropBinDisj {
 
 	private final int n = 5;
 	private final int ns = n * (n + 1);
