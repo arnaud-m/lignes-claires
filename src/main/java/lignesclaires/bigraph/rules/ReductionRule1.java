@@ -22,11 +22,12 @@ public class ReductionRule1 extends BiGraphWithCounts implements IReductionRule 
 
 	@Override
 	public Optional<Point> apply(int i, int j) {
-		if (counts.getCrossingCount(i, j) == 0)
+		if (counts.getCrossingCount(i, j) > 0) {
+			if (counts.getCrossingCount(j, i) == 0)
+				return Optional.of(new Point(j, i));
+		} else if (counts.getCrossingCount(j, i) > 0) {
 			return Optional.of(new Point(i, j));
-		else if (counts.getCrossingCount(j, i) == 0)
-			return Optional.of(new Point(j, i));
-		else
-			return Optional.empty();
+		}
+		return Optional.empty();
 	}
 }
