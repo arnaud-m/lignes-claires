@@ -49,6 +49,7 @@ public class OCModel implements IOCModel {
 	private static final int RRLO2 = 8;
 	private static final int DISJ = 16;
 	private static final int DEBUG = 32;
+	private static final int LB = 64;
 
 	public OCModel(IBipartiteGraph bigraph, int modelMask) {
 		super();
@@ -165,6 +166,11 @@ public class OCModel implements IOCModel {
 		return builder.build();
 	}
 
+	private void postLowerBound() {
+		final int lb = bigraph.getEdgeCount() - bigraph.getNodeCount() + 1;
+		objective.ge(lb).decompose().post();
+	}
+
 	@Override
 	public void buildModel() {
 		final int n = bigraph.getFreeCount();
@@ -187,7 +193,8 @@ public class OCModel implements IOCModel {
 			}
 			rules.getTuplesLO2().ifPresent(this::postPermutationBinaryTable);
 			objBuilder.postObjective();
-
+			if (hasFlag(LB))
+				postLowerBound();
 		}
 	}
 
