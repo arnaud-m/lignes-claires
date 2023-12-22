@@ -17,8 +17,6 @@ import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.extension.Tuples;
 import org.chocosolver.solver.search.strategy.Search;
-import org.chocosolver.solver.search.strategy.selectors.values.IntValueSelector;
-import org.chocosolver.solver.search.strategy.selectors.variables.DomOverWDeg;
 import org.chocosolver.solver.variables.IntVar;
 
 import lignesclaires.bigraph.BipartiteGraph;
@@ -195,11 +193,6 @@ public class OCModel implements IOCModel {
 		BipartiteGraph gr = (BipartiteGraph) bigraph;
 		switch (search) {
 		case MEDIAN: {
-			IntValueSelector valueSelector = new CenteredValueSelector(positions, gr.getFreeMedians());
-			getSolver().setSearch(Search.intVarSearch(new DomOverWDeg<>(positions, 0), valueSelector, positions));
-			break;
-		}
-		case PMEDIAN: {
 			getSolver().setSearch(Search.inputOrderLBSearch(gr.permutateMedians(positions)));
 			break;
 		}

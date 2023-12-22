@@ -34,11 +34,9 @@ public class TestSolver {
 	public void testAll(IBipartiteGraph bigraph) throws OCSolverException {
 		for (OCSearch search : OCSearch.values()) {
 			config.setSearch(search);
-			if (search != OCSearch.MEDIAN) {
-				for (int modelMask = 0; modelMask < OCModel.LB; modelMask++) {
-					config.setModelMask(modelMask);
-					Assert.assertTrue(solver.solve(bigraph, config));
-				}
+			for (int modelMask = 0; modelMask < OCModel.LB; modelMask++) {
+				config.setModelMask(modelMask);
+				Assert.assertTrue(solver.solve(bigraph, config));
 			}
 		}
 	}

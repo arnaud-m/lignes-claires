@@ -10,6 +10,6 @@ package lignesclaires.solver;
 
 public enum OCSearch {
 
-	DEFAULT, MEDIAN, PMEDIAN, BARYCENTER;
+	DEFAULT, MEDIAN, BARYCENTER;
 
 }

@@ -101,7 +101,7 @@ public class BipartiteGraph implements IBipartiteGraph {
 		return false;
 	}
 
-	public static double getMedian(TIntArrayList adjList) {
+	public static final double getMedian(TIntArrayList adjList) {
 		if (adjList.isEmpty()) {
 			return 0;
 		}
@@ -117,11 +117,7 @@ public class BipartiteGraph implements IBipartiteGraph {
 		}
 	}
 
-	public int[] getFreeMedians() {
-		return Stream.of(freeAdjLists).mapToDouble(BipartiteGraph::getMedian).mapToInt(x -> (int) x).toArray();
-	}
-
-	private static double getBarycenter(TIntList adjList) {
+	private static final double getBarycenter(TIntList adjList) {
 		return adjList.isEmpty() ? 0 : 1.0 * adjList.sum() / adjList.size();
 	}
 
