@@ -48,8 +48,7 @@ public class OCModel implements IOCModel {
 	public static final int RR3 = 4;
 	public static final int RRLO2 = 8;
 	public static final int DISJ = 16;
-	public static final int DEBUG = 32;
-	public static final int LB = 64;
+	public static final int LB = 32;
 
 	public OCModel(IBipartiteGraph bigraph, int modelMask) {
 		super();
@@ -174,28 +173,22 @@ public class OCModel implements IOCModel {
 	@Override
 	public void buildModel() {
 		final int n = bigraph.getFreeCount();
-//		
-		if (hasFlag(DEBUG)) {
-			postOrderedAdjacentNodes();
-			postObjective();
-		} else {
-			ReductionRules rules = buildReductionRules();
-			ObjectiveBuilder objBuilder = new ObjectiveBuilder(hasFlag(DISJ));
-			for (int i = 0; i < n; i++) {
-				for (int j = i + 1; j < n; j++) {
-					final Optional<Point> order = rules.apply(i, j);
-					if (order.isPresent()) {
-						objBuilder.addOrdered(order.get());
-					} else {
-						objBuilder.addUnordered(i, j);
-					}
+		ReductionRules rules = buildReductionRules();
+		ObjectiveBuilder objBuilder = new ObjectiveBuilder(hasFlag(DISJ));
+		for (int i = 0; i < n; i++) {
+			for (int j = i + 1; j < n; j++) {
+				final Optional<Point> order = rules.apply(i, j);
+				if (order.isPresent()) {
+					objBuilder.addOrdered(order.get());
+				} else {
+					objBuilder.addUnordered(i, j);
 				}
 			}
-			rules.getTuplesLO2().ifPresent(this::postPermutationBinaryTable);
-			objBuilder.postObjective();
-			if (hasFlag(LB))
-				postLowerBound();
 		}
+		rules.getTuplesLO2().ifPresent(this::postPermutationBinaryTable);
+		objBuilder.postObjective();
+		if (hasFlag(LB))
+			postLowerBound();
 	}
 
 	public void configureSearch(OCSearch search) {
@@ -244,50 +237,6 @@ public class OCModel implements IOCModel {
 		for (int i = 0; i < n; i++) {
 			model.table(permutation[i], permutation[i + 1], tuples).post();
 		}
-	}
-
-	public void postOrderedAdjacentNodes() {
-		Tuples tuples = bigraph.getReducedCrossingCounts().getTableReducedRuleLO2();
-		final int n = bigraph.getFreeCount() - 1;
-		for (int i = 0; i < n; i++) {
-			model.table(permutation[i], permutation[i + 1], tuples).post();
-		}
-	}
-
-	public Optional<IntVar> createCostVariable(int i, int j) {
-		final int cij = bigraph.getReducedCrossingCounts().getCrossingCount(i, j);
-		final int cji = bigraph.getReducedCrossingCounts().getCrossingCount(j, i);
-		if (cij == cji) {
-			return Optional.empty();
-		} else {
-			final String name = "cost[" + i + "][" + j + "]";
-			final IntVar cost = model.intVar(name, new int[] { cij, cji });
-			if (hasFlag(DISJ)) {
-				final IntVar[] vars = cij == 0 ? new IntVar[] { positions[i], positions[j], cost }
-						: new IntVar[] { positions[j], positions[i], cost };
-				Constraint c = new Constraint("BinaryDisjunction", new PropBinaryDisjunction(vars));
-				model.post(c);
-			} else {
-				positions[i].lt(positions[j]).iff(cost.eq(cij)).decompose().post();
-			}
-			return Optional.of(cost);
-		}
-	}
-
-	public void postObjective() {
-		final int n = bigraph.getFreeCount();
-		IntVar[] costs = new IntVar[n * (n - 1) / 2 + 1];
-		int k = 0;
-		costs[k++] = model.intVar(bigraph.getReducedCrossingCounts().getConstant());
-		for (int i = 0; i < n; i++) {
-			for (int j = i + 1; j < n; j++) {
-				Optional<IntVar> cost = createCostVariable(i, j);
-				if (cost.isPresent()) {
-					costs[k++] = cost.get();
-				}
-			}
-		}
-		model.sum(Arrays.copyOf(costs, k), "=", objective).post();
 	}
 
 	@Override
