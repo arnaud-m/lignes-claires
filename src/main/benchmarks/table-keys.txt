@@ -1,4 +1,5 @@
 s
+o
 d NBSOLS
 d TIME
 d TIME_BEST

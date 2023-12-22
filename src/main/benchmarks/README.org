@@ -28,6 +28,58 @@
 
 
 
+* Configure
+
+#+BEGIN_SRC R
+
+  CreateAlgorithms <- function(model = c(0, 8, 15, 40),
+                               search = c("default", "barycenter", "median"),
+                               time = 60
+                               ) {
+    expand.grid(model = model, search = search, time = time)
+  }
+
+  GetAlgoFileNames <- function(df) {
+    sprintf("algorithms/%s%02d.dat",
+    toupper(substr(df$search, 1, 1)),
+    df$model
+    )
+  }
+
+  GetAlgoArguments <- function(df) {
+    GetArguments <- function(x) {
+       paste("--", names(x), " ", x, sep = "", collapse = " ")
+      }
+    apply(df, 1, GetArguments)
+  }
+
+  WriteAlgorithms <- function(df) {
+    filenames <- GetAlgoFileNames(df)
+    arguments <- GetAlgoArguments(df)
+
+    for(i in seq_along(filenames)) {
+      writeLines(arguments[i], filenames[i])
+    }
+  }
+
+#+END_SRC
+
+
+#+BEGIN_SRC sh :tangle solver.sh
+  #!/bin/sh
+
+  JAR=lignes-claires-*-with-dependencies.jar
+  MAINCLASS=lignesclaires.LignesClaires
+
+  MAINARGS=`cat $1 | xargs`
+
+  java -server  -Xms512m -Xmx8192m -cp $JAR $MAINCLASS $MAINARGS $2
+
+  exit $?
+ #+END_SRC
+
+
+
 * Testing
 
 Change the file extension accordingly.

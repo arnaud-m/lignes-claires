@@ -1,3 +1,5 @@
+#!/bin/sh
+
 JAR=lignes-claires-*-with-dependencies.jar
 MAINCLASS=lignesclaires.LignesClaires
 
