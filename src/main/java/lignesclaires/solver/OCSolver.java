@@ -42,7 +42,7 @@ public class OCSolver implements IOCSolver {
 			ChocoLogger.logOnSolution(mod, s);
 		}
 		ChocoLogger.logOnSolver(mod);
-		return mod.getSolver().hasEndedUnexpectedly();
+		return !mod.getSolver().hasEndedUnexpectedly();
 	}
 
 }

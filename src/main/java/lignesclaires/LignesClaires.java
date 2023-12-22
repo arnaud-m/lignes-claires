@@ -122,7 +122,7 @@ public final class LignesClaires {
 			final IBipartiteGraph bigraph = parse(graphfile, parser);
 			final boolean solved = solver.solve(bigraph, config);
 			LOGGER.log(Level.INFO, "Solve OCM [{0}]\n", solved);
-			return 0;
+			return solved ? 0 : 1;
 		} catch (InvalidGraphFormatException | FileNotFoundException e) {
 			LOGGER.log(Level.SEVERE, e, () -> "Parse file " + graphfile + " [FAIL]");
 		} catch (OCSolverException e) {

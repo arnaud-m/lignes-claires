@@ -43,13 +43,13 @@ public class OCModel implements IOCModel {
 
 	private final int modelMask;
 
-	private static final int RR1 = 1;
-	private static final int RR2 = 2;
-	private static final int RR3 = 4;
-	private static final int RRLO2 = 8;
-	private static final int DISJ = 16;
-	private static final int DEBUG = 32;
-	private static final int LB = 64;
+	public static final int RR1 = 1;
+	public static final int RR2 = 2;
+	public static final int RR3 = 4;
+	public static final int RRLO2 = 8;
+	public static final int DISJ = 16;
+	public static final int DEBUG = 32;
+	public static final int LB = 64;
 
 	public OCModel(IBipartiteGraph bigraph, int modelMask) {
 		super();
