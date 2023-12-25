@@ -77,17 +77,32 @@ public final class ChocoLogger {
 		return b.toString();
 	}
 
+	private static String getStatus(Solver s) {
+		switch (s.getSearchState()) {
+		case TERMINATED:
+			if (s.getSolutionCount() == 0) {
+				return "UNSATISFIABLE";
+			} else {
+				return s.hasObjective() ? "OPTIMUM" : "SATISFIABLE";
+			}
+		case STOPPED:
+			return s.getSolutionCount() == 0 ? "UNKNOWN" : "SATISFIABLE";
+		default:
+			return "ERROR";
+		}
+	}
+
 	public static String toDimacs(final Solver s) {
 		final StringBuilder b = new StringBuilder(256);
 		Formatter fmt = new Formatter(b, Locale.US);
-		fmt.format("s %s", s.getSearchState());
+		fmt.format("s %s", getStatus(s));
 		if (s.hasObjective()) {
 			fmt.format("%no %d", s.getBoundsManager().getBestSolutionValue().intValue());
 		}
 		fmt.format(
-				"%nd NBSOLS %d%nd TIME %.3f%nd TIME_BEST %.3f%nd NODES %d%nd BACKTRACKS %d%nd BACKJUMPS %d%nd FAILURES %d%nd RESTARTS %d",
+				"%nd NBSOLS %d%nd TIME %.3f%nd TIME_BEST %.3f%nd NODES %d%nd BACKTRACKS %d%nd BACKJUMPS %d%nd FAILURES %d%nd RESTARTS %d%nd STATUS %s",
 				s.getSolutionCount(), s.getTimeCount(), s.getTimeToBestSolution(), s.getNodeCount(),
-				s.getBackTrackCount(), s.getBackjumpCount(), s.getFailCount(), s.getRestartCount());
+				s.getBackTrackCount(), s.getBackjumpCount(), s.getFailCount(), s.getRestartCount(), s.getSearchState());
 		fmt.close();
 		return b.toString();
 	}

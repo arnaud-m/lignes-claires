@@ -9,6 +9,7 @@
 package lignesclaires.solver;
 
 import org.chocosolver.solver.Solution;
+import org.chocosolver.solver.Solver;
 
 import lignesclaires.choco.ChocoLogger;
 import lignesclaires.cmd.Verbosity;
@@ -20,29 +21,31 @@ public class OCSolver implements IOCSolver {
 
 	@Override
 	public boolean solve(IBipartiteGraph bigraph, LignesClairesConfig config) throws OCSolverException {
-		OCModel mod = new OCModel(bigraph, config.getModelMask());
+		final OCModel mod = new OCModel(bigraph, config.getModelMask());
 		mod.buildModel();
 		mod.configureSearch(config.getSearch());
+		final Solver solver = mod.getSolver();
 		if (config.getTimeLimit() > 0) {
-			mod.getSolver().limitTime(config.getTimeLimit() * 1000);
+			solver.limitTime(config.getTimeLimit() * 1000);
 		}
 		if (config.getSolutionLimit() > 0) {
-			mod.getSolver().limitSolution(config.getSolutionLimit());
+			solver.limitSolution(config.getSolutionLimit());
 		}
+
 		ChocoLogger.logOnModel(mod);
 		if (config.getVerbosity() == Verbosity.DEBUG) {
-			mod.getSolver().showDecisions();
+			solver.showDecisions();
 		}
-		final Solution s = mod.createSolution();
-		while (mod.getSolver().solve()) {
-			s.record();
-			ChocoLogger.logOnSolutionFound(mod, s);
+		final Solution sol = mod.createSolution();
+		while (solver.solve()) {
+			sol.record();
+			ChocoLogger.logOnSolutionFound(mod, sol);
 		}
 		if (mod.getSolver().getSolutionCount() > 0) {
-			ChocoLogger.logOnSolution(mod, s);
+			ChocoLogger.logOnSolution(mod, sol);
 		}
 		ChocoLogger.logOnSolver(mod);
-		return !mod.getSolver().hasEndedUnexpectedly();
+		return !solver.hasEndedUnexpectedly();
 	}
 
 }
