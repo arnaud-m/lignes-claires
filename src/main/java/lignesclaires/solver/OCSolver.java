@@ -24,6 +24,10 @@ public class OCSolver implements IOCSolver {
 		final OCModel mod = new OCModel(bigraph, config.getModelMask());
 		mod.buildModel();
 		mod.configureSearch(config.getSearch());
+		if (config.isWithRestarts()) {
+			mod.configureRestarts();
+		}
+
 		final Solver solver = mod.getSolver();
 		if (config.getTimeLimit() > 0) {
 			solver.limitTime(config.getTimeLimit() * 1000);

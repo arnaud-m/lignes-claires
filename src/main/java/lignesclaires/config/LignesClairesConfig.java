@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
+import org.kohsuke.args4j.spi.ExplicitBooleanOptionHandler;
 
 import lignesclaires.cmd.Verbosity;
 import lignesclaires.solver.OCSearch;
@@ -35,6 +36,10 @@ public class LignesClairesConfig {
 
 	@Option(name = "-m", aliases = { "--model" }, usage = "Set the search strategy of the solver.")
 	private int modelMask = ~0; // Using bitwise NOT operator to set all bits to 1.
+
+	@Option(name = "-r", aliases = {
+			"--restart" }, handler = ExplicitBooleanOptionHandler.class, usage = "Activate geometrical restarts.")
+	private boolean withRestarts = false;
 
 	@Option(name = "--solution", usage = "Limit the number of solutions returned by the solver.")
 	private int solutionLimit;
@@ -74,6 +79,14 @@ public class LignesClairesConfig {
 
 	public final void setModelMask(int modelMask) {
 		this.modelMask = modelMask;
+	}
+
+	public final boolean isWithRestarts() {
+		return withRestarts;
+	}
+
+	public final void setWithRestarts(boolean withRestarts) {
+		this.withRestarts = withRestarts;
 	}
 
 	public final int getSolutionLimit() {
