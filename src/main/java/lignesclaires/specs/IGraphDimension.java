@@ -8,14 +8,9 @@
  */
 package lignesclaires.specs;
 
-public interface IBipartiteGraphDimension extends IGraphDimension {
+public interface IGraphDimension {
 
-	int getFixedCount();
+	int getNodeCount();
 
-	int getFreeCount();
-
-	default int getNodeCount() {
-		return getFixedCount() + getFreeCount();
-	}
-
+	int getEdgeCount();
 }

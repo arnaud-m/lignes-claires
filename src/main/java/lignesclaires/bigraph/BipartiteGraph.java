@@ -8,15 +8,10 @@
  */
 package lignesclaires.bigraph;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.Random;
-import java.util.function.ToDoubleFunction;
-import java.util.stream.Stream;
 
 import gnu.trove.TCollections;
-import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 import lignesclaires.specs.IBipartiteGraph;
@@ -70,10 +65,12 @@ public class BipartiteGraph implements IBipartiteGraph {
 		return edgeCount;
 	}
 
+	@Override
 	public final TIntList getFreeNeighbors(final int free) {
 		return TCollections.unmodifiableList(freeAdjLists[free]);
 	}
 
+	@Override
 	public final int getFreeNeighborsCount(final int free) {
 		return freeAdjLists[free].size();
 	}
@@ -88,76 +85,16 @@ public class BipartiteGraph implements IBipartiteGraph {
 		return fixedAdjLists[fixed].size();
 	}
 
-	public static final boolean isEqual(TIntList adjList1, TIntList adjList2) {
-		if (adjList1.size() == adjList2.size()) {
-			final TIntIterator it1 = adjList1.iterator();
-			final TIntIterator it2 = adjList2.iterator();
-			while (it1.hasNext()) {
-				if (it1.next() != it2.next())
-					return false;
-			}
-			return true;
-		}
-		return false;
-	}
-
-	public static final double getMedian(TIntArrayList adjList) {
-		if (adjList.isEmpty()) {
-			return 0;
-		}
-		final int n = adjList.size();
-		if (n % 2 == 0) {
-			// For an even number of elements, average the middle two elements
-			final int middleRight = n / 2;
-			final int middleLeft = middleRight - 1;
-			return (adjList.getQuick(middleLeft) + adjList.getQuick(middleRight)) / 2.0;
-		} else {
-			// For an odd number of elements, return the middle element
-			return adjList.getQuick(n / 2);
-		}
-	}
-
-	private static final double getBarycenter(TIntList adjList) {
-		return adjList.isEmpty() ? 0 : 1.0 * adjList.sum() / adjList.size();
-	}
-
 	public <E> E[] permutateMedians(E[] objects) {
-		return permutate(objects, BipartiteGraph::getMedian);
+		return AdjListUtil.permutate(objects, AdjListUtil::getMedian, freeAdjLists, 0);
 	}
 
 	public <E> E[] permutateBarycenters(E[] objects) {
-		return permutate(objects, BipartiteGraph::getBarycenter);
-	}
-
-	public <E> E[] permutate(E[] vars, ToDoubleFunction<TIntArrayList> func) {
-		final int n = vars.length;
-		final Integer[] indices = new Integer[n];
-		final double[] values = new double[n];
-		for (int i = 0; i < n; i++) {
-			indices[i] = Integer.valueOf(i);
-			values[i] = func.applyAsDouble(freeAdjLists[i]);
-		}
-		Arrays.sort(indices, (Integer arg0, Integer arg1) -> Double.compare(values[arg0], values[arg1]));
-		return Stream.of(indices).map(i -> vars[i]).toArray(m -> (E[]) Array.newInstance(vars[0].getClass(), m));
+		return AdjListUtil.permutate(objects, AdjListUtil::getBarycenter, freeAdjLists, 0);
 	}
 
 	protected int getCrossingCount(int left, int right) {
-		int count = 0;
-		final int nl = freeAdjLists[left].size();
-		final int nr = freeAdjLists[right].size();
-		int l = 0;
-		int r = 0;
-		while (l < nl && r < nr) {
-			final int lf = freeAdjLists[left].getQuick(l);
-			final int rf = freeAdjLists[right].getQuick(r);
-			if (lf <= rf) {
-				l++;
-			} else {
-				r++;
-				count += nl - l;
-			}
-		}
-		return count;
+		return AdjListUtil.getCrossingCount(freeAdjLists[left], freeAdjLists[right]);
 	}
 
 	protected void computeCrossingCounts() {
