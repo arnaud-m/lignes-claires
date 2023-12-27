@@ -10,8 +10,6 @@ package lignesclaires.bigraph;
 
 import java.util.Formatter;
 
-import org.chocosolver.solver.constraints.extension.Tuples;
-
 public final class CrossingCounts {
 
 	private final int[][] counts;
@@ -29,20 +27,6 @@ public final class CrossingCounts {
 
 	public int getConstant() {
 		return constant;
-	}
-
-	public final Tuples getTableReducedRuleLO2() {
-		Tuples tuples = new Tuples();
-		for (int i = 0; i < counts.length; i++) {
-			for (int j = i + 1; j < counts.length; j++) {
-				if (counts[i][j] <= counts[j][i]) {
-					tuples.add(i, j);
-				} else {
-					tuples.add(j, i);
-				}
-			}
-		}
-		return tuples;
 	}
 
 	@Override
