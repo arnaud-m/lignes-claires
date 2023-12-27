@@ -151,9 +151,12 @@ public class UndirectedGraph implements IGraphDimension {
 	}
 
 	public static void main(String[] args) {
-		UndirectedGraph g = buildGraph1();
-		System.out.println(g);
-		g = buildGraph2();
-		System.out.println(g);
+		UndirectedGraph[] graphs = new UndirectedGraph[] { buildGraph1(), buildGraph2() };
+		DepthFirstSearch dfs = new DepthFirstSearch();
+		for (UndirectedGraph g : graphs) {
+			System.out.println(g);
+			dfs.execute(g);
+			System.out.println(dfs.toDotty());
+		}
 	}
 }
