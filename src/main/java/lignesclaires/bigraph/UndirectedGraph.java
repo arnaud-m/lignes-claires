@@ -52,6 +52,14 @@ public class UndirectedGraph implements IGraphDimension {
 		return edgeCount;
 	}
 
+	public final boolean isIsolated(int node) {
+		return adjLists[node].isEmpty();
+	}
+
+	public final boolean isLeaf(int node) {
+		return adjLists[node].size() == 1;
+	}
+
 	public final TIntList getNeighbors(int node) {
 		return TCollections.unmodifiableList(adjLists[node]);
 	}
@@ -119,6 +127,9 @@ public class UndirectedGraph implements IGraphDimension {
 		return g;
 	}
 
+	/**
+	 * https://en.wikipedia.org/wiki/Bridge_(graph_theory)
+	 */
 	public static UndirectedGraph buildGraph2() {
 		UndirectedGraph g = new UndirectedGraph(17, 11);
 
@@ -150,13 +161,55 @@ public class UndirectedGraph implements IGraphDimension {
 		return g;
 	}
 
+	/**
+	 * https://en.wikipedia.org/wiki/Biconnected_component
+	 * 
+	 * @return
+	 */
+	public static UndirectedGraph buildGraph3() {
+		UndirectedGraph g = new UndirectedGraph(19, 11);
+
+		g.addEdge(1, 2);
+		g.addEdge(2, 3);
+		g.addEdge(2, 4);
+		g.addEdge(2, 5);
+		g.addEdge(2, 6);
+		g.addEdge(3, 4);
+		g.addEdge(5, 6);
+		g.addEdge(5, 7);
+		g.addEdge(6, 7);
+		g.addEdge(7, 8);
+		g.addEdge(7, 11);
+		g.addEdge(8, 9);
+		g.addEdge(8, 11);
+		g.addEdge(8, 12);
+		g.addEdge(8, 14);
+		g.addEdge(8, 15);
+		g.addEdge(9, 10);
+		g.addEdge(9, 11);
+		g.addEdge(10, 11);
+		g.addEdge(10, 16);
+		g.addEdge(10, 17);
+		g.addEdge(10, 18);
+		g.addEdge(12, 13);
+		g.addEdge(13, 14);
+		g.addEdge(13, 15);
+		g.addEdge(17, 18);
+		g.sort();
+		return g;
+	}
+
 	public static void main(String[] args) {
-		UndirectedGraph[] graphs = new UndirectedGraph[] { buildGraph1(), buildGraph2() };
+		UndirectedGraph[] graphs = new UndirectedGraph[] { buildGraph3() };
 		DepthFirstSearch dfs = new DepthFirstSearch();
 		for (UndirectedGraph g : graphs) {
 			System.out.println(g);
-			dfs.execute(g);
-			System.out.println(dfs.toDotty());
+			ForestDFS f = dfs.execute(g);
+			System.out.println(f);
+
+			System.out.println(dfs);
+
+			System.out.println(f.toDotty());
 		}
 	}
 }
