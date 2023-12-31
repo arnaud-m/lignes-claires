@@ -96,7 +96,8 @@ public final class NodeDFS {
 
 	@Override
 	public String toString() {
-		return String.format("%3d %3d %3d %3d %3d %3d", node, preorder, postorder, lowest, highest, descendants);
+		return String.format("%3d %3d %3d %3d %3d %3d %3d", node, parent, preorder, postorder, lowest, highest,
+				descendants);
 	}
 
 	public String toDotty() {

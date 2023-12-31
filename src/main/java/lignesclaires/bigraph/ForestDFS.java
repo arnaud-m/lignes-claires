@@ -4,11 +4,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class ForestDFS {
+public class ForestDFS {
 
 	private final UndirectedGraph graph;
 	private final NodeDFS[] data;
 
+	private Optional<UndirectedGraph> forest;
 	private Optional<NodeDFS[]> preorder;
 	private Optional<NodeDFS[]> postorder;
 
@@ -28,6 +29,28 @@ class ForestDFS {
 
 	public final NodeDFS[] getData() {
 		return data;
+	}
+
+	public final NodeDFS getNode(int node) {
+		return data[node];
+	}
+
+	public final NodeDFS getParent(NodeDFS node) {
+		return data[node.getParent()];
+	}
+
+	public final UndirectedGraph getForest() {
+		if (preorder.isEmpty()) {
+			final UndirectedGraph f = new UndirectedGraph(graph.getNodeCount(), graph.getNodeCount());
+			// TODO use preorder for preserving the order of branches ?
+			for (NodeDFS n : data) {
+				if (!n.isRoot()) {
+					f.addArc(n.getParent(), n.getNode());
+				}
+			}
+			forest = Optional.of(f);
+		}
+		return forest.get();
 	}
 
 	public final NodeDFS[] getPreorder() {

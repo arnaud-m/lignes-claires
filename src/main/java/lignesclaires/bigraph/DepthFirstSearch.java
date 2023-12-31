@@ -5,6 +5,7 @@ import java.util.Deque;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import gnu.trove.TIntCollection;
 import gnu.trove.iterator.TIntIterator;
 
 /**
@@ -81,14 +82,24 @@ class DepthFirstSearch {
 		return new ForestDFS(graph, data);
 	}
 
-	private static final class StackIterator implements TIntIterator {
+	protected static final class StackIterator implements TIntIterator {
 		public final int node;
-		public final TIntIterator iter;
+		private final TIntIterator iter;
+
+		public StackIterator(int index, UndirectedGraph graph) {
+			super();
+			this.node = index;
+			this.iter = graph.getNeighborIterator(index);
+		}
 
 		public StackIterator(int index, TIntIterator iter) {
 			super();
 			this.node = index;
 			this.iter = iter;
+		}
+
+		public final int getNode() {
+			return node;
 		}
 
 		@Override
@@ -112,8 +123,21 @@ class DepthFirstSearch {
 		return toString(o, "\n");
 	}
 
+	public static <E> String toString(Stream<E> stream, CharSequence delimiter) {
+		return stream.map(Object::toString).collect(Collectors.joining(delimiter));
+	}
+
+	public static String toString(TIntCollection collection, CharSequence delimiter) {
+		final StringBuilder b = new StringBuilder();
+		for (TIntIterator it = collection.iterator(); it.hasNext();) {
+			b.append(it.next()).append(delimiter);
+		}
+		b.delete(b.length() - delimiter.length(), b.length());
+		return b.toString();
+	}
+
 	public static String toString(Object[] o, CharSequence delimiter) {
-		return Stream.of(o).map(Object::toString).collect(Collectors.joining(delimiter));
+		return toString(Stream.of(o), delimiter);
 	}
 
 	@Override

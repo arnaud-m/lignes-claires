@@ -30,6 +30,11 @@ public class UndirectedGraph implements IGraphDimension {
 		}
 	}
 
+	public void addArc(int i, int j) {
+		adjLists[i].add(j);
+		edgeCount++;
+	}
+
 	public void addEdge(int i, int j) {
 		adjLists[i].add(j);
 		adjLists[j].add(i);
@@ -64,7 +69,7 @@ public class UndirectedGraph implements IGraphDimension {
 		return TCollections.unmodifiableList(adjLists[node]);
 	}
 
-	public final int getFreeNeighborsCount(int node) {
+	public final int getNeighborsCount(int node) {
 		return adjLists[node].size();
 	}
 
@@ -199,8 +204,32 @@ public class UndirectedGraph implements IGraphDimension {
 		return g;
 	}
 
+	public static UndirectedGraph buildGraph4() {
+		UndirectedGraph g = new UndirectedGraph(13, 11);
+
+		g.addEdge(1, 2);
+		g.addEdge(2, 3);
+
+		g.addEdge(1, 4);
+		g.addEdge(4, 5);
+		g.addEdge(5, 1);
+
+		g.addEdge(1, 6);
+		g.addEdge(6, 7);
+		g.addEdge(7, 8);
+		g.addEdge(8, 9);
+		g.addEdge(9, 7);
+
+		g.addEdge(10, 11);
+		g.addEdge(11, 12);
+		g.addEdge(12, 10);
+
+		g.sort();
+		return g;
+	}
+
 	public static void main(String[] args) {
-		UndirectedGraph[] graphs = new UndirectedGraph[] { buildGraph3() };
+		UndirectedGraph[] graphs = new UndirectedGraph[] { buildGraph4() };
 		DepthFirstSearch dfs = new DepthFirstSearch();
 		for (UndirectedGraph g : graphs) {
 			System.out.println(g);
@@ -210,6 +239,12 @@ public class UndirectedGraph implements IGraphDimension {
 			System.out.println(dfs);
 
 			System.out.println(f.toDotty());
+
+			BlockDecomposition bdec = new BlockDecomposition();
+			BlockCutTree r = bdec.execute(f);
+			System.out.println(r);
+			System.out.println(r.toDotty());
+
 		}
 	}
 }
