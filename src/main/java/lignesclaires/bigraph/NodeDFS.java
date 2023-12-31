@@ -84,20 +84,9 @@ public final class NodeDFS {
 		return lowest == preorder && highest < preorder + descendants;
 	}
 
-	public final boolean isCut(UndirectedGraph graph) {
-		// FIXME for root : deg in DFS Tree == 2 ?
-		return !graph.isLeaf(node) && isBridge();
-	}
-
-	public final boolean isOrderInducingBridge() {
-		// TODO
-		return false;
-	}
-
 	@Override
 	public String toString() {
-		return String.format("%3d %3d %3d %3d %3d %3d %3d", node, parent, preorder, postorder, lowest, highest,
-				descendants);
+		return String.format("[%d p:%d pre:%d post:%d]", node, parent, preorder, postorder);
 	}
 
 	public String toDotty() {

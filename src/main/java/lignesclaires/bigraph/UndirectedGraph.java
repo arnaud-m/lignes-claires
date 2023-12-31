@@ -17,17 +17,11 @@ import lignesclaires.specs.IGraphDimension;
 
 public class UndirectedGraph implements IGraphDimension {
 
-	private static final int MIN_CAPACITY = 5;
-
 	private final TIntArrayList[] adjLists;
 	private int edgeCount = 0;
 
 	public UndirectedGraph(int nodeCount, int edgeCount) {
-		adjLists = new TIntArrayList[nodeCount];
-		final int capacity = Math.max(MIN_CAPACITY, 3 * edgeCount / nodeCount);
-		for (int i = 0; i < adjLists.length; i++) {
-			adjLists[i] = new TIntArrayList(capacity);
-		}
+		adjLists = AdjListUtil.createArrayOfTLists(nodeCount, 3 * edgeCount / nodeCount);
 	}
 
 	public void addArc(int i, int j) {
@@ -204,6 +198,39 @@ public class UndirectedGraph implements IGraphDimension {
 		return g;
 	}
 
+	public static UndirectedGraph buildGraph3Bis() {
+		UndirectedGraph g = new UndirectedGraph(19, 11);
+
+		g.addEdge(1, 2);
+		g.addEdge(2, 3);
+		g.addEdge(2, 4);
+		g.addEdge(2, 5);
+		g.addEdge(2, 6);
+		g.addEdge(3, 4);
+		g.addEdge(5, 6);
+		g.addEdge(5, 7);
+		g.addEdge(6, 7);
+		g.addEdge(7, 8);
+		// g.addEdge(7, 11); // Delete edge to Create a bridge
+		g.addEdge(8, 9);
+		g.addEdge(8, 11);
+		g.addEdge(8, 12);
+		g.addEdge(8, 14);
+		g.addEdge(8, 15);
+		g.addEdge(9, 10);
+		g.addEdge(9, 11);
+		g.addEdge(10, 11);
+		g.addEdge(10, 16);
+		g.addEdge(10, 17);
+		g.addEdge(10, 18);
+		g.addEdge(12, 13);
+		g.addEdge(13, 14);
+		g.addEdge(13, 15);
+		g.addEdge(17, 18);
+		g.sort();
+		return g;
+	}
+
 	public static UndirectedGraph buildGraph4() {
 		UndirectedGraph g = new UndirectedGraph(13, 11);
 
@@ -229,7 +256,7 @@ public class UndirectedGraph implements IGraphDimension {
 	}
 
 	public static void main(String[] args) {
-		UndirectedGraph[] graphs = new UndirectedGraph[] { buildGraph4() };
+		UndirectedGraph[] graphs = new UndirectedGraph[] { buildGraph3Bis() };
 		DepthFirstSearch dfs = new DepthFirstSearch();
 		for (UndirectedGraph g : graphs) {
 			System.out.println(g);
@@ -244,6 +271,8 @@ public class UndirectedGraph implements IGraphDimension {
 			BlockCutTree r = bdec.execute(f);
 			System.out.println(r);
 			System.out.println(r.toDotty());
+			System.out.println(r.getLocalCrossingsLB());
+			System.out.println(f.getOrderInducingBridges(4));
 
 		}
 	}

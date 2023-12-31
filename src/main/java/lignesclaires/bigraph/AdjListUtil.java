@@ -13,14 +13,31 @@ import java.util.Arrays;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Stream;
 
+import gnu.trove.impl.Constants;
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 
 public final class AdjListUtil {
 
+	private static final int MIN_CAPACITY = 5;
+
 	private AdjListUtil() {
 		super();
+	}
+
+	public static TIntArrayList[] createArrayOfTLists(int n) {
+		return createArrayOfTLists(n, Constants.DEFAULT_CAPACITY);
+
+	}
+
+	public static TIntArrayList[] createArrayOfTLists(int n, int capacity) {
+		TIntArrayList[] lists = new TIntArrayList[n];
+		capacity = Math.max(capacity, MIN_CAPACITY);
+		for (int i = 0; i < lists.length; i++) {
+			lists[i] = new TIntArrayList(capacity);
+		}
+		return lists;
 	}
 
 	public static int getCrossingCount(final TIntArrayList left, final TIntArrayList right) {
@@ -75,10 +92,57 @@ public final class AdjListUtil {
 		return adjList.isEmpty() ? 0 : 1.0 * adjList.sum() / adjList.size();
 	}
 
-	public static final boolean isEqual(TIntList adjList1, TIntList adjList2) {
-		if (adjList1.size() == adjList2.size()) {
-			final TIntIterator it1 = adjList1.iterator();
-			final TIntIterator it2 = adjList2.iterator();
+	public static final TIntArrayList intersect(TIntList l1, TIntList l2) {
+		TIntArrayList intersection = new TIntArrayList();
+		if (!l1.isEmpty() && !l2.isEmpty()) {
+			final TIntIterator it1 = l1.iterator();
+			final TIntIterator it2 = l2.iterator();
+			int v2 = it2.next();
+			do {
+				final int v1 = it1.next();
+				while (v1 > v2 && it2.hasNext()) {
+					v2 = it2.next();
+				}
+				if (v1 == v2) {
+					intersection.add(v1);
+				}
+
+			} while (it1.hasNext());
+		}
+		return intersection;
+	}
+
+	public static final int intersectSingloton(TIntList l1, TIntList l2) {
+		TIntArrayList l3 = intersect(l1, l2);
+		if (l3.size() != 1) {
+			throw new IllegalArgumentException("Intersection cardinality " + l3.size());
+		}
+		return l3.getQuick(0);
+	}
+
+	public static final int lazyIntersectSingloton(TIntList l1, TIntList l2) {
+		if (!l1.isEmpty() && !l2.isEmpty()) {
+			final TIntIterator it1 = l1.iterator();
+			final TIntIterator it2 = l2.iterator();
+			int v2 = it2.next();
+			do {
+				final int v1 = it1.next();
+				while (v1 > v2 && it2.hasNext()) {
+					v2 = it2.next();
+				}
+				if (v1 == v2) {
+					return v1;
+				}
+
+			} while (it1.hasNext());
+		}
+		throw new IllegalArgumentException("Empty intersection");
+	}
+
+	public static final boolean isEqual(TIntList l1, TIntList l2) {
+		if (l1.size() == l2.size()) {
+			final TIntIterator it1 = l1.iterator();
+			final TIntIterator it2 = l2.iterator();
 			while (it1.hasNext()) {
 				if (it1.next() != it2.next())
 					return false;

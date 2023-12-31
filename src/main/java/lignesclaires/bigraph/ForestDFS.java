@@ -1,8 +1,11 @@
 package lignesclaires.bigraph;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import gnu.trove.iterator.TIntIterator;
 
 public class ForestDFS {
 
@@ -51,6 +54,38 @@ public class ForestDFS {
 			forest = Optional.of(f);
 		}
 		return forest.get();
+	}
+
+	int[] computeSubTreeArcCounts() {
+		int[] counts = new int[graph.getNodeCount()];
+		UndirectedGraph f = getForest();
+		for (NodeDFS n : getPostorder()) {
+			final int i = n.getNode();
+			counts[i] = graph.getNeighborsCount(i);
+			TIntIterator it1 = f.getNeighborIterator(n.getNode());
+			while (it1.hasNext()) {
+				counts[i] += counts[it1.next()];
+			}
+		}
+		return counts;
+	}
+
+	ArrayList<NodeDFS> getOrderInducingBridges(int threshold) {
+		final ArrayList<NodeDFS> bridges = new ArrayList<>();
+		int[] counts = computeSubTreeArcCounts();
+		int[] r = new int[graph.getNodeCount()];
+		for (NodeDFS n : getPreorder()) {
+			final int i = n.getNode();
+			r[i] = n.isRoot() ? i : r[n.getParent()];
+			if (!n.isRoot() && n.isBridge()) {
+				final int cl = (counts[r[i]] - counts[i] - 1) / 2;
+				final int cr = (counts[i] - 1) / 2;
+				if (cl >= threshold && cr >= threshold) {
+					bridges.add(n);
+				}
+			}
+		}
+		return bridges;
 	}
 
 	public final NodeDFS[] getPreorder() {
