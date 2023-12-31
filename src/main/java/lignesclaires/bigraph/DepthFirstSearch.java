@@ -1,3 +1,11 @@
+/*
+ * This file is part of lignes-claires, https://github.com/arnaud-m/lignes-claires
+ *
+ * Copyright (c) 2023, Université Côte d'Azur. All rights reserved.
+ *
+ * Licensed under the BSD 3-clause license.
+ * See LICENSE file in the project root for full license information.
+ */
 package lignesclaires.bigraph;
 
 import java.util.ArrayDeque;
@@ -7,6 +15,7 @@ import java.util.stream.Stream;
 
 import gnu.trove.TIntCollection;
 import gnu.trove.iterator.TIntIterator;
+import lignesclaires.specs.IGenericGraph;
 
 /**
  * https://en.wikipedia.org/wiki/Bridge_(graph_theory)
@@ -17,7 +26,7 @@ import gnu.trove.iterator.TIntIterator;
 class DepthFirstSearch {
 
 	// Input
-	private UndirectedGraph graph;
+	private IGenericGraph graph;
 
 	// Output
 	private NodeDFS[] data;
@@ -28,7 +37,7 @@ class DepthFirstSearch {
 	private int postNum;
 	private Deque<StackIterator> stack = new ArrayDeque<>();
 
-	private void setUp(UndirectedGraph graph) {
+	private void setUp(IGenericGraph graph) {
 		this.graph = graph;
 		final int n = graph.getNodeCount();
 		data = new NodeDFS[n];
@@ -59,7 +68,7 @@ class DepthFirstSearch {
 		data[node].setPostorder(postNum++);
 	}
 
-	public ForestDFS execute(UndirectedGraph graph) {
+	public ForestDFS execute(IGenericGraph graph) {
 		setUp(graph);
 		while (findRoot()) {
 			while (!stack.isEmpty()) {
@@ -86,7 +95,7 @@ class DepthFirstSearch {
 		public final int node;
 		private final TIntIterator iter;
 
-		public StackIterator(int index, UndirectedGraph graph) {
+		public StackIterator(int index, IGenericGraph graph) {
 			super();
 			this.node = index;
 			this.iter = graph.getNeighborIterator(index);

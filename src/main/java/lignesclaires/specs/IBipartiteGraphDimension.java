@@ -14,8 +14,4 @@ public interface IBipartiteGraphDimension extends IGraphDimension {
 
 	int getFreeCount();
 
-	default int getNodeCount() {
-		return getFixedCount() + getFreeCount();
-	}
-
 }

@@ -61,6 +61,11 @@ public class BipartiteGraph implements IBipartiteGraph {
 	}
 
 	@Override
+	public int getNodeCount() {
+		return getFixedCount() + getNodeCount();
+	}
+
+	@Override
 	public final int getEdgeCount() {
 		return edgeCount;
 	}
@@ -73,16 +78,6 @@ public class BipartiteGraph implements IBipartiteGraph {
 	@Override
 	public final int getFreeNeighborsCount(final int free) {
 		return freeAdjLists[free].size();
-	}
-
-	@Override
-	public TIntList getFixedNeighbors(int fixed) {
-		return TCollections.unmodifiableList(fixedAdjLists[fixed]);
-	}
-
-	@Override
-	public int getFixedNeighborsCount(int fixed) {
-		return fixedAdjLists[fixed].size();
 	}
 
 	public <E> E[] permutateMedians(E[] objects) {

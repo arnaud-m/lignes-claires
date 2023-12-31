@@ -20,8 +20,6 @@ import gnu.trove.list.array.TIntArrayList;
 
 public final class AdjListUtil {
 
-	private static final int MIN_CAPACITY = 5;
-
 	private AdjListUtil() {
 		super();
 	}
@@ -33,7 +31,6 @@ public final class AdjListUtil {
 
 	public static TIntArrayList[] createArrayOfTLists(int n, int capacity) {
 		TIntArrayList[] lists = new TIntArrayList[n];
-		capacity = Math.max(capacity, MIN_CAPACITY);
 		for (int i = 0; i < lists.length; i++) {
 			lists[i] = new TIntArrayList(capacity);
 		}

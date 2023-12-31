@@ -1,3 +1,11 @@
+/*
+ * This file is part of lignes-claires, https://github.com/arnaud-m/lignes-claires
+ *
+ * Copyright (c) 2023, Université Côte d'Azur. All rights reserved.
+ *
+ * Licensed under the BSD 3-clause license.
+ * See LICENSE file in the project root for full license information.
+ */
 package lignesclaires.bigraph;
 
 import java.util.ArrayList;
@@ -6,19 +14,20 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import gnu.trove.iterator.TIntIterator;
+import lignesclaires.specs.IGenericGraph;
 
 public class ForestDFS {
 
-	private final UndirectedGraph graph;
+	private final IGenericGraph graph;
 	private final NodeDFS[] data;
 
-	private Optional<UndirectedGraph> forest;
+	private Optional<IGenericGraph> forest;
 	private Optional<NodeDFS[]> preorder;
 	private Optional<NodeDFS[]> postorder;
 
 	private Optional<NodeDFS[]> roots;
 
-	public ForestDFS(UndirectedGraph graph, NodeDFS[] dataDFS) {
+	public ForestDFS(IGenericGraph graph, NodeDFS[] dataDFS) {
 		super();
 		this.graph = graph;
 		this.data = dataDFS;
@@ -26,7 +35,7 @@ public class ForestDFS {
 		this.postorder = Optional.empty();
 	}
 
-	public final UndirectedGraph getGraph() {
+	public final IGenericGraph getGraph() {
 		return graph;
 	}
 
@@ -42,13 +51,12 @@ public class ForestDFS {
 		return data[node.getParent()];
 	}
 
-	public final UndirectedGraph getForest() {
+	public final IGenericGraph getForest() {
 		if (preorder.isEmpty()) {
-			final UndirectedGraph f = new UndirectedGraph(graph.getNodeCount(), graph.getNodeCount());
-			// TODO use preorder for preserving the order of branches ?
-			for (NodeDFS n : data) {
+			final DGraph f = new DGraph(graph.getNodeCount(), graph.getNodeCount());
+			for (NodeDFS n : getPreorder()) {
 				if (!n.isRoot()) {
-					f.addArc(n.getParent(), n.getNode());
+					f.addEdge(n.getParent(), n.getNode());
 				}
 			}
 			forest = Optional.of(f);
@@ -58,10 +66,10 @@ public class ForestDFS {
 
 	int[] computeSubTreeArcCounts() {
 		int[] counts = new int[graph.getNodeCount()];
-		UndirectedGraph f = getForest();
+		IGenericGraph f = getForest();
 		for (NodeDFS n : getPostorder()) {
 			final int i = n.getNode();
-			counts[i] = graph.getNeighborsCount(i);
+			counts[i] = graph.getOutDegree(i);
 			TIntIterator it1 = f.getNeighborIterator(n.getNode());
 			while (it1.hasNext()) {
 				counts[i] += counts[it1.next()];
@@ -137,7 +145,6 @@ public class ForestDFS {
 			}
 		});
 		b.append("}\n");
-
 	}
 
 	public String toDotty() {

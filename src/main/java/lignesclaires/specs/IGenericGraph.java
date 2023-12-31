@@ -8,17 +8,21 @@
  */
 package lignesclaires.specs;
 
+import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.TIntList;
-import lignesclaires.bigraph.CrossingCounts;
 
-public interface IBipartiteGraph extends IBipartiteGraphDimension {
+public interface IGenericGraph extends IGraphDimension {
 
-	CrossingCounts getCrossingCounts();
+	boolean isIsolated(int node);
 
-	CrossingCounts getReducedCrossingCounts();
+	boolean isLeaf(int node);
 
-	TIntList getFreeNeighbors(int free);
+	TIntList getNeighbors(int node);
 
-	int getFreeNeighborsCount(int free);
+	int getOutDegree(int node);
+
+	TIntIterator getNeighborIterator(int node);
+
+	void forEachEdge(IEdgeConsumer consumer);
 
 }

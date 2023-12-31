@@ -1,3 +1,11 @@
+/*
+ * This file is part of lignes-claires, https://github.com/arnaud-m/lignes-claires
+ *
+ * Copyright (c) 2023, Université Côte d'Azur. All rights reserved.
+ *
+ * Licensed under the BSD 3-clause license.
+ * See LICENSE file in the project root for full license information.
+ */
 package lignesclaires.bigraph;
 
 import java.util.Arrays;
@@ -65,7 +73,7 @@ public class BlockCutTree {
 			final TIntSet s = new TIntHashSet();
 			blocks.forEach(b -> {
 				final int cut = b.getQuick(0);
-				if (!forest.getNode(cut).isRoot() || forest.getForest().getNeighborsCount(cut) > 1) {
+				if (!forest.getNode(cut).isRoot() || forest.getForest().getOutDegree(cut) > 1) {
 					s.add(cut);
 				}
 			});

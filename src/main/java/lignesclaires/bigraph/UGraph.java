@@ -8,69 +8,24 @@
  */
 package lignesclaires.bigraph;
 
-import gnu.trove.TCollections;
 import gnu.trove.iterator.TIntIterator;
-import gnu.trove.list.TIntList;
-import gnu.trove.list.array.TIntArrayList;
 import lignesclaires.specs.IEdgeConsumer;
 import lignesclaires.specs.IGraphDimension;
 
-public class UndirectedGraph implements IGraphDimension {
+public class UGraph extends AbstractGraph implements IGraphDimension {
 
-	private final TIntArrayList[] adjLists;
-	private int edgeCount = 0;
-
-	public UndirectedGraph(int nodeCount, int edgeCount) {
-		adjLists = AdjListUtil.createArrayOfTLists(nodeCount, 3 * edgeCount / nodeCount);
+	public UGraph(int nodeCount, int edgeCount) {
+		super(AdjListUtil.createArrayOfTLists(nodeCount, 3 * edgeCount / nodeCount));
 	}
 
-	public void addArc(int i, int j) {
-		adjLists[i].add(j);
-		edgeCount++;
-	}
-
+	@Override
 	public void addEdge(int i, int j) {
 		adjLists[i].add(j);
 		adjLists[j].add(i);
 		edgeCount++;
 	}
 
-	public void sort() {
-		for (TIntArrayList adjList : adjLists) {
-			adjList.sort();
-		}
-	}
-
 	@Override
-	public final int getNodeCount() {
-		return adjLists.length;
-	}
-
-	@Override
-	public final int getEdgeCount() {
-		return edgeCount;
-	}
-
-	public final boolean isIsolated(int node) {
-		return adjLists[node].isEmpty();
-	}
-
-	public final boolean isLeaf(int node) {
-		return adjLists[node].size() == 1;
-	}
-
-	public final TIntList getNeighbors(int node) {
-		return TCollections.unmodifiableList(adjLists[node]);
-	}
-
-	public final int getNeighborsCount(int node) {
-		return adjLists[node].size();
-	}
-
-	public final TIntIterator getNeighborIterator(int node) {
-		return TCollections.unmodifiableList(adjLists[node]).iterator();
-	}
-
 	public final void forEachEdge(IEdgeConsumer consumer) {
 		final int n = getNodeCount();
 		for (int i = 0; i < n; i++) {
@@ -86,23 +41,8 @@ public class UndirectedGraph implements IGraphDimension {
 		}
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder b = new StringBuilder();
-		b.append("Graph [");
-		final int n = getNodeCount();
-		b.append("n:").append(n);
-		b.append(", e:").append(getEdgeCount());
-		b.append("]\n");
-		for (int i = 0; i < n; i++) {
-			b.append(i).append(": ").append(adjLists[i]).append('\n');
-		}
-		b.deleteCharAt(b.length() - 1);
-		return b.toString();
-	}
-
-	public static UndirectedGraph buildGraph1() {
-		UndirectedGraph g = new UndirectedGraph(13, 11);
+	public static UGraph buildGraph1() {
+		UGraph g = new UGraph(13, 11);
 
 		g.addEdge(1, 7);
 		g.addEdge(1, 8);
@@ -129,8 +69,8 @@ public class UndirectedGraph implements IGraphDimension {
 	/**
 	 * https://en.wikipedia.org/wiki/Bridge_(graph_theory)
 	 */
-	public static UndirectedGraph buildGraph2() {
-		UndirectedGraph g = new UndirectedGraph(17, 11);
+	public static UGraph buildGraph2() {
+		UGraph g = new UGraph(17, 11);
 
 		g.addEdge(1, 2);
 		g.addEdge(3, 4);
@@ -165,8 +105,8 @@ public class UndirectedGraph implements IGraphDimension {
 	 * 
 	 * @return
 	 */
-	public static UndirectedGraph buildGraph3() {
-		UndirectedGraph g = new UndirectedGraph(19, 11);
+	public static UGraph buildGraph3() {
+		UGraph g = new UGraph(19, 11);
 
 		g.addEdge(1, 2);
 		g.addEdge(2, 3);
@@ -198,8 +138,8 @@ public class UndirectedGraph implements IGraphDimension {
 		return g;
 	}
 
-	public static UndirectedGraph buildGraph3Bis() {
-		UndirectedGraph g = new UndirectedGraph(19, 11);
+	public static UGraph buildGraph3Bis() {
+		UGraph g = new UGraph(19, 11);
 
 		g.addEdge(1, 2);
 		g.addEdge(2, 3);
@@ -231,8 +171,8 @@ public class UndirectedGraph implements IGraphDimension {
 		return g;
 	}
 
-	public static UndirectedGraph buildGraph4() {
-		UndirectedGraph g = new UndirectedGraph(13, 11);
+	public static UGraph buildGraph4() {
+		UGraph g = new UGraph(13, 11);
 
 		g.addEdge(1, 2);
 		g.addEdge(2, 3);
@@ -256,9 +196,9 @@ public class UndirectedGraph implements IGraphDimension {
 	}
 
 	public static void main(String[] args) {
-		UndirectedGraph[] graphs = new UndirectedGraph[] { buildGraph3Bis() };
+		UGraph[] graphs = new UGraph[] { buildGraph3Bis() };
 		DepthFirstSearch dfs = new DepthFirstSearch();
-		for (UndirectedGraph g : graphs) {
+		for (UGraph g : graphs) {
 			System.out.println(g);
 			ForestDFS f = dfs.execute(g);
 			System.out.println(f);
