@@ -8,30 +8,59 @@
  */
 package lignesclaires;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Scanner;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import lignesclaires.parser.PaceInputParser;
+import gnu.trove.list.TIntList;
+import lignesclaires.bigraph.TListUtil;
 import lignesclaires.parser.InvalidGraphFormatException;
+import lignesclaires.parser.PaceInputParser;
 import lignesclaires.specs.IBipartiteGraph;
 
 public class TestParser {
 
 	private final PaceInputParser parser = new PaceInputParser();
 
+	private IBipartiteGraph bigraph;
+
+	public void assertNeighbors(int i, int... neighbors) {
+		assertEquals(bigraph.getNeighbors(1), (TIntList) TListUtil.wrap());
+
+	}
+
+	public void assertDimensions(int fixed, int free, int edges) {
+		Assert.assertEquals(fixed, bigraph.getFreeCount());
+		Assert.assertEquals(free, bigraph.getFixedCount());
+		Assert.assertEquals(edges, bigraph.getEdgeCount());
+	}
+
 	@Test
-	public void TestValidBiGraph() throws InvalidGraphFormatException {
+	public void TestValidBiGraph1() throws InvalidGraphFormatException {
 		final Scanner sc = new Scanner("p ocr 5 5 4\n" + "2 8\n" + "3 6\n" + "3 9\n" + "4 10\n");
-		final IBipartiteGraph bigraph = parser.parse(sc);
-		Assert.assertEquals(5, bigraph.getFreeCount());
-		Assert.assertEquals(5, bigraph.getFixedCount());
-		Assert.assertEquals(4, bigraph.getEdgeCount());
-		// TODO Assert.assertArrayEquals(new int[] { 1 },
-		// bigraph.getFreeNeighbors(2).toArray());
-		// TODO Assert.assertArrayEquals(new int[] { 2 },
-		// bigraph.getFixedNeighbors(1).toArray());
+		bigraph = parser.parse(sc);
+		assertDimensions(5, 5, 4);
+		assertNeighbors(1);
+		assertNeighbors(2, 8);
+		assertNeighbors(3, 6, 9);
+		assertNeighbors(4, 10);
+		assertNeighbors(5);
+	}
+
+	@Test
+	public void TestValidBiGraph2() throws InvalidGraphFormatException {
+		final Scanner sc = new Scanner(
+				"p ocr 5 5 7\n" + "2 8\n" + "2 7\n" + "3 9\n" + "3 10\n" + "4 10\n" + "3 6\n" + "4 9\n");
+		bigraph = parser.parse(sc);
+		assertDimensions(5, 5, 7);
+		assertNeighbors(1);
+		assertNeighbors(2, 7, 8);
+		assertNeighbors(3, 6, 9, 10);
+		assertNeighbors(4, 9, 10);
+		assertNeighbors(5);
 	}
 
 	@Test(expected = InvalidGraphFormatException.class)

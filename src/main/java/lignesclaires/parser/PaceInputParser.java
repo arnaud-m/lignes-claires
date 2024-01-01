@@ -38,6 +38,7 @@ public class PaceInputParser implements IGraphParser<IBipartiteGraph> {
 
 				bigraph.addEdge(fixed, free);
 			}
+			bigraph.sort();
 			return bigraph;
 		} catch (ArrayIndexOutOfBoundsException | NoSuchElementException | IllegalStateException e) {
 			throw new InvalidGraphFormatException();
