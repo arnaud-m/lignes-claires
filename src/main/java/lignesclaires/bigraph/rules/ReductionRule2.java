@@ -11,7 +11,7 @@ package lignesclaires.bigraph.rules;
 import java.awt.Point;
 import java.util.Optional;
 
-import lignesclaires.bigraph.AdjListUtil;
+import lignesclaires.bigraph.TListUtil;
 import lignesclaires.specs.IBipartiteGraph;
 import lignesclaires.specs.IReductionRule;
 
@@ -23,7 +23,7 @@ public class ReductionRule2 extends BiGraphWithCounts implements IReductionRule 
 
 	@Override
 	public Optional<Point> apply(int i, int j) {
-		return AdjListUtil.isEqual(graph.getFreeNeighbors(i), graph.getFreeNeighbors(j))
+		return TListUtil.isEqual(graph.getFreeNeighbors(i), graph.getFreeNeighbors(j))
 				? Optional.of(new Point(i, j))
 				: Optional.empty();
 	}

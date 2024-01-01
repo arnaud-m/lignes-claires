@@ -39,7 +39,7 @@ public class BlockCutTree implements IDotty {
 	}
 
 	protected final TIntArrayList[] computeNodeBlocks() {
-		TIntArrayList[] nblocks = AdjListUtil.createArrayOfTLists(forest.getGraph().getNodeCount());
+		TIntArrayList[] nblocks = TListUtil.createArrayOfTLists(forest.getGraph().getNodeCount());
 		ListIterator<TIntArrayList> itB = blocks.listIterator();
 		while (itB.hasNext()) {
 			final TIntIterator itN = itB.next().iterator();
@@ -55,7 +55,7 @@ public class BlockCutTree implements IDotty {
 		final int[] edges = new int[blocks.size()];
 		TIntArrayList[] nblocks = computeNodeBlocks();
 		forest.getGraph().forEachEdge((i, j) -> {
-			final int k = AdjListUtil.intersectSingloton(nblocks[i], nblocks[j]);
+			final int k = TListUtil.intersectSingloton(nblocks[i], nblocks[j]);
 			edges[k]++;
 		});
 		return edges;

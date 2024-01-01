@@ -18,10 +18,38 @@ import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 
-public final class AdjListUtil {
+public final class TListUtil {
 
-	private AdjListUtil() {
+	private TListUtil() {
 		super();
+	}
+
+	public static TIntArrayList wrap(int... values) {
+		return TIntArrayList.wrap(values);
+	}
+
+	public static TIntArrayList sequence(final int begin, final int end, final int by) {
+		if (begin < end) {
+			if (by > 0) {
+				TIntArrayList l = new TIntArrayList(((end - begin) / by) + 1);
+				for (int i = begin; i < end; i += by) {
+					l.add(i);
+				}
+				return l;
+			} else
+				throw new IllegalArgumentException("");
+		} else if (begin > end) {
+			if (by < 0) {
+				TIntArrayList l = new TIntArrayList(((end - begin) / by) + 1);
+				for (int i = begin; i > end; i -= -by) {
+					l.add(i);
+				}
+				return l;
+			} else
+				throw new IllegalArgumentException("");
+		} else {
+			return new TIntArrayList();
+		}
 	}
 
 	public static TIntArrayList[] createArrayOfTLists(int n) {

@@ -11,7 +11,7 @@ package lignesclaires.specs;
 import gnu.trove.list.TIntList;
 import lignesclaires.bigraph.CrossingCounts;
 
-public interface IBipartiteGraph extends IBipartiteGraphDimension {
+public interface IBipartiteGraph extends IBipartiteGraphDimension, IGenericGraph {
 
 	CrossingCounts getCrossingCounts();
 

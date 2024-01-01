@@ -53,15 +53,15 @@ public class BipartiteGraph extends UGraph implements IBipartiteGraph {
 	}
 
 	public <E> E[] permutateMedians(E[] objects) {
-		return AdjListUtil.permutate(objects, AdjListUtil::getMedian, adjLists, freeOffset);
+		return TListUtil.permutate(objects, TListUtil::getMedian, adjLists, freeOffset);
 	}
 
 	public <E> E[] permutateBarycenters(E[] objects) {
-		return AdjListUtil.permutate(objects, AdjListUtil::getBarycenter, adjLists, freeOffset);
+		return TListUtil.permutate(objects, TListUtil::getBarycenter, adjLists, freeOffset);
 	}
 
 	protected int getCrossingCount(int left, int right) {
-		return AdjListUtil.getCrossingCount(adjLists[freeOffset + left], adjLists[freeOffset + right]);
+		return TListUtil.getCrossingCount(adjLists[freeOffset + left], adjLists[freeOffset + right]);
 	}
 
 	protected void computeCrossingCounts() {

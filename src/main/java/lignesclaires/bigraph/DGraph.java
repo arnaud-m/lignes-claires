@@ -14,7 +14,7 @@ import lignesclaires.specs.IEdgeConsumer;
 public class DGraph extends AbstractGraph {
 
 	public DGraph(int nodeCount, int edgeCount) {
-		super(AdjListUtil.createArrayOfTLists(nodeCount, 3 * edgeCount / nodeCount));
+		super(TListUtil.createArrayOfTLists(nodeCount, 3 * edgeCount / nodeCount));
 	}
 
 	@Override

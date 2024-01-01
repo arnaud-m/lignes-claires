@@ -15,7 +15,7 @@ import lignesclaires.specs.IGraphDimension;
 public class UGraph extends AbstractGraph implements IGraphDimension {
 
 	public UGraph(int nodeCount, int edgeCount) {
-		super(AdjListUtil.createArrayOfTLists(nodeCount, 3 * edgeCount / nodeCount));
+		super(TListUtil.createArrayOfTLists(nodeCount, 3 * edgeCount / nodeCount));
 	}
 
 	public boolean isDirected() {

@@ -13,9 +13,9 @@ import java.util.Scanner;
 
 import lignesclaires.bigraph.BipartiteGraph;
 import lignesclaires.specs.IBipartiteGraph;
-import lignesclaires.specs.IBipartiteGraphParser;
+import lignesclaires.specs.IGraphParser;
 
-public class BiGraphParser implements IBipartiteGraphParser<IBipartiteGraph> {
+public class PaceInputParser implements IGraphParser<IBipartiteGraph> {
 
 	@Override
 	public IBipartiteGraph parse(Scanner scanner) throws InvalidGraphFormatException {
@@ -28,8 +28,15 @@ public class BiGraphParser implements IBipartiteGraphParser<IBipartiteGraph> {
 			final int edgeCount = scanner.nextInt();
 			BipartiteGraph bigraph = new BipartiteGraph(fixedCount, freeCount, edgeCount);
 			for (int i = 0; i < edgeCount; i++) {
+				final int fixed = scanner.nextInt();
+				if (fixed < 1 || fixed > fixedCount)
+					throw new InvalidGraphFormatException("Invalid fixed node:" + fixed);
 
-				bigraph.addEdge(scanner.nextInt(), scanner.nextInt());
+				final int free = scanner.nextInt();
+				if (free < fixedCount + 1 || free > fixedCount + freeCount + 1)
+					throw new InvalidGraphFormatException("Invalid free node:" + free);
+
+				bigraph.addEdge(fixed, free);
 			}
 			return bigraph;
 		} catch (ArrayIndexOutOfBoundsException | NoSuchElementException | IllegalStateException e) {

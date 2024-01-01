@@ -27,7 +27,7 @@ public abstract class AbstractGraph implements IGenericGraph {
 	}
 
 	protected AbstractGraph(int n, int capacity) {
-		this(AdjListUtil.createArrayOfTLists(n, capacity));
+		this(TListUtil.createArrayOfTLists(n, capacity));
 	}
 
 	protected AbstractGraph(int n) {

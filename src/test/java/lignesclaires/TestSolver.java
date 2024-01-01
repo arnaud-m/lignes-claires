@@ -43,58 +43,58 @@ public class TestSolver {
 
 	@Test
 	public void testSolver554() throws OCSolverException {
-		BipartiteGraph.Builder builder = new BipartiteGraph.Builder(5, 5, 4);
-		builder.addGrEdge(2, 8);
-		builder.addGrEdge(3, 6);
-		builder.addGrEdge(3, 9);
-		builder.addGrEdge(4, 10);
-		testAll(builder.build());
+		BipartiteGraph bigraph = new BipartiteGraph(5, 5, 4);
+		bigraph.addEdge(2, 8);
+		bigraph.addEdge(3, 6);
+		bigraph.addEdge(3, 9);
+		bigraph.addEdge(4, 10);
+		testAll(bigraph);
 	}
 
 	@Test
 	public void testSolver557() throws OCSolverException {
-		BipartiteGraph.Builder builder = new BipartiteGraph.Builder(5, 5, 7);
-		builder.addGrEdge(1, 7);
-		builder.addGrEdge(1, 8);
-		builder.addGrEdge(2, 8);
-		builder.addGrEdge(3, 6);
-		builder.addGrEdge(4, 6);
-		builder.addGrEdge(4, 8);
-		builder.addGrEdge(5, 7);
-		testAll(builder.build());
+		BipartiteGraph builder = new BipartiteGraph(5, 5, 7);
+		builder.addEdge(1, 7);
+		builder.addEdge(1, 8);
+		builder.addEdge(2, 8);
+		builder.addEdge(3, 6);
+		builder.addEdge(4, 6);
+		builder.addEdge(4, 8);
+		builder.addEdge(5, 7);
+		testAll(builder);
 	}
 
 	@Test
 	public void testSolver10109() throws OCSolverException {
-		BipartiteGraph.Builder builder = new BipartiteGraph.Builder(10, 10, 9);
-		builder.addGrEdge(1, 16);
-		builder.addGrEdge(3, 13);
-		builder.addGrEdge(4, 13);
-		builder.addGrEdge(5, 14);
-		builder.addGrEdge(9, 11);
-		builder.addGrEdge(10, 15);
-		builder.addGrEdge(10, 17);
-		builder.addGrEdge(10, 19);
-		builder.addGrEdge(10, 20);
-		testAll(builder.build());
+		BipartiteGraph bigraph = new BipartiteGraph(10, 10, 9);
+		bigraph.addEdge(1, 16);
+		bigraph.addEdge(3, 13);
+		bigraph.addEdge(4, 13);
+		bigraph.addEdge(5, 14);
+		bigraph.addEdge(9, 11);
+		bigraph.addEdge(10, 15);
+		bigraph.addEdge(10, 17);
+		bigraph.addEdge(10, 19);
+		bigraph.addEdge(10, 20);
+		testAll(bigraph);
 	}
 
 	@Test
 	public void testSolver101012() throws OCSolverException {
-		BipartiteGraph.Builder builder = new BipartiteGraph.Builder(10, 10, 12);
-		builder.addGrEdge(1, 18);
-		builder.addGrEdge(2, 11);
-		builder.addGrEdge(2, 14);
-		builder.addGrEdge(2, 20);
-		builder.addGrEdge(4, 15);
-		builder.addGrEdge(5, 11);
-		builder.addGrEdge(5, 13);
-		builder.addGrEdge(6, 17);
-		builder.addGrEdge(7, 11);
-		builder.addGrEdge(7, 16);
-		builder.addGrEdge(8, 15);
-		builder.addGrEdge(9, 18);
-		testAll(builder.build());
+		BipartiteGraph bigraph = new BipartiteGraph(10, 10, 12);
+		bigraph.addEdge(1, 18);
+		bigraph.addEdge(2, 11);
+		bigraph.addEdge(2, 14);
+		bigraph.addEdge(2, 20);
+		bigraph.addEdge(4, 15);
+		bigraph.addEdge(5, 11);
+		bigraph.addEdge(5, 13);
+		bigraph.addEdge(6, 17);
+		bigraph.addEdge(7, 11);
+		bigraph.addEdge(7, 16);
+		bigraph.addEdge(8, 15);
+		bigraph.addEdge(9, 18);
+		testAll(bigraph);
 	}
 
 }

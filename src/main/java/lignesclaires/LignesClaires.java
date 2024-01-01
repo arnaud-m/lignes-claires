@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 import lignesclaires.cmd.OptionsParser;
 import lignesclaires.cmd.Verbosity;
 import lignesclaires.config.LignesClairesConfig;
-import lignesclaires.parser.BiGraphParser;
+import lignesclaires.parser.PaceInputParser;
 import lignesclaires.parser.InvalidGraphFormatException;
 import lignesclaires.solver.OCSolution;
 import lignesclaires.solver.OCSolver;
@@ -49,7 +49,7 @@ public final class LignesClaires {
 			final LignesClairesConfig config = optparser.getConfig();
 			configureVerbosity(config.getVerbosity());
 			final IOCSolver solver = buildSolver(config);
-			final BiGraphParser parser = new BiGraphParser();
+			final PaceInputParser parser = new PaceInputParser();
 
 			int exitCode = 0;
 			for (String filepath : config.getArguments()) {
@@ -103,7 +103,7 @@ public final class LignesClaires {
 		return new OCSolver();
 	}
 
-	private static IBipartiteGraph parse(final String graphfile, final BiGraphParser parser)
+	private static IBipartiteGraph parse(final String graphfile, final PaceInputParser parser)
 			throws FileNotFoundException, InvalidGraphFormatException {
 		final File file = new File(graphfile);
 		final IBipartiteGraph bigraph = parser.parse(file);
@@ -116,7 +116,7 @@ public final class LignesClaires {
 		return bigraph;
 	}
 
-	private static int solve(final String graphfile, final BiGraphParser parser, final IOCSolver solver,
+	private static int solve(final String graphfile, final PaceInputParser parser, final IOCSolver solver,
 			final LignesClairesConfig config) {
 		try {
 			final IBipartiteGraph bigraph = parse(graphfile, parser);

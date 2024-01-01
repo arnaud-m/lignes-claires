@@ -13,13 +13,13 @@ import java.util.Scanner;
 import org.junit.Assert;
 import org.junit.Test;
 
-import lignesclaires.parser.BiGraphParser;
+import lignesclaires.parser.PaceInputParser;
 import lignesclaires.parser.InvalidGraphFormatException;
 import lignesclaires.specs.IBipartiteGraph;
 
 public class TestParser {
 
-	private final BiGraphParser parser = new BiGraphParser();
+	private final PaceInputParser parser = new PaceInputParser();
 
 	@Test
 	public void TestValidBiGraph() throws InvalidGraphFormatException {
