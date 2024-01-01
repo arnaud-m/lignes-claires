@@ -26,11 +26,12 @@ public class BiGraphParser implements IBipartiteGraphParser<IBipartiteGraph> {
 			final int fixedCount = scanner.nextInt();
 			final int freeCount = scanner.nextInt();
 			final int edgeCount = scanner.nextInt();
-			BipartiteGraph.Builder bigraph = new BipartiteGraph.Builder(fixedCount, freeCount, edgeCount);
+			BipartiteGraph bigraph = new BipartiteGraph(fixedCount, freeCount, edgeCount);
 			for (int i = 0; i < edgeCount; i++) {
-				bigraph.addGrEdge(scanner.nextInt(), scanner.nextInt());
+
+				bigraph.addEdge(scanner.nextInt(), scanner.nextInt());
 			}
-			return bigraph.build();
+			return bigraph;
 		} catch (ArrayIndexOutOfBoundsException | NoSuchElementException | IllegalStateException e) {
 			throw new InvalidGraphFormatException();
 		}

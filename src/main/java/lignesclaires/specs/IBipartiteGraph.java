@@ -19,6 +19,6 @@ public interface IBipartiteGraph extends IBipartiteGraphDimension {
 
 	TIntList getFreeNeighbors(int free);
 
-	int getFreeNeighborsCount(int free);
+	int getDegree(int free);
 
 }

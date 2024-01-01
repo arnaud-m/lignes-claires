@@ -22,7 +22,7 @@ public class ReductionRule3 extends BiGraphWithCounts implements IReductionRule 
 
 	@Override
 	public Optional<Point> apply(int i, int j) {
-		if (graph.getFreeNeighborsCount(i) == 2 && graph.getFreeNeighborsCount(j) == 2) {
+		if (graph.getDegree(i) == 2 && graph.getDegree(j) == 2) {
 			if (counts.getCrossingCount(i, j) == 1 && counts.getCrossingCount(j, i) == 2) {
 				return Optional.of(new Point(i, j));
 			} else if (counts.getCrossingCount(i, j) == 2 && counts.getCrossingCount(j, i) == 1) {

@@ -11,89 +11,61 @@ package lignesclaires.bigraph;
 import java.util.Optional;
 import java.util.Random;
 
-import gnu.trove.TCollections;
 import gnu.trove.list.TIntList;
-import gnu.trove.list.array.TIntArrayList;
 import lignesclaires.specs.IBipartiteGraph;
 
-public class BipartiteGraph implements IBipartiteGraph {
+public class BipartiteGraph extends UGraph implements IBipartiteGraph {
 
-	private static final int MIN_CAPACITY = 5;
-
-	private final TIntArrayList[] fixedAdjLists;
-	private final TIntArrayList[] freeAdjLists;
-	private int edgeCount = 0;
+	private final int fixedCount;
+	private final int freeCount;
+	private final int freeOffset;
 
 	Optional<CrossingCounts> reducedCrossingCounts;
 	Optional<CrossingCounts> crossingCounts;
 
-	protected BipartiteGraph(int fixedCount, int freeCount, int edgeCount) {
-		fixedAdjLists = new TIntArrayList[fixedCount];
-		freeAdjLists = new TIntArrayList[freeCount];
-		final int capacity = Math.max(MIN_CAPACITY, 3 * edgeCount / (freeCount + fixedCount));
-		for (int i = 0; i < fixedAdjLists.length; i++) {
-			fixedAdjLists[i] = new TIntArrayList(capacity);
-		}
-		for (int i = 0; i < freeAdjLists.length; i++) {
-			freeAdjLists[i] = new TIntArrayList(capacity);
-		}
+	public BipartiteGraph(int fixedCount, int freeCount, int edgeCount) {
+		super(fixedCount + freeCount + 1, edgeCount);
+		this.fixedCount = fixedCount;
+		this.freeCount = freeCount;
+		this.freeOffset = fixedCount + 1;
 		reducedCrossingCounts = Optional.empty();
 		crossingCounts = Optional.empty();
 	}
 
-	protected void sort() {
-		for (int i = 0; i < fixedAdjLists.length; i++) {
-			fixedAdjLists[i].sort();
-		}
-		for (int i = 0; i < freeAdjLists.length; i++) {
-			freeAdjLists[i].sort();
-		}
-	}
-
 	@Override
 	public final int getFixedCount() {
-		return fixedAdjLists.length;
+		return fixedCount;
 	}
 
 	@Override
 	public final int getFreeCount() {
-		return freeAdjLists.length;
-	}
-
-	@Override
-	public int getNodeCount() {
-		return getFixedCount() + getNodeCount();
-	}
-
-	@Override
-	public final int getEdgeCount() {
-		return edgeCount;
+		return freeCount;
 	}
 
 	@Override
 	public final TIntList getFreeNeighbors(final int free) {
-		return TCollections.unmodifiableList(freeAdjLists[free]);
+		return getNeighbors(freeOffset + free);
 	}
 
 	@Override
-	public final int getFreeNeighborsCount(final int free) {
-		return freeAdjLists[free].size();
+	public final int getDegree(final int free) {
+		return getOutDegree(freeOffset + free);
 	}
 
 	public <E> E[] permutateMedians(E[] objects) {
-		return AdjListUtil.permutate(objects, AdjListUtil::getMedian, freeAdjLists, 0);
+		return AdjListUtil.permutate(objects, AdjListUtil::getMedian, adjLists, freeOffset);
 	}
 
 	public <E> E[] permutateBarycenters(E[] objects) {
-		return AdjListUtil.permutate(objects, AdjListUtil::getBarycenter, freeAdjLists, 0);
+		return AdjListUtil.permutate(objects, AdjListUtil::getBarycenter, adjLists, freeOffset);
 	}
 
 	protected int getCrossingCount(int left, int right) {
-		return AdjListUtil.getCrossingCount(freeAdjLists[left], freeAdjLists[right]);
+		return AdjListUtil.getCrossingCount(adjLists[freeOffset + left], adjLists[freeOffset + right]);
 	}
 
 	protected void computeCrossingCounts() {
-		final int n = freeAdjLists.length;
+		final int n = getFreeCount();
 		final int[][] counts = new int[n][n];
 		final int[][] redCounts = new int[n][n];
 		int constant = 0;
@@ -130,58 +102,25 @@ public class BipartiteGraph implements IBipartiteGraph {
 	public static BipartiteGraph generate(int fixedCount, int freeCount, double density, long seed) {
 		final Random rnd = new Random(seed);
 		final int expectedEdgeCount = (int) Math.ceil(density * fixedCount * freeCount);
-		final BipartiteGraph.Builder builder = new BipartiteGraph.Builder(fixedCount, freeCount, expectedEdgeCount);
-		for (int i = 0; i < fixedCount; i++) {
-			for (int j = 0; j < freeCount; j++) {
+		final BipartiteGraph graph = new BipartiteGraph(fixedCount, freeCount, expectedEdgeCount);
+		for (int i = 1; i <= fixedCount; i++) {
+			for (int j = 1; j <= freeCount; j++) {
 				if (rnd.nextDouble() < density) {
-					builder.addEdge(i, j);
+					graph.addEdge(i, i + j);
 				}
 			}
 		}
-		return builder.build();
+		return graph;
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder b = new StringBuilder();
-		b.append("BipartiteGraph [");
-		final int n = getFreeCount();
-		b.append("fixed:").append(getFixedCount());
-		b.append(", free:").append(n);
-		b.append(", edges:").append(getEdgeCount());
-		b.append("][Free Layer]\n");
-		for (int i = 0; i < n; i++) {
-			b.append(i).append(": ").append(freeAdjLists[i]).append('\n');
-		}
-		b.deleteCharAt(b.length() - 1);
-		return b.toString();
+	private void appendEdgeList(final StringBuilder b, final int i) {
+		adjLists[i].forEach(j -> {
+			b.append(i).append(" ").append(j).append('\n');
+			return true;
+		});
 	}
 
-	public static final class Builder {
-
-		private BipartiteGraph bigraph;
-
-		public Builder(int fixedCount, int freeCount, int edgeCount) {
-			bigraph = new BipartiteGraph(fixedCount, freeCount, edgeCount);
-		}
-
-		public void addEdge(final int fixed, final int free) {
-			bigraph.fixedAdjLists[fixed].add(free);
-			bigraph.freeAdjLists[free].add(fixed);
-			bigraph.edgeCount++;
-		}
-
-		public void addGrEdge(final int fixed, final int free) {
-			addEdge(fixed - 1, free - bigraph.getFixedCount() - 1);
-		}
-
-		public BipartiteGraph build() {
-			bigraph.sort();
-			return bigraph;
-		}
-	}
-
-	public String toInputString() {
+	public String toPaceInputString() {
 		final StringBuilder b = new StringBuilder();
 		b.append("p ocr");
 		b.append(" ").append(getFixedCount());
@@ -189,12 +128,23 @@ public class BipartiteGraph implements IBipartiteGraph {
 		b.append(" ").append(getEdgeCount());
 		b.append('\n');
 		final int n = getFixedCount();
-		for (int i = 0; i < n; i++) {
-			final int fixed = i + 1;
-			fixedAdjLists[i].forEach(j -> {
-				b.append(fixed).append(" ").append(j + n + 1).append('\n');
-				return true;
-			});
+		for (int i = 1; i <= n; i++) {
+			appendEdgeList(b, i);
+		}
+		b.deleteCharAt(b.length() - 1);
+		return b.toString();
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder b = new StringBuilder();
+		b.append("BipartiteGraph [");
+		b.append("fixed:").append(getFixedCount());
+		b.append(", free:").append(getFreeCount());
+		b.append(", edges:").append(getEdgeCount());
+		b.append("][Free Layer]\n");
+		for (int i = freeOffset; i < getNodeCount(); i++) {
+			b.append(i).append(": ").append(adjLists[i]).append('\n');
 		}
 		b.deleteCharAt(b.length() - 1);
 		return b.toString();
@@ -203,7 +153,7 @@ public class BipartiteGraph implements IBipartiteGraph {
 	public static void main(String[] args) {
 		BipartiteGraph bigraph = generate(Integer.parseInt(args[0]), Integer.parseInt(args[1]),
 				Double.parseDouble(args[2]), Long.parseLong(args[3]));
-		System.out.println(bigraph.toInputString());
+		System.out.println(bigraph.toPaceInputString());
 	}
 
 }
