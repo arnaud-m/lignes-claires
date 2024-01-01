@@ -1,12 +1,14 @@
 /*
  * This file is part of lignes-claires, https://github.com/arnaud-m/lignes-claires
  *
- * Copyright (c) 2023, Université Côte d'Azur. All rights reserved.
+ * Copyright (c) 2024, Université Côte d'Azur. All rights reserved.
  *
  * Licensed under the BSD 3-clause license.
  * See LICENSE file in the project root for full license information.
  */
 package lignesclaires.bigraph;
+
+import java.util.Optional;
 
 public final class NodeDFS {
 
@@ -94,17 +96,25 @@ public final class NodeDFS {
 
 	@Override
 	public String toString() {
-		return String.format("[%d p:%d pre:%d post:%d]", node, parent, preorder, postorder);
+		return String.format("[%3d pa:%-3d pr:%-3d po:%-3d]", node, parent, preorder, postorder);
 	}
 
-	public String toDotty() {
-		final StringBuilder b = new StringBuilder();
-		b.append(String.format("%d [label=\"{{%d|%d|%d}|{%d|%d}}\"];", node, node, preorder, postorder, lowest,
-				highest));
-		b.append('\n');
-		final String attrs = isBridge() ? " [color=firebrick]" : "";
-		b.append(String.format("%d -- %d%s;", parent, node, attrs));
-		return b.toString();
+	protected void toDotty(DottyFactory f) {
+		final String label = String.format("label=\"{{%d|%d|%d}|{%d|%d}}\"", node, preorder, postorder, lowest,
+				highest);
+		f.addAttributes(node, label);
+		final Optional<String> attrs = isBridge() ? Optional.of("color=firebrick") : Optional.empty();
+		f.addEdge(parent, node, attrs);
 	}
+
+//	public String toDotty() {
+//		final StringBuilder b = new StringBuilder();
+//		b.append(String.format("%d [label=\"{{%d|%d|%d}|{%d|%d}}\"];", node, node, preorder, postorder, lowest,
+//				highest));
+//		b.append('\n');
+//		final String attrs = isBridge() ? " [color=firebrick]" : "";
+//		b.append(String.format("%d -- %d%s;", parent, node, attrs));
+//		return b.toString();
+//	}
 
 }

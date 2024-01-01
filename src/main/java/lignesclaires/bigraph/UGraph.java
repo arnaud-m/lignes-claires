@@ -1,7 +1,7 @@
 /*
  * This file is part of lignes-claires, https://github.com/arnaud-m/lignes-claires
  *
- * Copyright (c) 2023, Université Côte d'Azur. All rights reserved.
+ * Copyright (c) 2024, Université Côte d'Azur. All rights reserved.
  *
  * Licensed under the BSD 3-clause license.
  * See LICENSE file in the project root for full license information.
@@ -16,6 +16,10 @@ public class UGraph extends AbstractGraph implements IGraphDimension {
 
 	public UGraph(int nodeCount, int edgeCount) {
 		super(AdjListUtil.createArrayOfTLists(nodeCount, 3 * edgeCount / nodeCount));
+	}
+
+	public boolean isDirected() {
+		return false;
 	}
 
 	@Override
@@ -200,19 +204,21 @@ public class UGraph extends AbstractGraph implements IGraphDimension {
 		DepthFirstSearch dfs = new DepthFirstSearch();
 		for (UGraph g : graphs) {
 			System.out.println(g);
+			System.out.println(g.toDotty());
+
 			ForestDFS f = dfs.execute(g);
-			System.out.println(f);
-
-			System.out.println(dfs);
-
+//			System.out.println(f);
+//
+//			System.out.println(dfs);
+//
 			System.out.println(f.toDotty());
-
-			BlockDecomposition bdec = new BlockDecomposition();
-			BlockCutTree r = bdec.execute(f);
-			System.out.println(r);
-			System.out.println(r.toDotty());
-			System.out.println(r.getLocalCrossingsLB());
-			System.out.println(f.getOrderInducingBridges(4));
+//
+//			BlockDecomposition bdec = new BlockDecomposition();
+//			BlockCutTree r = bdec.execute(f);
+//			System.out.println(r);
+//			System.out.println(r.toDotty());
+//			System.out.println(r.getLocalCrossingsLB());
+//			System.out.println(f.getOrderInducingBridges(4));
 
 		}
 	}

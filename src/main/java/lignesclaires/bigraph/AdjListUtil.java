@@ -1,7 +1,7 @@
 /*
  * This file is part of lignes-claires, https://github.com/arnaud-m/lignes-claires
  *
- * Copyright (c) 2023, Université Côte d'Azur. All rights reserved.
+ * Copyright (c) 2024, Université Côte d'Azur. All rights reserved.
  *
  * Licensed under the BSD 3-clause license.
  * See LICENSE file in the project root for full license information.
@@ -69,24 +69,24 @@ public final class AdjListUtil {
 		return Stream.of(indices).map(i -> vars[i]).toArray(m -> (E[]) Array.newInstance(vars[0].getClass(), m));
 	}
 
-	public static final double getMedian(final TIntArrayList adjList) {
-		if (adjList.isEmpty()) {
+	public static final double getMedian(final TIntArrayList list) {
+		if (list.isEmpty()) {
 			return 0;
 		}
-		final int n = adjList.size();
+		final int n = list.size();
 		if (n % 2 == 0) {
 			// For an even number of elements, average the middle two elements
 			final int middleRight = n / 2;
 			final int middleLeft = middleRight - 1;
-			return (adjList.getQuick(middleLeft) + adjList.getQuick(middleRight)) / 2.0;
+			return (list.getQuick(middleLeft) + list.getQuick(middleRight)) / 2.0;
 		} else {
 			// For an odd number of elements, return the middle element
-			return adjList.getQuick(n / 2);
+			return list.getQuick(n / 2);
 		}
 	}
 
-	public static final double getBarycenter(final TIntList adjList) {
-		return adjList.isEmpty() ? 0 : 1.0 * adjList.sum() / adjList.size();
+	public static final double getBarycenter(final TIntList list) {
+		return list.isEmpty() ? 0 : 1.0 * list.sum() / list.size();
 	}
 
 	public static final TIntArrayList intersect(TIntList l1, TIntList l2) {

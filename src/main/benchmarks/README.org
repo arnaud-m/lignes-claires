@@ -30,10 +30,11 @@
 
 * Configure
 
+** Algorithms
 #+BEGIN_SRC R
 
-  CreateAlgorithms <- function(model = c(0, 8, 15, 40),
-                               search = c("default", "barycenter", "median"),
+  CreateAlgorithms <- function(model = 63,
+                               search = c("default", "median"),
                                time = 60
                                ) {
     expand.grid(model = model, search = search, time = time)
@@ -62,9 +63,16 @@
     }
   }
 
+
+  df <- CreateAlgorithms(
+    model = c(63),
+    search = c("default", "median", "barycenter"),
+    time = 300
+  )
+  WriteAlgorithms(df)
 #+END_SRC
 
-
+** Solver
 #+BEGIN_SRC sh :tangle solver.sh
   #!/bin/sh
 
@@ -91,7 +99,7 @@ Change the file extension accordingly.
 
 ** Solve instances in parallel.
    #+BEGIN_SRC sh
-     gridjobs  -d 0 -p '*.gr' | nohup parallel -j 20 &
+     gridjobs  -d 0 -p '*.gr' | nohup parallel -j 30 &
    #+END_SRC
 
 * Reporting
@@ -101,3 +109,86 @@ Change the file extension accordingly.
 #+END_SRC
 
   Look for the files .res in the results directory.
+
+* Analysis
+
+** Load packages
+
+
+#+BEGIN_SRC R :results silent
+  ## Load the local package optiplot
+  dirname <- getwd()
+  setwd("~/www-git/optiplot")
+  devtools::load_all()
+  setwd(dirname)
+  ## library(optiplot)
+
+  ##library(dplyr)
+  ##library(ggplot2)
+#+END_SRC
+
+
+   ~tbl_df~ objects come with their own print/show method. And it does things like add color and text formats. This is nice in a terminal, but not when you want to display them in org.
+   Turning off the color might be enough to give you a usable result.
+#+BEGIN_SRC R :results silent
+  options(cli.num_colors=1 )
+#+END_SRC
+
+** Load results
+
+
+#+BEGIN_SRC R :results silent
+  dirname <- "results"
+  data <- ReadGrigrid(dirname)
+  data$s[ data$s == "TERMINATED" & data$NBSOLS > 0 ] = "OPT"
+  data$s[ data$s == "TERMINATED" & data$NBSOLS == 0 ] = "UNSAT"
+  data$s[ data$s == "STOPPED" & data$NBSOLS == 0 ] = "UNK"
+  data$s[ data$s == "STOPPED" & data$NBSOLS > 0 ] = "SAT"
+  data$s <- AsStatusFactor(data$s)
+#+END_SRC
+
+
+
+** Summary
+
+
+   #+BEGIN_SRC R :results output
+     ColSummary(data, cols = c("o", "TIME", "NODES"), colG = "a", valS = list(c("OPT", "SAT"), "OPT", "OPT"))
+  #+END_SRC
+
+
+
+  #+BEGIN_SRC R :results output
+    x <- VirtualBestSolver(data, cols = c("s", "o"), withRows = FALSE)
+    x$RE <-  (x$o -  x$o.VBS) / x$o.VBS
+    ColSummary(x, cols = c("RE"), colG = "a", valS = list(c("SAT", "OPT")))
+  #+END_SRC
+
+
+  #+BEGIN_SRC R :results output
+    BordaCount(data, colI = "i", colA = "a", cols = c("s", "o"))
+  #+END_SRC
+
+
+*** Plots
+
+
+
+#+BEGIN_SRC R :results silent
+  PlotSurvival(data, "a", "TIME", textSize = 35, lwd = 2)
+  ggplot2::ggsave("survival-runtime.pdf", width = 14, height = 14)
+
+  bdata <- subset(data, data$s == "OPT")
+  PlotSurvival(bdata, "a", "NODES", textSize = 35, lwd = 2)
+  ggplot2::ggsave("survival-nodes.pdf", width = 14, height = 14)
+#+END_SRC
+
+
+
+** Compare solvers
+
+
+#+BEGIN_SRC R :results silent
+  PlotScatterRatios(data, "D63", colX = "TIME", colY = "NODES", textSize = 35)
+  ggplot2::ggsave("compare-D63.pdf", width = 14, height = 12)
+#+END_SRC

@@ -1,7 +1,7 @@
 /*
  * This file is part of lignes-claires, https://github.com/arnaud-m/lignes-claires
  *
- * Copyright (c) 2023, Université Côte d'Azur. All rights reserved.
+ * Copyright (c) 2024, Université Côte d'Azur. All rights reserved.
  *
  * Licensed under the BSD 3-clause license.
  * See LICENSE file in the project root for full license information.
@@ -91,4 +91,16 @@ public abstract class AbstractGraph implements IGenericGraph {
 		b.deleteCharAt(b.length() - 1);
 		return b.toString();
 	}
+
+	@Override
+	public String toDotty() {
+		DottyFactory f = new DottyFactory(isDirected());
+		f.beginGraph();
+		f.beginBlock("shape=plain");
+		forEachEdge(f::addEdge);
+		f.endBlock();
+		f.endGraph();
+		return f.toString();
+	}
+
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of lignes-claires, https://github.com/arnaud-m/lignes-claires
  *
- * Copyright (c) 2023, Université Côte d'Azur. All rights reserved.
+ * Copyright (c) 2024, Université Côte d'Azur. All rights reserved.
  *
  * Licensed under the BSD 3-clause license.
  * See LICENSE file in the project root for full license information.
@@ -10,13 +10,13 @@ package lignesclaires.bigraph;
 
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import gnu.trove.iterator.TIntIterator;
+import lignesclaires.specs.IDotty;
 import lignesclaires.specs.IGenericGraph;
 
-public class ForestDFS {
+public class ForestDFS implements IDotty {
 
 	private final IGenericGraph graph;
 	private final NodeDFS[] data;
@@ -130,30 +130,30 @@ public class ForestDFS {
 		return i == data[j].getParent() || j == data[i].getParent();
 	}
 
-	private void toDottyIn(StringBuilder b) {
-		String spanningForest = Stream.of(data).map(NodeDFS::toDotty).collect(Collectors.joining("\n"));
-		b.append("{\nnode[shape=record];\nedge[style=bold];\n");
-		b.append(spanningForest);
-		b.append("\n}\n");
+	private void toDottyIn(DottyFactory f) {
+		f.beginBlock("shape=record", "style=bold");
+		Stream.of(data).forEach(n -> n.toDotty(f));
+		f.endBlock();
 	}
 
-	private void toDottyOut(StringBuilder b) {
-		b.append("{\nedge[style=dashed];\n");
+	private void toDottyOut(DottyFactory f) {
+		f.beginBlock(Optional.empty(), Optional.of("style=dashed"));
 		graph.forEachEdge((i, j) -> {
-			if (!isIn(i, j)) {
-				b.append(i).append(" -- ").append(j).append(";\n");
-			}
+			if (!isIn(i, j))
+				f.addEdge(i, j);
+
 		});
-		b.append("}\n");
+		f.endBlock();
 	}
 
+	@Override
 	public String toDotty() {
-		StringBuilder b = new StringBuilder();
-		b.append("graph G{\n");
-		toDottyIn(b);
-		toDottyOut(b);
-		b.append("}\n");
-		return b.toString();
+		DottyFactory f = new DottyFactory(graph.isDirected());
+		f.beginGraph();
+		toDottyIn(f);
+		toDottyOut(f);
+		f.endGraph();
+		return f.toString();
 	}
 
 	public String toString() {

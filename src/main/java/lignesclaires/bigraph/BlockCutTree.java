@@ -1,7 +1,7 @@
 /*
  * This file is part of lignes-claires, https://github.com/arnaud-m/lignes-claires
  *
- * Copyright (c) 2023, Université Côte d'Azur. All rights reserved.
+ * Copyright (c) 2024, Université Côte d'Azur. All rights reserved.
  *
  * Licensed under the BSD 3-clause license.
  * See LICENSE file in the project root for full license information.
@@ -18,8 +18,9 @@ import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
+import lignesclaires.specs.IDotty;
 
-public class BlockCutTree {
+public class BlockCutTree implements IDotty {
 
 	private final ForestDFS forest;
 
@@ -82,41 +83,42 @@ public class BlockCutTree {
 		return cuts.get();
 	}
 
-	private void toDottyCuts(StringBuilder b) {
-		b.append("{node [shape=plain]\n");
+	private void toDottyCuts(DottyFactory f) {
+		f.beginBlock("shape=plain");
 		getCuts().forEach(cut -> {
-			b.append(cut).append(";");
+			f.addNode(cut);
 			return true;
 		});
-		b.append("\n}\n");
+		f.endBlock();
 	}
 
-	private void toDottyBlocks(StringBuilder b) {
-		TIntSet s = getCuts();
-		b.append("{node [shape=box]\n");
+	private void toDottyBlocks(DottyFactory f) {
+		final TIntSet s = getCuts();
+		f.beginBlock("shape=box");
 		int idx = 1;
 		for (TIntArrayList block : blocks) {
 			TIntIterator iter = block.iterator();
+			final String bid = "b" + idx;
 			while (iter.hasNext()) {
 				final int node = iter.next();
 				if (s.contains(node)) {
-					b.append(node).append(" -- b").append(idx).append(";\n");
+					f.addEdge(String.valueOf(node), bid);
 				}
 			}
-			b.append("b").append(idx).append(" [label=\"").append(DepthFirstSearch.toString(block, " "))
-					.append("\"];\n");
+			f.addAttributes(bid, "label=\"" + DepthFirstSearch.toString(block, " ") + "\"");
 			idx++;
 		}
-		b.append("}\n");
+		f.endBlock();
 	}
 
+	@Override
 	public final String toDotty() {
-		final StringBuilder b = new StringBuilder();
-		b.append("graph G {\n");
-		toDottyCuts(b);
-		toDottyBlocks(b);
-		b.append("}\n");
-		return b.toString();
+		DottyFactory f = new DottyFactory(false);
+		f.beginGraph();
+		toDottyCuts(f);
+		toDottyBlocks(f);
+		f.endGraph();
+		return f.toString();
 	}
 
 	@Override
