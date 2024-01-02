@@ -69,6 +69,10 @@ public class BlockCutTree implements IDotty {
 		return localCrossingsLB.getAsInt();
 	}
 
+	public final int getBlockCount() {
+		return blocks.size();
+	}
+
 	public final TIntSet getCuts() {
 		if (cuts.isEmpty()) {
 			final TIntSet s = new TIntHashSet();

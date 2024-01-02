@@ -9,6 +9,7 @@
 package lignesclaires.bigraph;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public final class NodeDFS {
 
@@ -65,7 +66,7 @@ public final class NodeDFS {
 
 	protected void awakeOnOutEdge(NodeDFS dest) {
 		if (this.parent != dest.node) {
-			System.out.println("OUT " + this.node + " -> " + dest.node);
+			// System.out.println("OUT " + this.node + " -> " + dest.node);
 			if (dest.preorder < lowest)
 				lowest = dest.preorder;
 			else if (dest.preorder > highest)
@@ -75,7 +76,7 @@ public final class NodeDFS {
 
 	protected void awakeOnInEdge(NodeDFS dest) {
 		if (this.node != dest.node) {
-			System.out.println("IN " + this.node + " -> " + dest.node);
+			// System.out.println("IN " + this.node + " -> " + dest.node);
 			if (dest.lowest < lowest)
 				lowest = dest.lowest;
 
@@ -96,7 +97,7 @@ public final class NodeDFS {
 
 	@Override
 	public String toString() {
-		return String.format("[%3d pa:%-3d pr:%-3d po:%-3d]", node, parent, preorder, postorder);
+		return String.format("[ %-3d pa:%-3d pr:%-3d po:%-3d]", node, parent, preorder, postorder);
 	}
 
 	protected void toDotty(DottyFactory f) {
@@ -107,6 +108,9 @@ public final class NodeDFS {
 		f.addEdge(parent, node, attrs);
 	}
 
+	public static int[] toNodes(NodeDFS[] nodes) {
+		return Stream.of(nodes).mapToInt(NodeDFS::getNode).toArray();
+	}
 //	public String toDotty() {
 //		final StringBuilder b = new StringBuilder();
 //		b.append(String.format("%d [label=\"{{%d|%d|%d}|{%d|%d}}\"];", node, node, preorder, postorder, lowest,

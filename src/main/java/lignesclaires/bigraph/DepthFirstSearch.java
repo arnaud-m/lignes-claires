@@ -23,7 +23,7 @@ import lignesclaires.specs.IGenericGraph;
  * Tarjan's bridge-finding algorithm
  * 
  */
-class DepthFirstSearch {
+public class DepthFirstSearch {
 
 	// Input
 	private IGenericGraph graph;

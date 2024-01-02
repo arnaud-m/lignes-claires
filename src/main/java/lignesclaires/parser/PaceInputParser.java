@@ -45,8 +45,8 @@ public class PaceInputParser implements IGraphParser<IBipartiteGraph> {
 		}
 	}
 
-	private static void skipComments(Scanner sc) {
-		final String pattern = "^c.*\\v+";
+	public static final void skipComments(Scanner sc) {
+		final String pattern = "c\\h*.*\\v";
 		boolean skipCLine = true;
 		do {
 			try {
@@ -54,6 +54,7 @@ public class PaceInputParser implements IGraphParser<IBipartiteGraph> {
 			} catch (NoSuchElementException e) {
 				skipCLine = false;
 			}
+			// System.out.println("A " + sc.next());
 		} while (skipCLine);
 	}
 

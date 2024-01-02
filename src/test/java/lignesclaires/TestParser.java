@@ -9,6 +9,7 @@
 package lignesclaires;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Scanner;
 
@@ -39,6 +40,22 @@ public class TestParser {
 	}
 
 	@Test
+	public void TestSkipComments() throws InvalidGraphFormatException {
+		final Scanner sc = new Scanner("c comment\nc comment 1\nc comment 2\nOK\n");
+		PaceInputParser.skipComments(sc);
+		assertTrue(sc.hasNext());
+		assertEquals("OK", sc.next());
+
+	}
+
+	@Test
+	public void TestEmptyBiGraph() throws InvalidGraphFormatException {
+		final Scanner sc = new Scanner("c comment 1\n" + "p ocr 5 5 0\n");
+		bigraph = parser.parse(sc);
+		assertDimensions(5, 5, 0);
+	}
+
+	@Test
 	public void TestValidBiGraph1() throws InvalidGraphFormatException {
 		final Scanner sc = new Scanner("p ocr 5 5 4\n" + "2 8\n" + "3 6\n" + "3 9\n" + "4 10\n");
 		bigraph = parser.parse(sc);
@@ -52,8 +69,8 @@ public class TestParser {
 
 	@Test
 	public void TestValidBiGraph2() throws InvalidGraphFormatException {
-		final Scanner sc = new Scanner(
-				"p ocr 5 5 7\n" + "2 8\n" + "2 7\n" + "3 9\n" + "3 10\n" + "4 10\n" + "3 6\n" + "4 9\n");
+		final Scanner sc = new Scanner("c comment 1\n" + "c comment 2\n" + "p ocr 5 5 7\n" + "2 8\n" + "2 7\n" + "3 9\n"
+				+ "3 10\n" + "4 10\n" + "3 6\n" + "4 9\n");
 		bigraph = parser.parse(sc);
 		assertDimensions(5, 5, 7);
 		assertNeighbors(1);

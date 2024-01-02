@@ -31,8 +31,10 @@ public class ForestDFS implements IDotty {
 		super();
 		this.graph = graph;
 		this.data = dataDFS;
+		this.forest = Optional.empty();
 		this.preorder = Optional.empty();
 		this.postorder = Optional.empty();
+		this.roots = Optional.empty();
 	}
 
 	public final IGenericGraph getGraph() {
@@ -52,7 +54,7 @@ public class ForestDFS implements IDotty {
 	}
 
 	public final IGenericGraph getForest() {
-		if (preorder.isEmpty()) {
+		if (forest.isEmpty()) {
 			final DGraph f = new DGraph(graph.getNodeCount(), graph.getNodeCount());
 			for (NodeDFS n : getPreorder()) {
 				if (!n.isRoot()) {
