@@ -90,7 +90,7 @@
 		<configuration>
 			<mapping>
 				<R>SCRIPT_STYLE</R>
-				<g4>DOUBLESLASH_STYLE</g4>
+				<sage>SCRIPT_STYLE</sage>
 				<template>JAVADOC_STYLE</template>
 			</mapping>
 			<licenseSets>
@@ -105,6 +105,8 @@
 					<includes>
 						<include>src/*/java/**/*.java</include>
 						<include>**/pom.xml</include>
+						<include>src/*/shell/**/*.sh</include>
+						<include>src/*/sage/**/*.sage</include>
 					</includes>
 				</licenseSet>
 			</licenseSets>
