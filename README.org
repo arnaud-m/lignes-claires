@@ -6,6 +6,8 @@
 #+TITLE: Lignes Claires
 [[https://opensource.org/licenses/BSD-3-Clause][https://img.shields.io/badge/License-BSD%203--Clause-blue.svg]]
 
+[[https://github.com/arnaud-m/cryptator/actions/workflows/CryptatorTest.yml][file:https://github.com/arnaud-m/lignes-claires/actions/workflows/LignesClairesTest.yml/badge.svg]]
+
 Lignes Claires is a solver for One-sided Crossing Minimization based on [[https://en.wikipedia.org/wiki/Constraint_programming][Constraint Programming]].\\
 It is based on [[https://github.com/chocoteam/choco-solver][choco-solver]] which is an open-source Java library for Constraint Programming.
 

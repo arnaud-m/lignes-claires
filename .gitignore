@@ -183,10 +183,14 @@ $RECYCLE.BIN/
 #####=== EMACS ===#####
 \#*\#
 
-#####=== Parser ===#####
-
-src/main/antlr4-source-folder/
 
 #####=== R ===#####
 .Rhistory
-src/main/R/L*.txt
+
+#####=== Python ===#####
+src/main/python/visualizer.py
+
+#####=== Sage ===#####
+src/main/sage/*.py
+
+
