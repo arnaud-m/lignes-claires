@@ -9,86 +9,177 @@
 package lignesclaires;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Scanner;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import gnu.trove.list.TIntList;
 import lignesclaires.bigraph.TListUtil;
+import lignesclaires.parser.EdgeListParser;
 import lignesclaires.parser.InvalidGraphFormatException;
 import lignesclaires.parser.PaceInputParser;
 import lignesclaires.specs.IBipartiteGraph;
+import lignesclaires.specs.IGenericGraph;
+import lignesclaires.specs.IGraphParser;
 
 public class TestParser {
 
-	private final PaceInputParser parser = new PaceInputParser();
+	private static class GraphParserTest<E extends IGenericGraph> {
 
-	private IBipartiteGraph bigraph;
+		private final IGraphParser<E> parser;
+		private Scanner sc;
+		protected E graph;
 
-	public void assertNeighbors(int i, int... neighbors) {
-		assertEquals(bigraph.getNeighbors(1), (TIntList) TListUtil.wrap());
+		public GraphParserTest(IGraphParser<E> parser) {
+			super();
+			this.parser = parser;
+		}
+
+		public void assertNeighbors(int i, int... neighbors) {
+			assertEquals(neighbors.length, graph.getOutDegree(i));
+			assertEquals(graph.getNeighbors(i), (TIntList) TListUtil.wrap(neighbors));
+		}
+
+		public void parse(String graphString) throws InvalidGraphFormatException {
+			sc = new Scanner(graphString);
+			graph = parser.parse(sc);
+		}
+
+		public void assertGraph(int nodes, int edges) {
+			assertEquals(nodes, graph.getNodeCount());
+			assertEquals(edges, graph.getEdgeCount());
+			assertNotNull(graph.toString());
+			assertNotNull(graph.toDotty());
+
+		}
+	}
+
+	private static class BiGraphParserTest extends GraphParserTest<IBipartiteGraph> {
+
+		public BiGraphParserTest() {
+			super(new PaceInputParser());
+		}
+
+		private void assertBiGraph(int fixed, int free, int edges) {
+			assertEquals(fixed, graph.getFreeCount());
+			assertEquals(free, graph.getFixedCount());
+			assertFalse(graph.isDirected());
+			assertGraph(fixed + free + 1, edges);
+		}
 
 	}
 
-	public void assertDimensions(int fixed, int free, int edges) {
-		Assert.assertEquals(fixed, bigraph.getFreeCount());
-		Assert.assertEquals(free, bigraph.getFixedCount());
-		Assert.assertEquals(edges, bigraph.getEdgeCount());
+	GraphParserTest<IGenericGraph> pu = new GraphParserTest<IGenericGraph>(new EdgeListParser(false));
+	GraphParserTest<IGenericGraph> pd = new GraphParserTest<IGenericGraph>(new EdgeListParser(true));
+
+	BiGraphParserTest pb = new BiGraphParserTest();
+
+	@Test
+	public void testSkipComments() throws InvalidGraphFormatException {
+		StringBuilder b = new StringBuilder();
+		for (int i = 0; i < 5; i++) {
+			final Scanner sc = new Scanner(b.toString() + "OK\n");
+			PaceInputParser.skipComments(sc);
+			assertTrue(sc.hasNext());
+			assertEquals("OK", sc.next());
+			b.append("c comment ").append(i).append('\n');
+		}
 	}
 
 	@Test
-	public void TestSkipComments() throws InvalidGraphFormatException {
-		final Scanner sc = new Scanner("c comment\nc comment 1\nc comment 2\nOK\n");
-		PaceInputParser.skipComments(sc);
-		assertTrue(sc.hasNext());
-		assertEquals("OK", sc.next());
+	public void TestEmptyGraph() throws InvalidGraphFormatException {
+		pu.parse("c comment 1\n" + "5 0\n");
+		pu.assertGraph(5, 0);
+
+		pu.parse("c comment 1\n" + "5 0\n");
+		pu.assertGraph(5, 0);
+	}
+
+	@Test
+	public void testEmptyBiGraph() throws InvalidGraphFormatException {
+		pb.parse("c comment 1\n" + "p ocr 5 5 0\n");
+		pb.assertBiGraph(5, 5, 0);
+	}
+
+	private static void testValidGraph1(GraphParserTest<IGenericGraph> p) throws InvalidGraphFormatException {
+		p.parse("11 4\n" + "2 8\n" + "3 6\n" + "3 9\n" + "4 10\n");
+		p.assertGraph(11, 4);
+		p.assertNeighbors(1);
+		p.assertNeighbors(2, 8);
+		p.assertNeighbors(3, 6, 9);
+		p.assertNeighbors(4, 10);
+		p.assertNeighbors(5);
 
 	}
 
 	@Test
-	public void TestEmptyBiGraph() throws InvalidGraphFormatException {
-		final Scanner sc = new Scanner("c comment 1\n" + "p ocr 5 5 0\n");
-		bigraph = parser.parse(sc);
-		assertDimensions(5, 5, 0);
+	public void testValidGraph1() throws InvalidGraphFormatException {
+		testValidGraph1(pu);
+		testValidGraph1(pd);
 	}
 
 	@Test
-	public void TestValidBiGraph1() throws InvalidGraphFormatException {
-		final Scanner sc = new Scanner("p ocr 5 5 4\n" + "2 8\n" + "3 6\n" + "3 9\n" + "4 10\n");
-		bigraph = parser.parse(sc);
-		assertDimensions(5, 5, 4);
-		assertNeighbors(1);
-		assertNeighbors(2, 8);
-		assertNeighbors(3, 6, 9);
-		assertNeighbors(4, 10);
-		assertNeighbors(5);
+	public void testValidBiGraph1() throws InvalidGraphFormatException {
+		pb.parse("p ocr 5 5 4\n" + "2 8\n" + "3 6\n" + "3 9\n" + "4 10\n");
+		pb.assertBiGraph(5, 5, 4);
+		pb.assertNeighbors(1);
+		pb.assertNeighbors(2, 8);
+		pb.assertNeighbors(3, 6, 9);
+		pb.assertNeighbors(4, 10);
+		pb.assertNeighbors(5);
 	}
 
 	@Test
-	public void TestValidBiGraph2() throws InvalidGraphFormatException {
-		final Scanner sc = new Scanner("c comment 1\n" + "c comment 2\n" + "p ocr 5 5 7\n" + "2 8\n" + "2 7\n" + "3 9\n"
-				+ "3 10\n" + "4 10\n" + "3 6\n" + "4 9\n");
-		bigraph = parser.parse(sc);
-		assertDimensions(5, 5, 7);
-		assertNeighbors(1);
-		assertNeighbors(2, 7, 8);
-		assertNeighbors(3, 6, 9, 10);
-		assertNeighbors(4, 9, 10);
-		assertNeighbors(5);
+	public void testValidBiGraph2() throws InvalidGraphFormatException {
+		pb.parse("c comment 1\n" + "c comment 2\n" + "p ocr 5 5 7\n" + "2 8\n" + "2 7\n" + "3 9\n" + "3 10\n" + "4 10\n"
+				+ "3 6\n" + "4 9\n");
+		pb.assertBiGraph(5, 5, 7);
+		pb.assertNeighbors(1);
+		pb.assertNeighbors(2, 7, 8);
+		pb.assertNeighbors(3, 6, 9, 10);
+		pb.assertNeighbors(4, 9, 10);
+		pb.assertNeighbors(5);
+	}
+
+	private void testValidGraph2(GraphParserTest<IGenericGraph> p) throws InvalidGraphFormatException {
+		p.parse("c comment 1\n" + "c comment 2\n" + "11 7\n" + "2 8\n" + "2 7\n" + "3 9\n" + "3 10\n" + "4 10\n"
+				+ "3 6\n" + "4 9\n");
+		p.assertGraph(11, 7);
+		p.assertNeighbors(1);
+		p.assertNeighbors(2, 7, 8);
+		p.assertNeighbors(3, 6, 9, 10);
+		p.assertNeighbors(4, 9, 10);
+		p.assertNeighbors(5);
+	}
+
+	@Test
+	public void testValidGraph2() throws InvalidGraphFormatException {
+		testValidGraph2(pu);
+		testValidGraph2(pd);
 	}
 
 	@Test(expected = InvalidGraphFormatException.class)
-	public void TestInvalidBiGraph1() throws InvalidGraphFormatException {
-		final Scanner sc = new Scanner("p ocr 5 5 5\n" + "2 8\n" + "3 6\n" + "3 9\n" + "4 10\n");
-		parser.parse(sc);
+	public void testInvalidBiGraph1() throws InvalidGraphFormatException {
+		pb.parse("p ocr 5 5 5\n" + "2 8\n" + "3 6\n" + "3 9\n" + "4 10\n");
 	}
 
 	@Test(expected = InvalidGraphFormatException.class)
-	public void TestInvalidBiGraph2() throws InvalidGraphFormatException {
-		final Scanner sc = new Scanner("p ocr 5 5 4\n" + "2 8\n" + "3 6\n" + "3 9\n" + "4 20\n");
-		parser.parse(sc);
+	public void testInvalidGraph1() throws InvalidGraphFormatException {
+		pu.parse("10 4\n" + "2 8\n" + "3 6\n" + "3 9\n" + "4 10\n");
 	}
+
+	@Test(expected = InvalidGraphFormatException.class)
+	public void testInvalidBiGraph2() throws InvalidGraphFormatException {
+		pb.parse("p ocr 5 5 4\n" + "2 8\n" + "3 6\n" + "3 9\n" + "4 20\n");
+	}
+
+	@Test(expected = InvalidGraphFormatException.class)
+	public void testInvalidGraph2() throws InvalidGraphFormatException {
+		pd.parse("10 4\n" + "2 8\n" + "3 6\n" + "3 9\n" + "-1 9\n");
+	}
+
 }

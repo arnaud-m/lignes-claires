@@ -111,14 +111,5 @@ public final class NodeDFS {
 	public static int[] toNodes(NodeDFS[] nodes) {
 		return Stream.of(nodes).mapToInt(NodeDFS::getNode).toArray();
 	}
-//	public String toDotty() {
-//		final StringBuilder b = new StringBuilder();
-//		b.append(String.format("%d [label=\"{{%d|%d|%d}|{%d|%d}}\"];", node, node, preorder, postorder, lowest,
-//				highest));
-//		b.append('\n');
-//		final String attrs = isBridge() ? " [color=firebrick]" : "";
-//		b.append(String.format("%d -- %d%s;", parent, node, attrs));
-//		return b.toString();
-//	}
 
 }

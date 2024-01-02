@@ -56,16 +56,19 @@ public class TestDFS {
 		g = getResourceGraph(resourcePath);
 		assertEquals(nodeCount, g.getNodeCount());
 		assertEquals(edgeCount, g.getEdgeCount());
+		assertNotNull(g.toString());
 		assertNotNull(g.toDotty());
 	}
 
 	private void execDFS() {
 		f = dfs.execute(g);
+		assertNotNull(f.toString());
 		assertNotNull(f.toDotty());
 	}
 
 	private void execBDEC() {
 		d = bdec.execute(f);
+		assertNotNull(d.toString());
 		assertNotNull(g.toDotty());
 	}
 

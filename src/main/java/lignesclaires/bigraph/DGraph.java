@@ -39,19 +39,4 @@ public class DGraph extends AbstractGraph {
 		}
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder b = new StringBuilder();
-		b.append("Graph [");
-		final int n = getNodeCount();
-		b.append("n:").append(n);
-		b.append(", e:").append(getEdgeCount());
-		b.append("]\n");
-		for (int i = 0; i < n; i++) {
-			b.append(i).append(": ").append(adjLists[i]).append('\n');
-		}
-		b.deleteCharAt(b.length() - 1);
-		return b.toString();
-	}
-
 }
