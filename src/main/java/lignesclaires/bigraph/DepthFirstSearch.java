@@ -11,6 +11,7 @@ package lignesclaires.bigraph;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import gnu.trove.TIntCollection;
@@ -128,12 +129,16 @@ public class DepthFirstSearch {
 
 	}
 
-	public static String toString(Object[] o) {
-		return toString(o, "\n");
-	}
-
 	public static <E> String toString(Stream<E> stream, CharSequence delimiter) {
 		return stream.map(Object::toString).collect(Collectors.joining(delimiter));
+	}
+
+	public static final String toString(int[] values, CharSequence delimiter) {
+		return toString(IntStream.of(values), delimiter);
+	}
+
+	public static final String toString(IntStream stream, CharSequence delimiter) {
+		return stream.mapToObj(Integer::toString).collect(Collectors.joining(delimiter));
 	}
 
 	public static String toString(TIntCollection collection, CharSequence delimiter) {
@@ -151,7 +156,7 @@ public class DepthFirstSearch {
 
 	@Override
 	public String toString() {
-		return "DepthFirstSearch:\n" + toString(data);
+		return "DepthFirstSearch:\n" + toString(data, "\n");
 	}
 
 }

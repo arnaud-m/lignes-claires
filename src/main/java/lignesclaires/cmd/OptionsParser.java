@@ -67,7 +67,8 @@ public class OptionsParser {
 	}
 
 	protected boolean checkArguments() {
-		return !config.getArguments().isEmpty();
+		final int n = config.getArguments().size();
+		return n > 0 && n < 3;
 	}
 
 	public final LignesClairesConfig getConfig() {

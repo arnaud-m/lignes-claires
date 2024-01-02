@@ -159,6 +159,6 @@ public class ForestDFS implements IDotty {
 	}
 
 	public String toString() {
-		return DepthFirstSearch.toString(data);
+		return DepthFirstSearch.toString(data, "\n");
 	}
 }

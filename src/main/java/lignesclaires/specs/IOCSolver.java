@@ -9,10 +9,11 @@
 package lignesclaires.specs;
 
 import lignesclaires.config.LignesClairesConfig;
+import lignesclaires.solver.OCSolution;
 import lignesclaires.solver.OCSolverException;
 
 public interface IOCSolver {
 
-	boolean solve(IBipartiteGraph bigraph, LignesClairesConfig config) throws OCSolverException;
+	OCSolution solve(IBipartiteGraph bigraph, LignesClairesConfig config) throws OCSolverException;
 
 }

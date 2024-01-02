@@ -18,6 +18,7 @@ import lignesclaires.solver.OCModel;
 import lignesclaires.solver.OCSearch;
 import lignesclaires.solver.OCSolver;
 import lignesclaires.solver.OCSolverException;
+import lignesclaires.solver.Status;
 import lignesclaires.specs.IBipartiteGraph;
 
 public class TestSolver {
@@ -36,7 +37,7 @@ public class TestSolver {
 			config.setSearch(search);
 			for (int modelMask = 0; modelMask < OCModel.LB; modelMask++) {
 				config.setModelMask(modelMask);
-				Assert.assertTrue(solver.solve(bigraph, config));
+				Assert.assertNotEquals(Status.ERROR, solver.solve(bigraph, config).getStatus());
 			}
 		}
 	}

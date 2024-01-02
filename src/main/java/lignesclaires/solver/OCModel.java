@@ -223,12 +223,21 @@ public class OCModel implements IOCModel {
 		return new Solution(model, permutation);
 	}
 
-	public final OCSolution recordSolution(final Solution s) {
-		int[] values = new int[permutation.length];
+	public final int[] recordSolution(final Solution s) {
+		final int[] values = new int[permutation.length];
 		for (int i = 0; i < permutation.length; i++) {
-			values[i] = s.getIntVal(permutation[i]);
+			values[i] = bigraph.getFreeNode(s.getIntVal(permutation[i]));
 		}
-		return new OCSolution(bigraph, values);
+		return values;
+	}
+
+	public final String printSolution(final Solution s) {
+		StringBuilder b = new StringBuilder();
+		b.append('v');
+		for (int i = 0; i < permutation.length; i++) {
+			b.append(' ').append(s.getIntVal(permutation[i]));
+		}
+		return b.toString();
 	}
 
 	public void postPermutationBinaryTable(Tuples tuples) {

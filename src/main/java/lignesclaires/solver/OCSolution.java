@@ -8,38 +8,56 @@
  */
 package lignesclaires.solver;
 
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.Optional;
+import java.util.OptionalInt;
 
-import lignesclaires.specs.IBipartiteGraphDimension;
+import org.chocosolver.solver.Solution;
+import org.chocosolver.solver.Solver;
+
+import lignesclaires.bigraph.DepthFirstSearch;
 
 public class OCSolution {
 
-	public static final Logger LOGGER = Logger.getLogger(OCSolution.class.getName());
+	private final Status status;
+	private final OptionalInt objective;
+	private final Optional<int[]> permutation;
 
-	private final IBipartiteGraphDimension graph;
-
-	private final int[] permutation;
-
-	public OCSolution(IBipartiteGraphDimension graph, int[] permutation) {
+	public OCSolution() {
 		super();
-		this.graph = graph;
-		this.permutation = permutation;
+		this.status = Status.ERROR;
+		this.objective = OptionalInt.empty();
+		this.permutation = Optional.empty();
+	}
+
+	public OCSolution(OCModel model, Solution solution) {
+		super();
+		this.status = Status.getStatus(model);
+		final Solver solver = model.getSolver();
+		if (solver.getSolutionCount() > 0) {
+			this.objective = solver.hasObjective() ? OptionalInt.of(solver.getBestSolutionValue().intValue())
+					: OptionalInt.empty();
+			this.permutation = Optional.of(model.recordSolution(solution));
+		} else {
+			this.objective = OptionalInt.empty();
+			this.permutation = Optional.empty();
+		}
+	}
+
+	public final Status getStatus() {
+		return status;
+	}
+
+	public final OptionalInt getObjective() {
+		return objective;
+	}
+
+	public final Optional<int[]> getPermutation() {
+		return permutation;
 	}
 
 	@Override
 	public String toString() {
-		return "v " + toString(IntStream.of(permutation), " ");
-	}
-
-	public String toOutputString() {
-		final int n = graph.getFixedCount() + 1;
-		return toString(IntStream.of(permutation).map(x -> x + n), "\n");
-	}
-
-	public static final String toString(IntStream intstream, CharSequence delimiter) {
-		return intstream.mapToObj(Integer::toString).collect(Collectors.joining(delimiter));
+		return permutation.isEmpty() ? "" : DepthFirstSearch.toString(permutation.get(), "\n");
 	}
 
 }

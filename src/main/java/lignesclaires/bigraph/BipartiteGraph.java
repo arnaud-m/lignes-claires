@@ -43,6 +43,11 @@ public class BipartiteGraph extends UGraph implements IBipartiteGraph {
 	}
 
 	@Override
+	public final int getFreeNode(int free) {
+		return freeOffset + free;
+	}
+
+	@Override
 	public final TIntList getFreeNeighbors(final int free) {
 		return getNeighbors(freeOffset + free);
 	}

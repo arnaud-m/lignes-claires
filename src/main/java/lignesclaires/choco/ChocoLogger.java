@@ -18,7 +18,7 @@ import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 
 import lignesclaires.solver.OCModel;
-import lignesclaires.solver.OCSolution;
+import lignesclaires.solver.Status;
 import lignesclaires.specs.IChocoModel;
 
 public final class ChocoLogger {
@@ -40,28 +40,20 @@ public final class ChocoLogger {
 		}
 	}
 
-	public static void logOnSolutionFound(OCModel model, Solution solution) {
-		if (LOGGER.isLoggable(Level.FINE)) {
-			LOGGER.log(Level.FINE, "Display solution #{0}:\n{1}",
-					new Object[] { model.getSolver().getSolutionCount(), model.recordSolution(solution) });
-		}
-	}
-
-	public static void logOnSolution(OCModel model, Solution solution) {
-		if (LOGGER.isLoggable(Level.INFO)) {
-			LOGGER.log(Level.INFO, "Display solution:\n{0}", model.recordSolution(solution));
-		} else if (OCSolution.LOGGER.isLoggable(Level.INFO)) {
-			OCSolution.LOGGER.log(Level.INFO, "{0}", model.recordSolution(solution).toOutputString());
+	public static void logOnSolution(Level level, OCModel model, Solution solution) {
+		if (LOGGER.isLoggable(level)) {
+			LOGGER.log(level, "Display solution #{0}:\n{1}",
+					new Object[] { model.getSolver().getSolutionCount(), model.printSolution(solution) });
 		}
 	}
 
 	public static void logOnSolver(final IChocoModel m) {
-		logOnSolver(m.getModel());
+		logOnSolver(m.getSolver());
 	}
 
-	public static void logOnSolver(final Model model) {
+	public static void logOnSolver(final Solver solver) {
 		if (LOGGER.isLoggable(Level.INFO)) {
-			LOGGER.log(Level.INFO, "Solver diagnostics:\n{0}", toDimacs(model.getSolver()));
+			LOGGER.log(Level.INFO, "Solver diagnostics:\n{0}", toDimacs(solver));
 		}
 	}
 
@@ -77,25 +69,10 @@ public final class ChocoLogger {
 		return b.toString();
 	}
 
-	private static String getStatus(Solver s) {
-		switch (s.getSearchState()) {
-		case TERMINATED:
-			if (s.getSolutionCount() == 0) {
-				return "UNSATISFIABLE";
-			} else {
-				return s.hasObjective() ? "OPTIMUM" : "SATISFIABLE";
-			}
-		case STOPPED:
-			return s.getSolutionCount() == 0 ? "UNKNOWN" : "SATISFIABLE";
-		default:
-			return "ERROR";
-		}
-	}
-
 	public static String toDimacs(final Solver s) {
 		final StringBuilder b = new StringBuilder(256);
 		Formatter fmt = new Formatter(b, Locale.US);
-		fmt.format("s %s", getStatus(s));
+		fmt.format("s %s", Status.getStatus(s));
 		if (s.hasObjective()) {
 			fmt.format("%no %d", s.getBoundsManager().getBestSolutionValue().intValue());
 		}

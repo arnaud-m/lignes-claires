@@ -8,6 +8,8 @@
  */
 package lignesclaires.solver;
 
+import java.util.logging.Level;
+
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 
@@ -20,7 +22,7 @@ import lignesclaires.specs.IOCSolver;
 public class OCSolver implements IOCSolver {
 
 	@Override
-	public boolean solve(IBipartiteGraph bigraph, LignesClairesConfig config) throws OCSolverException {
+	public OCSolution solve(IBipartiteGraph bigraph, LignesClairesConfig config) throws OCSolverException {
 		final OCModel mod = new OCModel(bigraph, config.getModelMask());
 		mod.buildModel();
 		mod.configureSearch(config.getSearch());
@@ -43,13 +45,14 @@ public class OCSolver implements IOCSolver {
 		final Solution sol = mod.createSolution();
 		while (solver.solve()) {
 			sol.record();
-			ChocoLogger.logOnSolutionFound(mod, sol);
+			ChocoLogger.logOnSolution(Level.FINE, mod, sol);
 		}
+
 		if (mod.getSolver().getSolutionCount() > 0) {
-			ChocoLogger.logOnSolution(mod, sol);
+			ChocoLogger.logOnSolution(Level.INFO, mod, sol);
 		}
 		ChocoLogger.logOnSolver(mod);
-		return !solver.hasEndedUnexpectedly();
+		return new OCSolution(mod, sol);
 	}
 
 }
