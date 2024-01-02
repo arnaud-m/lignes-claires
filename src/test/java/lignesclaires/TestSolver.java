@@ -8,18 +8,26 @@
  */
 package lignesclaires;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.InputStream;
+import java.util.Scanner;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import lignesclaires.bigraph.BipartiteGraph;
 import lignesclaires.config.LignesClairesConfig;
+import lignesclaires.parser.InvalidGraphFormatException;
+import lignesclaires.parser.PaceInputParser;
 import lignesclaires.solver.OCModel;
 import lignesclaires.solver.OCSearch;
+import lignesclaires.solver.OCSolution;
 import lignesclaires.solver.OCSolver;
 import lignesclaires.solver.OCSolverException;
 import lignesclaires.solver.Status;
 import lignesclaires.specs.IBipartiteGraph;
+import lignesclaires.specs.IGraphParser;
 
 public class TestSolver {
 
@@ -32,70 +40,93 @@ public class TestSolver {
 		JULogUtil.configureTestLoggers();
 	}
 
-	public void testAll(IBipartiteGraph bigraph) throws OCSolverException {
+	private final IBipartiteGraph getResourceGraph(final String resourcePath) throws InvalidGraphFormatException {
+		final IGraphParser<IBipartiteGraph> parser = new PaceInputParser();
+		final InputStream in = getClass().getClassLoader().getResourceAsStream(resourcePath);
+		return parser.parse(new Scanner(in));
+	}
+
+	public void testAll(String resourcePath, int optimum) throws OCSolverException, InvalidGraphFormatException {
+		final IBipartiteGraph graph = getResourceGraph(resourcePath);
 		for (OCSearch search : OCSearch.values()) {
 			config.setSearch(search);
 			for (int modelMask = 0; modelMask < OCModel.LB; modelMask++) {
 				config.setModelMask(modelMask);
-				Assert.assertNotEquals(Status.ERROR, solver.solve(bigraph, config).getStatus());
+				OCSolution sol = solver.solve(graph, config);
+				assertEquals(Status.OPTIMUM, sol.getStatus());
+				assertTrue(sol.getObjective().isPresent());
+				assertEquals(optimum, sol.getObjective().getAsInt());
 			}
 		}
 	}
 
-	@Test
-	public void testSolver554() throws OCSolverException {
-		BipartiteGraph bigraph = new BipartiteGraph(5, 5, 4);
-		bigraph.addEdge(2, 8);
-		bigraph.addEdge(3, 6);
-		bigraph.addEdge(3, 9);
-		bigraph.addEdge(4, 10);
-		testAll(bigraph);
+	public void testTiny(String resourcePath, int optimum) throws OCSolverException, InvalidGraphFormatException {
+		testAll("tiny_test_set/" + resourcePath, optimum);
 	}
 
 	@Test
-	public void testSolver557() throws OCSolverException {
-		BipartiteGraph builder = new BipartiteGraph(5, 5, 7);
-		builder.addEdge(1, 7);
-		builder.addEdge(1, 8);
-		builder.addEdge(2, 8);
-		builder.addEdge(3, 6);
-		builder.addEdge(4, 6);
-		builder.addEdge(4, 8);
-		builder.addEdge(5, 7);
-		testAll(builder);
+	public void testComplete_4_5() throws OCSolverException, InvalidGraphFormatException {
+		testTiny("complete_4_5.gr", 60);
 	}
 
 	@Test
-	public void testSolver10109() throws OCSolverException {
-		BipartiteGraph bigraph = new BipartiteGraph(10, 10, 9);
-		bigraph.addEdge(1, 16);
-		bigraph.addEdge(3, 13);
-		bigraph.addEdge(4, 13);
-		bigraph.addEdge(5, 14);
-		bigraph.addEdge(9, 11);
-		bigraph.addEdge(10, 15);
-		bigraph.addEdge(10, 17);
-		bigraph.addEdge(10, 19);
-		bigraph.addEdge(10, 20);
-		testAll(bigraph);
+	public void testCycle_8_shuffled() throws OCSolverException, InvalidGraphFormatException {
+		testTiny("cycle_8_shuffled.gr", 4);
 	}
 
 	@Test
-	public void testSolver101012() throws OCSolverException {
-		BipartiteGraph bigraph = new BipartiteGraph(10, 10, 12);
-		bigraph.addEdge(1, 18);
-		bigraph.addEdge(2, 11);
-		bigraph.addEdge(2, 14);
-		bigraph.addEdge(2, 20);
-		bigraph.addEdge(4, 15);
-		bigraph.addEdge(5, 11);
-		bigraph.addEdge(5, 13);
-		bigraph.addEdge(6, 17);
-		bigraph.addEdge(7, 11);
-		bigraph.addEdge(7, 16);
-		bigraph.addEdge(8, 15);
-		bigraph.addEdge(9, 18);
-		testAll(bigraph);
+	public void testCycle_8_sorted() throws OCSolverException, InvalidGraphFormatException {
+		testTiny("cycle_8_sorted.gr", 3);
+	}
+
+	@Test
+	public void testGrid_9_shuffled() throws OCSolverException, InvalidGraphFormatException {
+		testTiny("grid_9_shuffled.gr", 17);
+	}
+
+	@Test
+	public void testLadder_4_4_shuffled() throws OCSolverException, InvalidGraphFormatException {
+		testTiny("ladder_4_4_shuffled.gr", 11);
+	}
+
+	@Test
+	public void testLadder_4_4_sorted() throws OCSolverException, InvalidGraphFormatException {
+		testTiny("ladder_4_4_sorted.gr", 3);
+	}
+
+	@Test
+	public void testMatching_4_4() throws OCSolverException, InvalidGraphFormatException {
+		testTiny("matching_4_4.gr", 0);
+	}
+
+	@Test
+	public void testPath_9_shuffled() throws OCSolverException, InvalidGraphFormatException {
+		testTiny("path_9_shuffled.gr", 6);
+	}
+
+	@Test
+	public void testPath_9_sorted() throws OCSolverException, InvalidGraphFormatException {
+		testTiny("path_9_sorted.gr", 0);
+	}
+
+	@Test
+	public void testPlane_5_6() throws OCSolverException, InvalidGraphFormatException {
+		testTiny("plane_5_6.gr", 0);
+	}
+
+	@Test
+	public void testStar_6() throws OCSolverException, InvalidGraphFormatException {
+		testTiny("star_6.gr", 0);
+	}
+
+	@Test
+	public void testTree_6_10() throws OCSolverException, InvalidGraphFormatException {
+		testTiny("tree_6_10.gr", 13);
+	}
+
+	@Test
+	public void testWebsite_20() throws OCSolverException, InvalidGraphFormatException {
+		testTiny("website_20.gr", 17);
 	}
 
 }
