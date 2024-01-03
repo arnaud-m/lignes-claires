@@ -68,9 +68,11 @@ public class BlockDecomposition {
 	public BlockCutTree execute(ForestDFS forest) {
 		setUp(forest);
 		for (NodeDFS v : forest.getPostorder()) {
-			NodeDFS p = forest.getParent(v);
-			if (v.getLowest() >= p.getPreorder()) {
-				blocks.add(searchBlock(v));
+			if (!v.isRoot()) {
+				NodeDFS p = forest.getParent(v);
+				if (v.getLowest() >= p.getPreorder()) {
+					blocks.add(searchBlock(v));
+				}
 			}
 		}
 		return new BlockCutTree(forest, blocks);

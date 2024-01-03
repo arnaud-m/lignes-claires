@@ -83,11 +83,9 @@ public final class PropBinaryDisjunction extends Propagator<IntVar> {
 	@Override
 	public ESat isEntailed() {
 		if (b.isInstantiated()) {
-			return b.isInstantiatedTo(0) ? isEntailed(x, y)
-					: isEntailed(y, x);
+			return b.isInstantiatedTo(0) ? isEntailed(x, y) : isEntailed(y, x);
 		} else {
-			if (x.isInstantiated() && y.isInstantiated()
-					&& x.getValue() == y.getValue()) {
+			if (x.isInstantiated() && y.isInstantiated() && x.getValue() == y.getValue()) {
 				return ESat.FALSE;
 			} else
 				return ESat.UNDEFINED;
@@ -96,23 +94,6 @@ public final class PropBinaryDisjunction extends Propagator<IntVar> {
 
 	@Override
 	public void explain(int p, ExplanationForSignedClause explanation) {
-		// IntIterableRangeSet set0, set1;
-		// if (explanation.readVar(p) == vars[0]) { // case a. (see javadoc)
-		// set1 = explanation.complement(vars[1]);
-		// set0 = explanation.domain(vars[1]);
-		// set0.times(-1);
-		// set0.plus(cste);
-		// vars[0].intersectLit(set0, explanation);
-		// vars[1].unionLit(set1, explanation);
-		// } else { // case b. (see javadoc)
-		// assert explanation.readVar(p) == vars[1];
-		// set0 = explanation.complement(vars[0]);
-		// set1 = explanation.domain(vars[0]);
-		// set1.times(-1);
-		// set1.plus(cste);
-		// vars[0].unionLit(set0, explanation);
-		// vars[1].intersectLit(set1, explanation);
-		// }
 	}
 
 	@Override
