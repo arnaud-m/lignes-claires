@@ -29,7 +29,7 @@ public class OCSolution {
 		this.permutation = Optional.empty();
 	}
 
-	public OCSolution(OCModel model, Solution solution) {
+	public OCSolution(final OCModel model, final Solution solution) {
 		super();
 		this.status = Status.getStatus(model);
 		final Solver solver = model.getSolver();

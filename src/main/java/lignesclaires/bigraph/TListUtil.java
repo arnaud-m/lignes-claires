@@ -24,7 +24,7 @@ public final class TListUtil {
 		super();
 	}
 
-	public static TIntArrayList wrap(int... values) {
+	public static TIntArrayList wrap(final int... values) {
 		return TIntArrayList.wrap(values);
 	}
 
@@ -36,8 +36,9 @@ public final class TListUtil {
 					l.add(i);
 				}
 				return l;
-			} else
+			} else {
 				throw new IllegalArgumentException("");
+			}
 		} else if (begin > end) {
 			if (by < 0) {
 				TIntArrayList l = new TIntArrayList(((end - begin) / by) + 1);
@@ -45,19 +46,20 @@ public final class TListUtil {
 					l.add(i);
 				}
 				return l;
-			} else
+			} else {
 				throw new IllegalArgumentException("");
+			}
 		} else {
 			return new TIntArrayList();
 		}
 	}
 
-	public static TIntArrayList[] createArrayOfTLists(int n) {
+	public static TIntArrayList[] createArrayOfTLists(final int n) {
 		return createArrayOfTLists(n, Constants.DEFAULT_CAPACITY);
 
 	}
 
-	public static TIntArrayList[] createArrayOfTLists(int n, int capacity) {
+	public static TIntArrayList[] createArrayOfTLists(final int n, final int capacity) {
 		TIntArrayList[] lists = new TIntArrayList[n];
 		for (int i = 0; i < lists.length; i++) {
 			lists[i] = new TIntArrayList(capacity);
@@ -97,7 +99,7 @@ public final class TListUtil {
 		return Stream.of(indices).map(i -> vars[i]).toArray(m -> (E[]) Array.newInstance(vars[0].getClass(), m));
 	}
 
-	public static final double getMedian(final TIntArrayList list) {
+	public static double getMedian(final TIntArrayList list) {
 		if (list.isEmpty()) {
 			return 0;
 		}
@@ -113,11 +115,11 @@ public final class TListUtil {
 		}
 	}
 
-	public static final double getBarycenter(final TIntList list) {
+	public static double getBarycenter(final TIntList list) {
 		return list.isEmpty() ? 0 : 1.0 * list.sum() / list.size();
 	}
 
-	public static final TIntArrayList intersect(TIntList l1, TIntList l2) {
+	public static TIntArrayList intersect(final TIntList l1, final TIntList l2) {
 		TIntArrayList intersection = new TIntArrayList();
 		if (!l1.isEmpty() && !l2.isEmpty()) {
 			final TIntIterator it1 = l1.iterator();
@@ -137,7 +139,7 @@ public final class TListUtil {
 		return intersection;
 	}
 
-	public static final int intersectSingloton(TIntList l1, TIntList l2) {
+	public static int intersectSingloton(final TIntList l1, final TIntList l2) {
 		TIntArrayList l3 = intersect(l1, l2);
 		if (l3.size() != 1) {
 			throw new IllegalArgumentException("Intersection cardinality " + l3.size());
@@ -145,7 +147,7 @@ public final class TListUtil {
 		return l3.getQuick(0);
 	}
 
-	public static final int lazyIntersectSingloton(TIntList l1, TIntList l2) {
+	public static int lazyIntersectSingloton(final TIntList l1, final TIntList l2) {
 		if (!l1.isEmpty() && !l2.isEmpty()) {
 			final TIntIterator it1 = l1.iterator();
 			final TIntIterator it2 = l2.iterator();
@@ -164,13 +166,14 @@ public final class TListUtil {
 		throw new IllegalArgumentException("Empty intersection");
 	}
 
-	public static final boolean isEqual(TIntList l1, TIntList l2) {
+	public static boolean isEqual(final TIntList l1, final TIntList l2) {
 		if (l1.size() == l2.size()) {
 			final TIntIterator it1 = l1.iterator();
 			final TIntIterator it2 = l2.iterator();
 			while (it1.hasNext()) {
-				if (it1.next() != it2.next())
+				if (it1.next() != it2.next()) {
 					return false;
+				}
 			}
 			return true;
 		}

@@ -38,7 +38,7 @@ public class DepthFirstSearch {
 	private int postNum;
 	private Deque<StackIterator> stack = new ArrayDeque<>();
 
-	private void setUp(IGenericGraph graph) {
+	private void setUp(final IGenericGraph graph) {
 		this.graph = graph;
 		final int n = graph.getNodeCount();
 		data = new NodeDFS[n];
@@ -59,17 +59,17 @@ public class DepthFirstSearch {
 		return false;
 	}
 
-	private void pushNode(int node, int parent) {
+	private void pushNode(final int node, final int parent) {
 		data[node] = new NodeDFS(node, parent, preNum++);
 		stack.push(new StackIterator(node, graph.getNeighborIterator(node)));
 	}
 
-	private void popNode(int node) {
+	private void popNode(final int node) {
 		stack.pop();
 		data[node].setPostorder(postNum++);
 	}
 
-	public ForestDFS execute(IGenericGraph graph) {
+	public ForestDFS execute(final IGenericGraph graph) {
 		setUp(graph);
 		while (findRoot()) {
 			while (!stack.isEmpty()) {
@@ -96,19 +96,19 @@ public class DepthFirstSearch {
 		public final int node;
 		private final TIntIterator iter;
 
-		public StackIterator(int index, IGenericGraph graph) {
+		public StackIterator(final int index, final IGenericGraph graph) {
 			super();
 			this.node = index;
 			this.iter = graph.getNeighborIterator(index);
 		}
 
-		public StackIterator(int index, TIntIterator iter) {
+		public StackIterator(final int index, final TIntIterator iter) {
 			super();
 			this.node = index;
 			this.iter = iter;
 		}
 
-		public final int getNode() {
+		public int getNode() {
 			return node;
 		}
 

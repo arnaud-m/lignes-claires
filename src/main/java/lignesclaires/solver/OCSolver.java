@@ -22,7 +22,7 @@ import lignesclaires.specs.IOCSolver;
 public class OCSolver implements IOCSolver {
 
 	@Override
-	public OCSolution solve(IBipartiteGraph bigraph, LignesClairesConfig config) throws OCSolverException {
+	public OCSolution solve(final IBipartiteGraph bigraph, final LignesClairesConfig config) throws OCSolverException {
 		final OCModel mod = new OCModel(bigraph, config.getModelMask());
 		mod.buildModel();
 		mod.configureSearch(config.getSearch());

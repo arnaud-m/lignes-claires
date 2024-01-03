@@ -15,7 +15,7 @@ public final class CrossingCounts {
 	private final int[][] counts;
 	private int constant;
 
-	public CrossingCounts(int[][] crossingCounts, int constant) {
+	public CrossingCounts(final int[][] crossingCounts, final int constant) {
 		super();
 		this.counts = crossingCounts;
 		this.constant = constant;

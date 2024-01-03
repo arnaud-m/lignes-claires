@@ -21,22 +21,22 @@ public abstract class AbstractGraph implements IGenericGraph {
 
 	protected int edgeCount = 0;
 
-	protected AbstractGraph(TIntArrayList[] adjLists) {
+	protected AbstractGraph(final TIntArrayList[] adjLists) {
 		super();
 		this.adjLists = adjLists;
 	}
 
-	protected AbstractGraph(int n, int capacity) {
+	protected AbstractGraph(final int n, final int capacity) {
 		this(TListUtil.createArrayOfTLists(n, capacity));
 	}
 
-	protected AbstractGraph(int n) {
+	protected AbstractGraph(final int n) {
 		this(n, Constants.DEFAULT_CAPACITY);
 	}
 
-	public abstract void addEdge(int i, int j);
+	public abstract void addEdge(final int i, final int j);
 
-	public void sort() {
+	public final void sort() {
 		for (TIntArrayList adjList : adjLists) {
 			adjList.sort();
 		}
@@ -53,27 +53,27 @@ public abstract class AbstractGraph implements IGenericGraph {
 	}
 
 	@Override
-	public final boolean isIsolated(int node) {
+	public final boolean isIsolated(final int node) {
 		return adjLists[node].isEmpty();
 	}
 
 	@Override
-	public final boolean isLeaf(int node) {
+	public final boolean isLeaf(final int node) {
 		return adjLists[node].size() == 1;
 	}
 
 	@Override
-	public final TIntList getNeighbors(int node) {
+	public final TIntList getNeighbors(final int node) {
 		return TCollections.unmodifiableList(adjLists[node]);
 	}
 
 	@Override
-	public final int getOutDegree(int node) {
+	public final int getOutDegree(final int node) {
 		return adjLists[node].size();
 	}
 
 	@Override
-	public final TIntIterator getNeighborIterator(int node) {
+	public final TIntIterator getNeighborIterator(final int node) {
 		return TCollections.unmodifiableList(adjLists[node]).iterator();
 	}
 

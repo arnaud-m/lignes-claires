@@ -23,7 +23,7 @@ public class BipartiteGraph extends UGraph implements IBipartiteGraph {
 	Optional<CrossingCounts> reducedCrossingCounts;
 	Optional<CrossingCounts> crossingCounts;
 
-	public BipartiteGraph(int fixedCount, int freeCount, int edgeCount) {
+	public BipartiteGraph(final int fixedCount, final int freeCount, final int edgeCount) {
 		super(fixedCount + freeCount + 1, edgeCount);
 		this.fixedCount = fixedCount;
 		this.freeCount = freeCount;
@@ -43,7 +43,7 @@ public class BipartiteGraph extends UGraph implements IBipartiteGraph {
 	}
 
 	@Override
-	public final int getFreeNode(int free) {
+	public final int getFreeNode(final int free) {
 		return freeOffset + free;
 	}
 
@@ -57,11 +57,11 @@ public class BipartiteGraph extends UGraph implements IBipartiteGraph {
 		return getOutDegree(freeOffset + free);
 	}
 
-	public <E> E[] permutateMedians(E[] objects) {
+	public <E> E[] permutateMedians(final E[] objects) {
 		return TListUtil.permutate(objects, TListUtil::getMedian, adjLists, freeOffset);
 	}
 
-	public <E> E[] permutateBarycenters(E[] objects) {
+	public <E> E[] permutateBarycenters(final E[] objects) {
 		return TListUtil.permutate(objects, TListUtil::getBarycenter, adjLists, freeOffset);
 	}
 

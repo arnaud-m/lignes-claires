@@ -8,8 +8,6 @@
  */
 package lignesclaires.choco;
 
-import org.chocosolver.solver.Model;
-import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -67,17 +65,18 @@ public final class PropBinaryDisjunction extends Propagator<IntVar> {
 	}
 
 	@Override
-	public void propagate(int varIdx, int mask) throws ContradictionException {
+	public void propagate(final int varIdx, final int mask) throws ContradictionException {
 		propagate(mask);
 	}
 
-	private static final ESat isEntailed(IntVar left, IntVar right) {
-		if (left.getUB() < right.getLB())
+	private static ESat isEntailed(final IntVar left, final IntVar right) {
+		if (left.getUB() < right.getLB()) {
 			return ESat.TRUE;
-		else if (left.getLB() > right.getUB())
+		} else if (left.getLB() > right.getUB()) {
 			return ESat.FALSE;
-		else
+		} else {
 			return ESat.UNDEFINED;
+		}
 	}
 
 	@Override
@@ -93,7 +92,7 @@ public final class PropBinaryDisjunction extends Propagator<IntVar> {
 	}
 
 	@Override
-	public void explain(int p, ExplanationForSignedClause explanation) {
+	public void explain(final int p, final ExplanationForSignedClause explanation) {
 	}
 
 	@Override
@@ -101,16 +100,4 @@ public final class PropBinaryDisjunction extends Propagator<IntVar> {
 		return "(" + x + " < " + y + ") == " + b;
 	}
 
-	public static void main(String[] args) {
-		Model m = new Model();
-		final int n = 3;
-		IntVar x = m.intVar("x", 0, n);
-		IntVar y = m.intVar("y", 0, n);
-		IntVar b = m.intVar("b", new int[] { 0, n });
-
-		Constraint c = new Constraint("MyConstraint", new PropBinaryDisjunction(new IntVar[] { x, y, b }));
-		m.post(c);
-
-		System.out.println(m.getSolver().findAllSolutions());
-	}
 }

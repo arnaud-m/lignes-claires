@@ -18,7 +18,7 @@ import lignesclaires.specs.IGraphParser;
 public class PaceInputParser implements IGraphParser<IBipartiteGraph> {
 
 	@Override
-	public IBipartiteGraph parse(Scanner scanner) throws InvalidGraphFormatException {
+	public IBipartiteGraph parse(final Scanner scanner) throws InvalidGraphFormatException {
 		try {
 			skipComments(scanner);
 			scanner.next();
@@ -29,13 +29,13 @@ public class PaceInputParser implements IGraphParser<IBipartiteGraph> {
 			BipartiteGraph bigraph = new BipartiteGraph(fixedCount, freeCount, edgeCount);
 			for (int i = 0; i < edgeCount; i++) {
 				final int fixed = scanner.nextInt();
-				if (fixed < 1 || fixed > fixedCount)
+				if (fixed < 1 || fixed > fixedCount) {
 					throw new InvalidGraphFormatException("Invalid fixed node:" + fixed);
-
+				}
 				final int free = scanner.nextInt();
-				if (free < fixedCount + 1 || free > fixedCount + freeCount + 1)
+				if (free < fixedCount + 1 || free > fixedCount + freeCount + 1) {
 					throw new InvalidGraphFormatException("Invalid free node:" + free);
-
+				}
 				bigraph.addEdge(fixed, free);
 			}
 			bigraph.sort();
@@ -45,7 +45,7 @@ public class PaceInputParser implements IGraphParser<IBipartiteGraph> {
 		}
 	}
 
-	public static final void skipComments(Scanner sc) {
+	public static final void skipComments(final Scanner sc) {
 		final String pattern = "c\\h*.*\\v";
 		boolean skipCLine = true;
 		do {

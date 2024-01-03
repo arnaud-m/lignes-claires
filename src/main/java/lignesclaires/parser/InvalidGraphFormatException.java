@@ -16,7 +16,7 @@ public class InvalidGraphFormatException extends Exception {
 		super("Invalid graph format exception");
 	}
 
-	public InvalidGraphFormatException(String message) {
+	public InvalidGraphFormatException(final String message) {
 		super(message);
 	}
 }

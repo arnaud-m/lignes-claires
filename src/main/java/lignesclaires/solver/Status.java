@@ -16,11 +16,11 @@ public enum Status {
 
 	OPTIMUM, SATISFIABLE, UNSATISFIABLE, UNKNOWN, ERROR;
 
-	public static Status getStatus(IChocoModel model) {
+	public static Status getStatus(final IChocoModel model) {
 		return getStatus(model.getSolver());
 	}
 
-	public static Status getStatus(Solver solver) {
+	public static Status getStatus(final Solver solver) {
 		switch (solver.getSearchState()) {
 		case TERMINATED:
 			if (solver.getSolutionCount() == 0) {

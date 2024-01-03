@@ -49,7 +49,7 @@ public class OCModel implements IOCModel {
 	public static final int DISJ = 16;
 	public static final int LB = 32;
 
-	public OCModel(IBipartiteGraph bigraph, int modelMask) {
+	public OCModel(final IBipartiteGraph bigraph, final int modelMask) {
 		super();
 		this.bigraph = bigraph;
 		this.modelMask = modelMask;
@@ -100,7 +100,7 @@ public class OCModel implements IOCModel {
 
 		private final CostConstraintBuilder builder;
 
-		public ObjectiveBuilder(boolean decompose) {
+		public ObjectiveBuilder(final boolean decompose) {
 			super();
 			this.counts = bigraph.getReducedCrossingCounts();
 			final int n = bigraph.getFreeCount();
@@ -115,20 +115,20 @@ public class OCModel implements IOCModel {
 			}
 		}
 
-		public final void addOrdered(Point p) {
+		public final void addOrdered(final Point p) {
 			addOrdered(p.x, p.y);
 		}
 
-		public void addOrdered(int i, int j) {
+		public void addOrdered(final int i, final int j) {
 			constant += counts.getCrossingCount(i, j);
 			positions[i].lt(positions[j]).post();
 		}
 
-		private IntVar createCostVar(int i, int j, int cij, int cji) {
+		private IntVar createCostVar(final int i, final int j, final int cij, final int cji) {
 			return model.intVar("cost[" + i + "][" + j + "]", new int[] { cij, cji });
 		}
 
-		public void addUnordered(int i, int j) {
+		public void addUnordered(final int i, final int j) {
 			final int cij = counts.getCrossingCount(i, j);
 			final int cji = counts.getCrossingCount(j, i);
 			if (cij != cji) {
@@ -153,14 +153,18 @@ public class OCModel implements IOCModel {
 
 	private ReductionRules buildReductionRules() {
 		Builder builder = new ReductionRules.Builder(bigraph);
-		if (hasFlag(RR1))
+		if (hasFlag(RR1)) {
 			builder.withReductionRule1();
-		if (hasFlag(RR2))
+		}
+		if (hasFlag(RR2)) {
 			builder.withReductionRule2();
-		if (hasFlag(RR3))
+		}
+		if (hasFlag(RR3)) {
 			builder.withReductionRule3();
-		if (hasFlag(RRLO2))
+		}
+		if (hasFlag(RRLO2)) {
 			builder.withReductionRuleLO2();
+		}
 		return builder.build();
 	}
 
@@ -186,11 +190,12 @@ public class OCModel implements IOCModel {
 		}
 		rules.getTuplesLO2().ifPresent(this::postPermutationBinaryTable);
 		objBuilder.postObjective();
-		if (hasFlag(LB))
+		if (hasFlag(LB)) {
 			postLowerBound();
+		}
 	}
 
-	public void configureSearch(OCSearch search) {
+	public void configureSearch(final OCSearch search) {
 		BipartiteGraph gr = (BipartiteGraph) bigraph;
 		switch (search) {
 		case MEDIAN: {
@@ -240,7 +245,7 @@ public class OCModel implements IOCModel {
 		return b.toString();
 	}
 
-	public void postPermutationBinaryTable(Tuples tuples) {
+	public void postPermutationBinaryTable(final Tuples tuples) {
 		final int n = bigraph.getFreeCount() - 1;
 		for (int i = 0; i < n; i++) {
 			model.table(permutation[i], permutation[i + 1], tuples).post();

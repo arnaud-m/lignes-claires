@@ -30,7 +30,7 @@ public class BlockCutTree implements IDotty {
 
 	private OptionalInt localCrossingsLB;
 
-	public BlockCutTree(final ForestDFS forest, List<TIntArrayList> blocks) {
+	public BlockCutTree(final ForestDFS forest, final List<TIntArrayList> blocks) {
 		super();
 		this.forest = forest;
 		this.blocks = blocks;
@@ -39,8 +39,8 @@ public class BlockCutTree implements IDotty {
 	}
 
 	protected final TIntArrayList[] computeNodeBlocks() {
-		TIntArrayList[] nblocks = TListUtil.createArrayOfTLists(forest.getGraph().getNodeCount());
-		ListIterator<TIntArrayList> itB = blocks.listIterator();
+		final TIntArrayList[] nblocks = TListUtil.createArrayOfTLists(forest.getGraph().getNodeCount());
+		final ListIterator<TIntArrayList> itB = blocks.listIterator();
 		while (itB.hasNext()) {
 			final TIntIterator itN = itB.next().iterator();
 			final int idx = itB.previousIndex();
@@ -87,7 +87,7 @@ public class BlockCutTree implements IDotty {
 		return cuts.get();
 	}
 
-	private void toDottyCuts(DottyFactory f) {
+	private void toDottyCuts(final DottyFactory f) {
 		f.beginBlock("shape=plain");
 		getCuts().forEach(cut -> {
 			f.addNode(cut);
@@ -96,7 +96,7 @@ public class BlockCutTree implements IDotty {
 		f.endBlock();
 	}
 
-	private void toDottyBlocks(DottyFactory f) {
+	private void toDottyBlocks(final DottyFactory f) {
 		final TIntSet s = getCuts();
 		f.beginBlock("shape=box");
 		int idx = 1;
@@ -117,7 +117,7 @@ public class BlockCutTree implements IDotty {
 
 	@Override
 	public final String toDotty() {
-		DottyFactory f = new DottyFactory(false);
+		final DottyFactory f = new DottyFactory(false);
 		f.beginGraph();
 		toDottyCuts(f);
 		toDottyBlocks(f);

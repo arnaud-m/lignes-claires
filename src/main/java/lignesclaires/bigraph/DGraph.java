@@ -13,7 +13,7 @@ import lignesclaires.specs.IEdgeConsumer;
 
 public class DGraph extends AbstractGraph {
 
-	public DGraph(int nodeCount, int edgeCount) {
+	public DGraph(final int nodeCount, final int edgeCount) {
 		super(TListUtil.createArrayOfTLists(nodeCount, 3 * edgeCount / nodeCount));
 	}
 
@@ -23,13 +23,13 @@ public class DGraph extends AbstractGraph {
 	}
 
 	@Override
-	public void addEdge(int i, int j) {
+	public void addEdge(final int i, final int j) {
 		adjLists[i].add(j);
 		edgeCount++;
 	}
 
 	@Override
-	public final void forEachEdge(IEdgeConsumer consumer) {
+	public final void forEachEdge(final IEdgeConsumer consumer) {
 		final int n = getNodeCount();
 		for (int i = 0; i < n; i++) {
 			final TIntIterator iter = getNeighborIterator(i);

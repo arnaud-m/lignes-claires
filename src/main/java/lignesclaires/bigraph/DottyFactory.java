@@ -20,7 +20,7 @@ public class DottyFactory {
 	private final String graphType;
 	private final String edgeType;
 
-	public DottyFactory(boolean directed) {
+	public DottyFactory(final boolean directed) {
 		super();
 		this.b = new StringBuilder();
 		if (directed) {
@@ -40,15 +40,15 @@ public class DottyFactory {
 		b.append("\n}\n");
 	}
 
-	public final void beginBlock(String nodeAttributes) {
+	public final void beginBlock(final String nodeAttributes) {
 		beginBlock(Optional.of(nodeAttributes), Optional.empty());
 	}
 
-	public final void beginBlock(String nodeAttributes, String edgeAttributes) {
+	public final void beginBlock(final String nodeAttributes, final String edgeAttributes) {
 		beginBlock(Optional.of(nodeAttributes), Optional.of(edgeAttributes));
 	}
 
-	public final void beginBlock(Optional<String> nodeAttributes, Optional<String> edgeAttributes) {
+	public final void beginBlock(final Optional<String> nodeAttributes, final Optional<String> edgeAttributes) {
 		b.append("{\n");
 		addAttributes("node", nodeAttributes);
 		addAttributes("edge", edgeAttributes);
@@ -67,7 +67,7 @@ public class DottyFactory {
 		b.append('\n');
 	}
 
-	public final void brackets(String attrs) {
+	public final void brackets(final String attrs) {
 		b.append(" [").append(attrs).append("]");
 	}
 
@@ -76,43 +76,43 @@ public class DottyFactory {
 		endInst();
 	}
 
-	public final void addAttributes(final int id, String attributes) {
+	public final void addAttributes(final int id, final String attributes) {
 		b.append(id);
 		brackets(attributes);
 		endLine();
 	}
 
-	public final void addAttributes(final String id, String attributes) {
+	public final void addAttributes(final String id, final String attributes) {
 		b.append(id);
 		brackets(attributes);
 		endLine();
 	}
 
-	public final void addAttributes(final String id, Optional<String> attributes) {
+	public final void addAttributes(final String id, final Optional<String> attributes) {
 		attributes.ifPresent(attrs -> addAttributes(id, attrs));
 	}
 
-	public final void addEdge(final int origin, int destination) {
+	public final void addEdge(final int origin, final int destination) {
 		addEdge(String.valueOf(origin), String.valueOf(destination), Optional.empty());
 	}
 
-	public final void addEdge(String origin, String destination) {
+	public final void addEdge(final String origin, final String destination) {
 		addEdge(origin, destination, Optional.empty());
 	}
 
-	public final void addEdge(int origin, int destination, Optional<String> edgeAttributes) {
+	public final void addEdge(final int origin, final int destination, final Optional<String> edgeAttributes) {
 		b.append(origin).append(edgeType).append(destination);
 		edgeAttributes.ifPresent(this::brackets);
 		endLine();
 	}
 
-	public final void addEdge(String origin, String destination, Optional<String> edgeAttributes) {
+	public final void addEdge(final String origin, final String destination, final Optional<String> edgeAttributes) {
 		b.append(origin).append(edgeType).append(destination);
 		edgeAttributes.ifPresent(this::brackets);
 		endLine();
 	}
 
-	public void toDotty(IDotty[] data) {
+	public void toDotty(final IDotty[] data) {
 		b.append(Stream.of(data).map(IDotty::toDotty).collect(Collectors.joining("\n")));
 	}
 

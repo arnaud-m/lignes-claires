@@ -27,7 +27,7 @@ public class ForestDFS implements IDotty {
 
 	private Optional<NodeDFS[]> roots;
 
-	public ForestDFS(IGenericGraph graph, NodeDFS[] dataDFS) {
+	public ForestDFS(final IGenericGraph graph, final NodeDFS[] dataDFS) {
 		super();
 		this.graph = graph;
 		this.data = dataDFS;
@@ -45,11 +45,11 @@ public class ForestDFS implements IDotty {
 		return data;
 	}
 
-	public final NodeDFS getNode(int node) {
+	public final NodeDFS getNode(final int node) {
 		return data[node];
 	}
 
-	public final NodeDFS getParent(NodeDFS node) {
+	public final NodeDFS getParent(final NodeDFS node) {
 		return data[node.getParent()];
 	}
 
@@ -66,7 +66,7 @@ public class ForestDFS implements IDotty {
 		return forest.get();
 	}
 
-	int[] computeSubTreeArcCounts() {
+	private int[] computeSubTreeArcCounts() {
 		int[] counts = new int[graph.getNodeCount()];
 		IGenericGraph f = getForest();
 		for (NodeDFS n : getPostorder()) {
@@ -80,7 +80,7 @@ public class ForestDFS implements IDotty {
 		return counts;
 	}
 
-	ArrayList<NodeDFS> getOrderInducingBridges(int threshold) {
+	public ArrayList<NodeDFS> getOrderInducingBridges(final int threshold) {
 		final ArrayList<NodeDFS> bridges = new ArrayList<>();
 		int[] counts = computeSubTreeArcCounts();
 		int[] r = new int[graph.getNodeCount()];
@@ -128,21 +128,22 @@ public class ForestDFS implements IDotty {
 		return roots.get();
 	}
 
-	public final boolean isIn(int i, int j) {
+	public final boolean isIn(final int i, final int j) {
 		return i == data[j].getParent() || j == data[i].getParent();
 	}
 
-	private void toDottyIn(DottyFactory f) {
+	private void toDottyIn(final DottyFactory f) {
 		f.beginBlock("shape=record", "style=bold");
 		Stream.of(data).forEach(n -> n.toDotty(f));
 		f.endBlock();
 	}
 
-	private void toDottyOut(DottyFactory f) {
+	private void toDottyOut(final DottyFactory f) {
 		f.beginBlock(Optional.empty(), Optional.of("style=dashed"));
 		graph.forEachEdge((i, j) -> {
-			if (!isIn(i, j))
+			if (!isIn(i, j)) {
 				f.addEdge(i, j);
+			}
 
 		});
 		f.endBlock();
@@ -158,6 +159,7 @@ public class ForestDFS implements IDotty {
 		return f.toString();
 	}
 
+	@Override
 	public String toString() {
 		return DepthFirstSearch.toString(data, "\n");
 	}

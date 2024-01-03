@@ -40,7 +40,7 @@ public final class ChocoLogger {
 		}
 	}
 
-	public static void logOnSolution(Level level, OCModel model, Solution solution) {
+	public static void logOnSolution(final Level level, final OCModel model, final Solution solution) {
 		if (LOGGER.isLoggable(level)) {
 			LOGGER.log(level, "Display solution #{0}:\n{1}",
 					new Object[] { model.getSolver().getSolutionCount(), model.printSolution(solution) });

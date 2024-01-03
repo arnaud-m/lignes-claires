@@ -21,7 +21,7 @@ public final class NodeDFS {
 	private int highest;
 	private int descendants;
 
-	public NodeDFS(int node, int parent, int preorder) {
+	public NodeDFS(final int node, final int parent, final int preorder) {
 		super();
 		this.node = node;
 		this.parent = parent;
@@ -32,66 +32,69 @@ public final class NodeDFS {
 		this.descendants = 1;
 	}
 
-	public final int getNode() {
+	public int getNode() {
 		return node;
 	}
 
-	public final int getParent() {
+	public int getParent() {
 		return parent;
 	}
 
-	public final int getPreorder() {
+	public int getPreorder() {
 		return preorder;
 	}
 
-	public final int getPostorder() {
+	public int getPostorder() {
 		return postorder;
 	}
 
-	protected final void setPostorder(int postorder) {
+	protected void setPostorder(final int postorder) {
 		this.postorder = postorder;
 	}
 
-	public final int getLowest() {
+	public int getLowest() {
 		return lowest;
 	}
 
-	public final int getHighest() {
+	public int getHighest() {
 		return highest;
 	}
 
-	public final int getDescendants() {
+	public int getDescendants() {
 		return descendants;
 	}
 
-	protected void awakeOnOutEdge(NodeDFS dest) {
+	protected void awakeOnOutEdge(final NodeDFS dest) {
 		if (this.parent != dest.node) {
 			// System.out.println("OUT " + this.node + " -> " + dest.node);
-			if (dest.preorder < lowest)
+			if (dest.preorder < lowest) {
 				lowest = dest.preorder;
-			else if (dest.preorder > highest)
+			} else if (dest.preorder > highest) {
 				highest = dest.preorder;
+			}
 		}
 	}
 
-	protected void awakeOnInEdge(NodeDFS dest) {
+	protected void awakeOnInEdge(final NodeDFS dest) {
 		if (this.node != dest.node) {
 			// System.out.println("IN " + this.node + " -> " + dest.node);
-			if (dest.lowest < lowest)
+			if (dest.lowest < lowest) {
 				lowest = dest.lowest;
+			}
 
-			if (dest.highest > highest)
+			if (dest.highest > highest) {
 				highest = dest.highest;
+			}
 
 			descendants += dest.descendants;
 		}
 	}
 
-	public final boolean isRoot() {
+	public boolean isRoot() {
 		return parent == node;
 	}
 
-	public final boolean isBridge() {
+	public boolean isBridge() {
 		return lowest == preorder && highest < preorder + descendants;
 	}
 
@@ -100,7 +103,7 @@ public final class NodeDFS {
 		return String.format("[ %-3d pa:%-3d pr:%-3d po:%-3d]", node, parent, preorder, postorder);
 	}
 
-	protected void toDotty(DottyFactory f) {
+	protected void toDotty(final DottyFactory f) {
 		final String label = String.format("label=\"{{%d|%d|%d}|{%d|%d}}\"", node, preorder, postorder, lowest,
 				highest);
 		f.addAttributes(node, label);
@@ -108,7 +111,7 @@ public final class NodeDFS {
 		f.addEdge(parent, node, attrs);
 	}
 
-	public static int[] toNodes(NodeDFS[] nodes) {
+	public static int[] toNodes(final NodeDFS[] nodes) {
 		return Stream.of(nodes).mapToInt(NodeDFS::getNode).toArray();
 	}
 

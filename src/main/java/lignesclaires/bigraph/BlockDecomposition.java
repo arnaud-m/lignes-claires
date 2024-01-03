@@ -29,19 +29,19 @@ public class BlockDecomposition {
 	private Deque<StackIterator> stack = new ArrayDeque<>();
 	private TIntArrayList block;
 
-	private void setUp(ForestDFS forest) {
+	private void setUp(final ForestDFS forest) {
 		final int n = forest.getGraph().getNodeCount();
 		this.forest = forest;
 		this.blocks = new ArrayList<>(n);
 		decomposed = new boolean[n];
 	}
 
-	private void push(int node) {
+	private void push(final int node) {
 		block.add(node);
 		stack.push(new StackIterator(node, forest.getForest()));
 	}
 
-	private void setUp(NodeDFS cutChild) {
+	private void setUp(final NodeDFS cutChild) {
 		stack.clear();
 		block = new TIntArrayList();
 		block.add(cutChild.getParent());
@@ -49,7 +49,7 @@ public class BlockDecomposition {
 		decomposed[cutChild.getNode()] = true;
 	}
 
-	public TIntArrayList searchBlock(NodeDFS cutChild) {
+	public TIntArrayList searchBlock(final NodeDFS cutChild) {
 		setUp(cutChild);
 		while (!stack.isEmpty()) {
 			final StackIterator elt = stack.peek();
@@ -65,7 +65,7 @@ public class BlockDecomposition {
 		return block;
 	}
 
-	public BlockCutTree execute(ForestDFS forest) {
+	public BlockCutTree execute(final ForestDFS forest) {
 		setUp(forest);
 		for (NodeDFS v : forest.getPostorder()) {
 			if (!v.isRoot()) {

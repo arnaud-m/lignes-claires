@@ -14,23 +14,24 @@ import lignesclaires.specs.IGraphDimension;
 
 public class UGraph extends AbstractGraph implements IGraphDimension {
 
-	public UGraph(int nodeCount, int edgeCount) {
+	public UGraph(final int nodeCount, final int edgeCount) {
 		super(TListUtil.createArrayOfTLists(nodeCount, 3 * edgeCount / nodeCount));
 	}
 
+	@Override
 	public boolean isDirected() {
 		return false;
 	}
 
 	@Override
-	public void addEdge(int i, int j) {
+	public void addEdge(final int i, final int j) {
 		adjLists[i].add(j);
 		adjLists[j].add(i);
 		edgeCount++;
 	}
 
 	@Override
-	public final void forEachEdge(IEdgeConsumer consumer) {
+	public final void forEachEdge(final IEdgeConsumer consumer) {
 		final int n = getNodeCount();
 		for (int i = 0; i < n; i++) {
 			final TIntIterator iter = getNeighborIterator(i);

@@ -122,7 +122,7 @@ public final class LignesClaires {
 		return new OCSolution();
 	}
 
-	private static void exportSolution(final String solfile, OCSolution solution) {
+	private static void exportSolution(final String solfile, final OCSolution solution) {
 		try (FileWriter fileWriter = new FileWriter(new File(solfile), false)) {
 			fileWriter.append(solution.toString());
 		} catch (IOException e) {
