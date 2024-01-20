@@ -21,13 +21,13 @@ public class EdgeListParser implements IGraphParser<IGenericGraph> {
 
 	private final boolean directed;
 
-	public EdgeListParser(boolean directed) {
+	public EdgeListParser(final boolean directed) {
 		super();
 		this.directed = directed;
 	}
 
 	@Override
-	public IGenericGraph parse(Scanner scanner) throws InvalidGraphFormatException {
+	public IGenericGraph parse(final Scanner scanner) throws InvalidGraphFormatException {
 		try {
 			PaceInputParser.skipComments(scanner);
 			final int nodeCount = scanner.nextInt();

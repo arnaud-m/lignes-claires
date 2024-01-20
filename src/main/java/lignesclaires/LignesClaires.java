@@ -8,14 +8,20 @@
  */
 package lignesclaires;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import lignesclaires.bigraph.BlockCutTree;
+import lignesclaires.bigraph.BlockDecomposition;
+import lignesclaires.bigraph.DepthFirstSearch;
+import lignesclaires.bigraph.ForestDFS;
 import lignesclaires.cmd.OptionsParser;
 import lignesclaires.cmd.Verbosity;
 import lignesclaires.config.LignesClairesConfig;
@@ -32,6 +38,8 @@ import lignesclaires.specs.IOCSolver;
 public final class LignesClaires {
 
 	public static final Logger LOGGER = Logger.getLogger(LignesClaires.class.getName());
+
+	private static final String FAIL = " [FAIL";
 
 	private LignesClaires() {
 	}
@@ -51,15 +59,22 @@ public final class LignesClaires {
 			}
 			final LignesClairesConfig config = optparser.getConfig();
 			configureVerbosity(config.getVerbosity());
-			final IOCSolver solver = buildSolver(config);
-			final PaceInputParser parser = new PaceInputParser();
 
-			String filepath = config.getArguments().get(0);
-			OCSolution solution = solve(filepath, parser, solver, config);
-			if (config.getArguments().size() == 2) {
-				exportSolution(config.getArguments().get(1), solution);
+			final Optional<IBipartiteGraph> optGraph = parse(config.getGraphFile());
+			if (optGraph.isPresent()) {
+				if (config.exportBlockCutTree()) {
+					exportBlockCutTree(optGraph.get(), config.getGraphFile());
+				}
+				final OCSolution solution = solve(optGraph.get(), config);
+				final Optional<String> optsol = config.getSolutionFile();
+				if (optsol.isPresent()) {
+					exportSolution(optsol.get(), solution);
+				}
+				return solution.getStatus() == Status.ERROR ? 1 : 0;
+			} else {
+				return 1;
 			}
-			return solution.getStatus() == Status.ERROR ? 1 : 0;
+
 		} finally {
 			JULogUtil.flushLogs();
 		}
@@ -94,28 +109,62 @@ public final class LignesClaires {
 		return new OCSolver();
 	}
 
-	private static IBipartiteGraph parse(final String graphfile, final PaceInputParser parser)
-			throws FileNotFoundException, InvalidGraphFormatException {
-		final File file = new File(graphfile);
-		final IBipartiteGraph bigraph = parser.parse(file);
-		if (LOGGER.isLoggable(Level.INFO)) {
-			LOGGER.log(Level.INFO, "Parse graph [OK]\ni {0}\n{1}", new Object[] { file.getName(), toDimacs(bigraph) });
-			if (LOGGER.isLoggable(Level.CONFIG)) {
-				LOGGER.log(Level.CONFIG, "Display graph:\n{0}", bigraph);
+	private static Optional<IBipartiteGraph> parse(final String graphfile) {
+		try {
+			final PaceInputParser parser = new PaceInputParser();
+			final File file = new File(graphfile);
+			final IBipartiteGraph bigraph = parser.parse(file);
+			if (LOGGER.isLoggable(Level.INFO)) {
+				LOGGER.log(Level.INFO, "Parse graph [OK]\ni {0}\n{1}",
+						new Object[] { getFilenameWithoutExtension(file), toDimacs(bigraph) });
+				if (LOGGER.isLoggable(Level.CONFIG)) {
+					LOGGER.log(Level.CONFIG, "Display graph:\n{0}", bigraph);
+				}
 			}
+			return Optional.of(bigraph);
+		} catch (InvalidGraphFormatException | FileNotFoundException e) {
+			LOGGER.log(Level.SEVERE, e, () -> "Parse file " + graphfile + FAIL);
 		}
-		return bigraph;
+		return Optional.empty();
 	}
 
-	private static OCSolution solve(final String graphfile, final PaceInputParser parser, final IOCSolver solver,
-			final LignesClairesConfig config) {
+	private static void writeString(final String content, final String filePath) {
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+			// Write the string to the file
+			writer.write(content);
+			LOGGER.log(Level.INFO, "Export file {0} [OK]", filePath);
+		} catch (IOException e) {
+			LOGGER.log(Level.WARNING, e, () -> "Write file " + filePath + FAIL);
+		}
+	}
+
+	private static String getFilenameWithoutExtension(String path) {
+		return getFilenameWithoutExtension(new File(path));
+	}
+
+	private static String getFilenameWithoutExtension(File file) {
+		final String name = file.getName();
+		final int idx = name.lastIndexOf('.');
+		return idx < 0 ? name : name.substring(0, idx);
+	}
+
+	private static void exportBlockCutTree(IBipartiteGraph graph, final String graphfile) {
+		final String graphname = getFilenameWithoutExtension(graphfile);
+		final DepthFirstSearch dfs = new DepthFirstSearch();
+		final ForestDFS f = dfs.execute(graph);
+		writeString(f.toDotty(), graphname + "-forest.dot");
+
+		final BlockDecomposition bdec = new BlockDecomposition();
+		final BlockCutTree d = bdec.execute(f);
+		writeString(d.toDotty(), graphname + "-bctree.dot");
+	}
+
+	private static OCSolution solve(final IBipartiteGraph bigraph, final LignesClairesConfig config) {
 		try {
-			final IBipartiteGraph bigraph = parse(graphfile, parser);
+			final IOCSolver solver = buildSolver(config);
 			final OCSolution solution = solver.solve(bigraph, config);
 			LOGGER.log(Level.INFO, "Solve OCM [{0}]", solution.getStatus());
 			return solution;
-		} catch (InvalidGraphFormatException | FileNotFoundException e) {
-			LOGGER.log(Level.SEVERE, e, () -> "Parse file " + graphfile + " [FAIL]");
 		} catch (OCSolverException e) {
 			LOGGER.log(Level.SEVERE, "Solve OCM [FAIL]", e);
 		}
@@ -125,6 +174,7 @@ public final class LignesClaires {
 	private static void exportSolution(final String solfile, final OCSolution solution) {
 		try (FileWriter fileWriter = new FileWriter(new File(solfile), false)) {
 			fileWriter.append(solution.toString());
+			LOGGER.log(Level.INFO, "Export solution to file {0} [OK]", solfile);
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e, () -> "Export solution to file " + solfile + " [FAIL]");
 		}

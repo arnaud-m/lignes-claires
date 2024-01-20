@@ -11,6 +11,7 @@ package lignesclaires.config;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
@@ -46,6 +47,9 @@ public class LignesClairesConfig {
 
 	@Option(name = "--time", usage = "Limit the time taken by the solver (in seconds).")
 	private long timeLimit;
+
+	@Option(name = "--bctree", usage = "Export the DFS and Block-Cut trees to graphviz.")
+	private boolean blockCutTree;
 
 	/**
 	 * Receives other command line parameters than options.
@@ -105,8 +109,23 @@ public class LignesClairesConfig {
 		this.timeLimit = timeLimit;
 	}
 
+	public final boolean exportBlockCutTree() {
+		return blockCutTree;
+	}
+
+	public final void setBlockCutTree(boolean blockCutTree) {
+		this.blockCutTree = blockCutTree;
+	}
+
 	public final List<String> getArguments() {
 		return Collections.unmodifiableList(arguments);
 	}
 
+	public final String getGraphFile() {
+		return arguments.get(0);
+	}
+
+	public final Optional<String> getSolutionFile() {
+		return arguments.size() < 2 ? Optional.empty() : Optional.of(arguments.get(1));
+	}
 }
