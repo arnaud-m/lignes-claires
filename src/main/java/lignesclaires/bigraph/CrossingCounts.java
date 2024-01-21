@@ -8,7 +8,12 @@
  */
 package lignesclaires.bigraph;
 
+import java.awt.Point;
 import java.util.Formatter;
+
+import org.chocosolver.solver.constraints.extension.Tuples;
+
+import gnu.trove.map.hash.TObjectIntHashMap;
 
 public final class CrossingCounts {
 
@@ -27,6 +32,33 @@ public final class CrossingCounts {
 
 	public int getConstant() {
 		return constant;
+	}
+
+	public TObjectIntHashMap<Point> getPatternDistribution() {
+		TObjectIntHashMap<Point> patterns = new TObjectIntHashMap<>();
+		for (int i = 0; i < counts.length; i++) {
+			for (int j = i + 1; j < counts.length; j++) {
+				final Point p = counts[i][j] <= counts[j][i] ? new Point(counts[i][j], counts[j][i])
+						: new Point(counts[j][i], counts[i][j]);
+				patterns.adjustOrPutValue(p, 1, 1);
+
+			}
+		}
+		return patterns;
+	}
+
+	public Tuples getTuplesLO2() {
+		Tuples tuples = new Tuples();
+		for (int i = 0; i < counts.length; i++) {
+			for (int j = i + 1; j < counts.length; j++) {
+				if (counts[i][j] <= counts[j][i]) {
+					tuples.add(i, j);
+				} else {
+					tuples.add(j, i);
+				}
+			}
+		}
+		return tuples;
 	}
 
 	@Override

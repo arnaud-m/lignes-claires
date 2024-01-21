@@ -166,6 +166,23 @@ public final class TListUtil {
 		throw new IllegalArgumentException("Empty intersection");
 	}
 
+	public static void difference(final TIntList l1, final TIntList l2) {
+		if (!l1.isEmpty() && !l2.isEmpty()) {
+			final TIntIterator it1 = l1.iterator();
+			final TIntIterator it2 = l2.iterator();
+			int v2 = it2.next();
+			do {
+				final int v1 = it1.next();
+				while (v1 > v2 && it2.hasNext()) {
+					v2 = it2.next();
+				}
+				if (v1 == v2) {
+					it1.remove();
+				}
+			} while (it1.hasNext());
+		}
+	}
+
 	public static boolean isEqual(final TIntList l1, final TIntList l2) {
 		if (l1.size() == l2.size()) {
 			final TIntIterator it1 = l1.iterator();

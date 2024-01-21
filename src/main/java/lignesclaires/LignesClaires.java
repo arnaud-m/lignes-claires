@@ -128,7 +128,7 @@ public final class LignesClaires {
 		return Optional.empty();
 	}
 
-	private static void writeString(final String content, final String filePath) {
+	public static void writeString(final String content, final String filePath) {
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
 			// Write the string to the file
 			writer.write(content);

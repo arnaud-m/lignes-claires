@@ -20,10 +20,12 @@ import org.chocosolver.solver.search.limits.FailCounter;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
 
+import lignesclaires.LignesClaires;
 import lignesclaires.bigraph.BipartiteGraph;
 import lignesclaires.bigraph.CrossingCounts;
 import lignesclaires.bigraph.rules.ReductionRules;
 import lignesclaires.bigraph.rules.ReductionRules.Builder;
+import lignesclaires.bigraph.rules.ReductionRulesBis;
 import lignesclaires.choco.PropBinaryDisjunction;
 import lignesclaires.specs.IBipartiteGraph;
 import lignesclaires.specs.IOCModel;
@@ -128,7 +130,7 @@ public class OCModel implements IOCModel {
 			return model.intVar("cost[" + i + "][" + j + "]", new int[] { cij, cji });
 		}
 
-		public void addUnordered(final int i, final int j) {
+		public void addIncomparable(final int i, final int j) {
 			final int cij = counts.getCrossingCount(i, j);
 			final int cji = counts.getCrossingCount(j, i);
 			if (cij != cji) {
@@ -173,22 +175,40 @@ public class OCModel implements IOCModel {
 		objective.ge(lb).decompose().post();
 	}
 
+	static boolean DEBUG = false;
+
 	@Override
 	public void buildModel() {
 		final int n = bigraph.getFreeCount();
 		ReductionRules rules = buildReductionRules();
 		ObjectiveBuilder objBuilder = new ObjectiveBuilder(hasFlag(DISJ));
+		ReductionRulesBis rulesBis = new ReductionRulesBis(bigraph, hasFlag(RR1), hasFlag(RR2), hasFlag(RR3));
+		LignesClaires.writeString(rulesBis.getOrderedGraph().toDotty(), "digraph.dot");
+		LignesClaires.writeString(rulesBis.getReducedGraph().toDotty(), "trgraph.dot");
 		for (int i = 0; i < n; i++) {
 			for (int j = i + 1; j < n; j++) {
 				final Optional<Point> order = rules.apply(i, j);
 				if (order.isPresent()) {
-					objBuilder.addOrdered(order.get());
+					if (DEBUG)
+						objBuilder.addOrdered(order.get());
 				} else {
-					objBuilder.addUnordered(i, j);
+					if (DEBUG)
+						objBuilder.addIncomparable(i, j);
 				}
 			}
 		}
-		rules.getTuplesLO2().ifPresent(this::postPermutationBinaryTable);
+
+		if (!DEBUG) {
+			rulesBis.getOrderedGraph().forEachEdge(objBuilder::addOrdered);
+			rulesBis.getIncomparableGraph().forEachEdge(objBuilder::addIncomparable);
+			if (hasFlag(RRLO2)) {
+				postPermutationBinaryTable(bigraph.getCrossingCounts().getTuplesLO2());
+			}
+		} else {
+			rules.getTuplesLO2().ifPresent(this::postPermutationBinaryTable);
+
+		}
+
 		objBuilder.postObjective();
 		if (hasFlag(LB)) {
 			postLowerBound();
