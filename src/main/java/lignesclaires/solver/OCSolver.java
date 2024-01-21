@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 
+import lignesclaires.LignesClaires;
 import lignesclaires.choco.ChocoLogger;
 import lignesclaires.cmd.Verbosity;
 import lignesclaires.config.LignesClairesConfig;
@@ -24,6 +25,9 @@ public class OCSolver implements IOCSolver {
 	@Override
 	public OCSolution solve(final IBipartiteGraph bigraph, final LignesClairesConfig config) throws OCSolverException {
 		final OCModel mod = new OCModel(bigraph, config.getModelMask());
+		if (config.exportOrderingGraphs()) {
+			mod.setExportPath(LignesClaires.getFilenameWithoutExtension(config.getGraphFile()));
+		}
 		mod.buildModel();
 		mod.configureSearch(config.getSearch());
 		if (config.isWithRestarts()) {

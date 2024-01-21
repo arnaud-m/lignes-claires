@@ -138,11 +138,11 @@ public final class LignesClaires {
 		}
 	}
 
-	private static String getFilenameWithoutExtension(String path) {
+	public static String getFilenameWithoutExtension(String path) {
 		return getFilenameWithoutExtension(new File(path));
 	}
 
-	private static String getFilenameWithoutExtension(File file) {
+	public static String getFilenameWithoutExtension(File file) {
 		final String name = file.getName();
 		final int idx = name.lastIndexOf('.');
 		return idx < 0 ? name : name.substring(0, idx);

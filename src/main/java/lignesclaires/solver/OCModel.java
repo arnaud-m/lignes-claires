@@ -24,8 +24,6 @@ import lignesclaires.LignesClaires;
 import lignesclaires.bigraph.BipartiteGraph;
 import lignesclaires.bigraph.CrossingCounts;
 import lignesclaires.bigraph.rules.ReductionRules;
-import lignesclaires.bigraph.rules.ReductionRules.Builder;
-import lignesclaires.bigraph.rules.ReductionRulesBis;
 import lignesclaires.choco.PropBinaryDisjunction;
 import lignesclaires.specs.IBipartiteGraph;
 import lignesclaires.specs.IOCModel;
@@ -43,6 +41,8 @@ public class OCModel implements IOCModel {
 	private final IntVar objective;
 
 	private final int modelMask;
+
+	private Optional<String> rrPath;
 
 	public static final int RR1 = 1;
 	public static final int RR2 = 2;
@@ -63,6 +63,7 @@ public class OCModel implements IOCModel {
 		model.inverseChanneling(positions, permutation).post();
 		objective = model.intVar("objective", 0, m * m);
 		model.setObjective(false, objective);
+		this.rrPath = Optional.of("graph");
 	}
 
 	@Override
@@ -83,6 +84,10 @@ public class OCModel implements IOCModel {
 	@Override
 	public IntVar getMinCrossingCounts() {
 		return objective;
+	}
+
+	public void setExportPath(String path) {
+		rrPath = Optional.of(path);
 	}
 
 	private interface CostConstraintBuilder {
@@ -153,62 +158,30 @@ public class OCModel implements IOCModel {
 		return (modelMask & flag) != 0;
 	}
 
-	private ReductionRules buildReductionRules() {
-		Builder builder = new ReductionRules.Builder(bigraph);
-		if (hasFlag(RR1)) {
-			builder.withReductionRule1();
-		}
-		if (hasFlag(RR2)) {
-			builder.withReductionRule2();
-		}
-		if (hasFlag(RR3)) {
-			builder.withReductionRule3();
-		}
-		if (hasFlag(RRLO2)) {
-			builder.withReductionRuleLO2();
-		}
-		return builder.build();
-	}
-
 	private void postLowerBound() {
 		final int lb = bigraph.getEdgeCount() - bigraph.getNodeCount() + 1;
 		objective.ge(lb).decompose().post();
 	}
 
-	static boolean DEBUG = false;
+	private void exportReductionRules(final ReductionRules rules) {
+		if (rrPath.isPresent()) {
+			final String prefix = rrPath.get();
+			LignesClaires.writeString(rules.getOrderedGraph().toDotty(), prefix + "-ordered.dot");
+			LignesClaires.writeString(rules.getReducedGraph().toDotty(), prefix + "-reduced.dot");
+			LignesClaires.writeString(rules.getIncomparableGraph().toDotty(), prefix + "-incomparable.dot");
+		}
+	}
 
 	@Override
 	public void buildModel() {
-		final int n = bigraph.getFreeCount();
-		ReductionRules rules = buildReductionRules();
-		ObjectiveBuilder objBuilder = new ObjectiveBuilder(hasFlag(DISJ));
-		ReductionRulesBis rulesBis = new ReductionRulesBis(bigraph, hasFlag(RR1), hasFlag(RR2), hasFlag(RR3));
-		LignesClaires.writeString(rulesBis.getOrderedGraph().toDotty(), "digraph.dot");
-		LignesClaires.writeString(rulesBis.getReducedGraph().toDotty(), "trgraph.dot");
-		for (int i = 0; i < n; i++) {
-			for (int j = i + 1; j < n; j++) {
-				final Optional<Point> order = rules.apply(i, j);
-				if (order.isPresent()) {
-					if (DEBUG)
-						objBuilder.addOrdered(order.get());
-				} else {
-					if (DEBUG)
-						objBuilder.addIncomparable(i, j);
-				}
-			}
+		final ObjectiveBuilder objBuilder = new ObjectiveBuilder(hasFlag(DISJ));
+		final ReductionRules rules = new ReductionRules(bigraph, hasFlag(RR1), hasFlag(RR2), hasFlag(RR3));
+		exportReductionRules(rules);
+		rules.getOrderedGraph().forEachEdge(objBuilder::addOrdered);
+		rules.getIncomparableGraph().forEachEdge(objBuilder::addIncomparable);
+		if (hasFlag(RRLO2)) {
+			postPermutationBinaryTable(bigraph.getCrossingCounts().getTuplesLO2());
 		}
-
-		if (!DEBUG) {
-			rulesBis.getOrderedGraph().forEachEdge(objBuilder::addOrdered);
-			rulesBis.getIncomparableGraph().forEachEdge(objBuilder::addIncomparable);
-			if (hasFlag(RRLO2)) {
-				postPermutationBinaryTable(bigraph.getCrossingCounts().getTuplesLO2());
-			}
-		} else {
-			rules.getTuplesLO2().ifPresent(this::postPermutationBinaryTable);
-
-		}
-
 		objBuilder.postObjective();
 		if (hasFlag(LB)) {
 			postLowerBound();

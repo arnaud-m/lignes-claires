@@ -51,6 +51,9 @@ public class LignesClairesConfig {
 	@Option(name = "--bctree", usage = "Export the DFS and Block-Cut trees to graphviz.")
 	private boolean blockCutTree;
 
+	@Option(name = "--ordering", usage = "Export the ordered, reduced, and incomparable graphs to graphviz.")
+	private boolean orderingGraphs;
+
 	/**
 	 * Receives other command line parameters than options.
 	 */
@@ -111,6 +114,10 @@ public class LignesClairesConfig {
 
 	public final boolean exportBlockCutTree() {
 		return blockCutTree;
+	}
+
+	public final boolean exportOrderingGraphs() {
+		return orderingGraphs;
 	}
 
 	public final void setBlockCutTree(boolean blockCutTree) {

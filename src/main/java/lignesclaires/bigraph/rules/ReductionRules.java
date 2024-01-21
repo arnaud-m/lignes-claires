@@ -8,73 +8,151 @@
  */
 package lignesclaires.bigraph.rules;
 
-import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Optional;
 
-import org.chocosolver.solver.constraints.extension.Tuples;
-
+import gnu.trove.iterator.TIntIterator;
+import gnu.trove.list.array.TIntArrayList;
+import lignesclaires.bigraph.CrossingCounts;
+import lignesclaires.bigraph.DGraph;
+import lignesclaires.bigraph.TListUtil;
+import lignesclaires.bigraph.UGraph;
 import lignesclaires.specs.IBipartiteGraph;
-import lignesclaires.specs.IReductionRule;
+import lignesclaires.specs.IGenericGraph;
 
-public class ReductionRules implements IReductionRule {
+public class ReductionRules {
 
-	private final Optional<ReductionRuleLO2> ruleLO2;
+	private final IBipartiteGraph graph;
+	private final CrossingCounts counts;
+	private final DGraph ordered;
+	private final UGraph incomparable;
+	private final DGraph reduced;
 	private final IReductionRule[] rules;
 
-	public ReductionRules(Optional<ReductionRuleLO2> ruleLO2, IReductionRule... rules) {
+	public ReductionRules(IBipartiteGraph graph, boolean useRule1, boolean useRule2, boolean useRule3) {
 		super();
-		this.ruleLO2 = ruleLO2;
-		this.rules = rules;
+		this.graph = graph;
+		this.counts = graph.getCrossingCounts();
+		final int n = graph.getFreeCount();
+		this.ordered = new DGraph(n, n);
+		this.incomparable = new UGraph(n, n);
+		this.reduced = new DGraph(n, n);
+		rules = buildRules(useRule1, useRule2, useRule3);
+		buildOrderedGraph();
+		buildReducedGraph();
 	}
 
-	@Override
-	public Optional<Point> apply(final int i, final int j) {
-		ruleLO2.ifPresent(x -> x.accept(i, j));
+	public final IBipartiteGraph getBiGraph() {
+		return graph;
+	}
+
+	public final IGenericGraph getOrderedGraph() {
+		return ordered;
+	}
+
+	public final IGenericGraph getReducedGraph() {
+		return reduced;
+	}
+
+	public final IGenericGraph getIncomparableGraph() {
+		return incomparable;
+	}
+
+	private IReductionRule[] buildRules(boolean useRule1, boolean useRule2, boolean useRule3) {
+		ArrayList<IReductionRule> r = new ArrayList<>();
+		if (useRule1) {
+			r.add(new ReductionRule1());
+		}
+		if (useRule2) {
+			r.add(new ReductionRule2());
+		}
+		if (useRule3) {
+			r.add(new ReductionRule3());
+		}
+		return r.toArray(new IReductionRule[r.size()]);
+	}
+
+	private void applyRules(int i, int j) {
 		for (IReductionRule rule : rules) {
-			Optional<Point> p = rule.apply(i, j);
-			if (p.isPresent()) {
-				return p;
+			if (rule.apply(i, j)) {
+				return;
 			}
 		}
-		return Optional.empty();
+		incomparable.addEdge(i, j);
 	}
 
-	public Optional<Tuples> getTuplesLO2() {
-		return ruleLO2.map(x -> x.getTuples());
+	private void buildOrderedGraph() {
+		final int n = graph.getFreeCount();
+		for (int i = 0; i < n; i++) {
+			for (int j = i + 1; j < n; j++) {
+				applyRules(i, j);
+			}
+		}
 	}
 
-	public static final class Builder {
-
-		private final IBipartiteGraph bigraph;
-
-		private Optional<ReductionRuleLO2> ruleLO2 = Optional.empty();
-		private final ArrayList<IReductionRule> rules = new ArrayList<>();
-
-		public Builder(IBipartiteGraph bigraph) {
-			super();
-			this.bigraph = bigraph;
+	private void buildReducedGraph() {
+		final int n = graph.getFreeCount();
+		for (int i = 0; i < n; i++) {
+			final TIntArrayList neighbors = new TIntArrayList(ordered.getNeighbors(i));
+			TIntIterator it = ordered.getNeighborIterator(i);
+			while (it.hasNext() && !neighbors.isEmpty()) {
+				TListUtil.difference(neighbors, ordered.getNeighbors(it.next()));
+			}
+			it = neighbors.iterator();
+			while (it.hasNext()) {
+				reduced.addEdge(i, it.next());
+			}
 		}
+	}
 
-		public void withReductionRule1() {
-			rules.add(new ReductionRule1(bigraph));
+	interface IReductionRule {
+
+		boolean apply(int i, int j);
+
+	}
+
+	public class ReductionRule1 implements IReductionRule {
+
+		@Override
+		public boolean apply(int i, int j) {
+			if (counts.getCrossingCount(i, j) > 0) {
+				if (counts.getCrossingCount(j, i) == 0) {
+					ordered.addEdge(j, i);
+					return true;
+				}
+			} else if (counts.getCrossingCount(j, i) > 0) {
+				ordered.addEdge(i, j);
+				return true;
+			}
+			return false;
 		}
+	}
 
-		public void withReductionRule2() {
-			rules.add(new ReductionRule2(bigraph));
+	public class ReductionRule2 implements IReductionRule {
+
+		@Override
+		public boolean apply(int i, int j) {
+			if (TListUtil.isEqual(graph.getFreeNeighbors(i), graph.getFreeNeighbors(j))) {
+				ordered.addEdge(i, j);
+				return true;
+			}
+			return false;
 		}
+	}
 
-		public void withReductionRule3() {
-			rules.add(new ReductionRule3(bigraph));
-		}
+	public class ReductionRule3 implements IReductionRule {
 
-		public void withReductionRuleLO2() {
-			ruleLO2 = Optional.of(new ReductionRuleLO2(bigraph));
-
-		}
-
-		public ReductionRules build() {
-			return new ReductionRules(ruleLO2, rules.toArray(new IReductionRule[rules.size()]));
+		@Override
+		public boolean apply(int i, int j) {
+			if (graph.getDegree(i) == 2 && graph.getDegree(j) == 2) {
+				if (counts.getCrossingCount(i, j) == 1 && counts.getCrossingCount(j, i) == 2) {
+					ordered.addEdge(i, j);
+					return true;
+				} else if (counts.getCrossingCount(i, j) == 2 && counts.getCrossingCount(j, i) == 1) {
+					ordered.addEdge(j, i);
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 }
