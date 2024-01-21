@@ -11,7 +11,7 @@ package lignesclaires.specs;
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.TIntList;
 
-public interface IGenericGraph extends IGraphDimension, IDotty {
+public interface IGraph extends IGraphDimension, IDotty {
 
 	boolean isDirected();
 
@@ -22,6 +22,8 @@ public interface IGenericGraph extends IGraphDimension, IDotty {
 	TIntList getNeighbors(int node);
 
 	int getOutDegree(int node);
+
+	int getInDegree(int node);
 
 	TIntIterator getNeighborIterator(int node);
 

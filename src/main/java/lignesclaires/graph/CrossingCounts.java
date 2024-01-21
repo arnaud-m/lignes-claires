@@ -6,7 +6,7 @@
  * Licensed under the BSD 3-clause license.
  * See LICENSE file in the project root for full license information.
  */
-package lignesclaires.bigraph;
+package lignesclaires.graph;
 
 import java.awt.Point;
 import java.util.Formatter;

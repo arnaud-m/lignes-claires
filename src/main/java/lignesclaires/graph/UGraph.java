@@ -6,7 +6,7 @@
  * Licensed under the BSD 3-clause license.
  * See LICENSE file in the project root for full license information.
  */
-package lignesclaires.bigraph;
+package lignesclaires.graph;
 
 import gnu.trove.iterator.TIntIterator;
 import lignesclaires.specs.IEdgeConsumer;
@@ -19,15 +19,31 @@ public class UGraph extends AbstractGraph implements IGraphDimension {
 	}
 
 	@Override
-	public boolean isDirected() {
+	public final boolean isDirected() {
 		return false;
 	}
 
 	@Override
-	public void addEdge(final int i, final int j) {
+	public final void addEdge(final int i, final int j) {
 		adjLists[i].add(j);
 		adjLists[j].add(i);
 		edgeCount++;
+	}
+
+	@Override
+	public final int getInDegree(int node) {
+		return getOutDegree(node);
+	}
+
+	@Override
+	public final boolean isIsolated(final int node) {
+		return adjLists[node].isEmpty();
+	}
+
+	@Override
+	public final boolean isLeaf(final int node) {
+		// FIXME Invalid for directed graph
+		return adjLists[node].size() == 1;
 	}
 
 	@Override

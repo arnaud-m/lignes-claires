@@ -18,13 +18,13 @@ import java.util.OptionalInt;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import lignesclaires.bigraph.BlockCutTree;
-import lignesclaires.bigraph.BlockDecomposition;
-import lignesclaires.bigraph.DepthFirstSearch;
-import lignesclaires.bigraph.ForestDFS;
 import lignesclaires.cmd.OptionsParser;
 import lignesclaires.cmd.Verbosity;
 import lignesclaires.config.LignesClairesConfig;
+import lignesclaires.graph.BlockCutForest;
+import lignesclaires.graph.BlockDecomposition;
+import lignesclaires.graph.DepthFirstSearch;
+import lignesclaires.graph.ForestDFS;
 import lignesclaires.parser.InvalidGraphFormatException;
 import lignesclaires.parser.PaceInputParser;
 import lignesclaires.solver.OCSolution;
@@ -155,7 +155,7 @@ public final class LignesClaires {
 		writeString(f.toDotty(), graphname + "-forest.dot");
 
 		final BlockDecomposition bdec = new BlockDecomposition();
-		final BlockCutTree d = bdec.execute(f);
+		final BlockCutForest d = bdec.execute(f);
 		writeString(d.toDotty(), graphname + "-bctree.dot");
 	}
 

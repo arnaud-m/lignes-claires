@@ -21,10 +21,9 @@ import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
 
 import lignesclaires.LignesClaires;
-import lignesclaires.bigraph.BipartiteGraph;
-import lignesclaires.bigraph.CrossingCounts;
-import lignesclaires.bigraph.rules.ReductionRules;
 import lignesclaires.choco.PropBinaryDisjunction;
+import lignesclaires.graph.BGraph;
+import lignesclaires.graph.CrossingCounts;
 import lignesclaires.specs.IBipartiteGraph;
 import lignesclaires.specs.IOCModel;
 
@@ -189,7 +188,7 @@ public class OCModel implements IOCModel {
 	}
 
 	public void configureSearch(final OCSearch search) {
-		BipartiteGraph gr = (BipartiteGraph) bigraph;
+		BGraph gr = (BGraph) bigraph;
 		switch (search) {
 		case MEDIAN: {
 			getSolver().setSearch(Search.inputOrderLBSearch(gr.permutateMedians(positions)));

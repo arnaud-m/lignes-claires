@@ -6,7 +6,7 @@
  * Licensed under the BSD 3-clause license.
  * See LICENSE file in the project root for full license information.
  */
-package lignesclaires.bigraph;
+package lignesclaires.graph;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.Deque;
 import java.util.List;
 
 import gnu.trove.list.array.TIntArrayList;
-import lignesclaires.bigraph.DepthFirstSearch.StackIterator;
+import lignesclaires.graph.DepthFirstSearch.StackIterator;
 
 public class BlockDecomposition {
 
@@ -65,7 +65,7 @@ public class BlockDecomposition {
 		return block;
 	}
 
-	public BlockCutTree execute(final ForestDFS forest) {
+	public BlockCutForest execute(final ForestDFS forest) {
 		setUp(forest);
 		for (NodeDFS v : forest.getPostorder()) {
 			if (!v.isRoot()) {
@@ -75,7 +75,7 @@ public class BlockDecomposition {
 				}
 			}
 		}
-		return new BlockCutTree(forest, blocks);
+		return new BlockCutForest(forest, blocks);
 	}
 
 }

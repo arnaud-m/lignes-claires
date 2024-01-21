@@ -18,17 +18,17 @@ import java.util.Scanner;
 import org.junit.Test;
 
 import gnu.trove.list.TIntList;
-import lignesclaires.bigraph.TListUtil;
+import lignesclaires.graph.TListUtil;
 import lignesclaires.parser.EdgeListParser;
 import lignesclaires.parser.InvalidGraphFormatException;
 import lignesclaires.parser.PaceInputParser;
 import lignesclaires.specs.IBipartiteGraph;
-import lignesclaires.specs.IGenericGraph;
+import lignesclaires.specs.IGraph;
 import lignesclaires.specs.IGraphParser;
 
 public class TestParser {
 
-	private static class GraphParserTest<E extends IGenericGraph> {
+	private static class GraphParserTest<E extends IGraph> {
 
 		private final IGraphParser<E> parser;
 		private Scanner sc;
@@ -73,8 +73,8 @@ public class TestParser {
 
 	}
 
-	GraphParserTest<IGenericGraph> pu = new GraphParserTest<IGenericGraph>(new EdgeListParser(false));
-	GraphParserTest<IGenericGraph> pd = new GraphParserTest<IGenericGraph>(new EdgeListParser(true));
+	GraphParserTest<IGraph> pu = new GraphParserTest<IGraph>(new EdgeListParser(false));
+	GraphParserTest<IGraph> pd = new GraphParserTest<IGraph>(new EdgeListParser(true));
 
 	BiGraphParserTest pb = new BiGraphParserTest();
 
@@ -105,7 +105,7 @@ public class TestParser {
 		pb.assertBiGraph(5, 5, 0);
 	}
 
-	private static void testValidGraph1(GraphParserTest<IGenericGraph> p) throws InvalidGraphFormatException {
+	private static void testValidGraph1(GraphParserTest<IGraph> p) throws InvalidGraphFormatException {
 		p.parse("11 4\n" + "2 8\n" + "3 6\n" + "3 9\n" + "4 10\n");
 		p.assertGraph(11, 4);
 		p.assertNeighbors(1);
@@ -145,7 +145,7 @@ public class TestParser {
 		pb.assertNeighbors(5);
 	}
 
-	private void testValidGraph2(GraphParserTest<IGenericGraph> p) throws InvalidGraphFormatException {
+	private void testValidGraph2(GraphParserTest<IGraph> p) throws InvalidGraphFormatException {
 		p.parse("c comment 1\n" + "c comment 2\n" + "11 7\n" + "2 8\n" + "2 7\n" + "3 9\n" + "3 10\n" + "4 10\n"
 				+ "3 6\n" + "4 9\n");
 		p.assertGraph(11, 7);

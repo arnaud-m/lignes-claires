@@ -6,7 +6,7 @@
  * Licensed under the BSD 3-clause license.
  * See LICENSE file in the project root for full license information.
  */
-package lignesclaires.bigraph;
+package lignesclaires.graph;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 import gnu.trove.TIntCollection;
 import gnu.trove.iterator.TIntIterator;
-import lignesclaires.specs.IGenericGraph;
+import lignesclaires.specs.IGraph;
 
 /**
  * https://en.wikipedia.org/wiki/Bridge_(graph_theory)
@@ -27,7 +27,7 @@ import lignesclaires.specs.IGenericGraph;
 public class DepthFirstSearch {
 
 	// Input
-	private IGenericGraph graph;
+	private IGraph graph;
 
 	// Output
 	private NodeDFS[] data;
@@ -38,7 +38,7 @@ public class DepthFirstSearch {
 	private int postNum;
 	private Deque<StackIterator> stack = new ArrayDeque<>();
 
-	private void setUp(final IGenericGraph graph) {
+	private void setUp(final IGraph graph) {
 		this.graph = graph;
 		final int n = graph.getNodeCount();
 		data = new NodeDFS[n];
@@ -69,7 +69,7 @@ public class DepthFirstSearch {
 		data[node].setPostorder(postNum++);
 	}
 
-	public ForestDFS execute(final IGenericGraph graph) {
+	public ForestDFS execute(final IGraph graph) {
 		setUp(graph);
 		while (findRoot()) {
 			while (!stack.isEmpty()) {
@@ -96,7 +96,7 @@ public class DepthFirstSearch {
 		public final int node;
 		private final TIntIterator iter;
 
-		public StackIterator(final int index, final IGenericGraph graph) {
+		public StackIterator(final int index, final IGraph graph) {
 			super();
 			this.node = index;
 			this.iter = graph.getNeighborIterator(index);

@@ -14,7 +14,7 @@ import java.util.Scanner;
 
 import lignesclaires.parser.InvalidGraphFormatException;
 
-public interface IGraphParser<E extends IGenericGraph> {
+public interface IGraphParser<E extends IGraph> {
 
 	E parse(Scanner scanner) throws InvalidGraphFormatException;
 

@@ -6,7 +6,7 @@
  * Licensed under the BSD 3-clause license.
  * See LICENSE file in the project root for full license information.
  */
-package lignesclaires.bigraph;
+package lignesclaires.graph;
 
 import java.util.Optional;
 import java.util.Random;
@@ -14,7 +14,7 @@ import java.util.Random;
 import gnu.trove.list.TIntList;
 import lignesclaires.specs.IBipartiteGraph;
 
-public class BipartiteGraph extends UGraph implements IBipartiteGraph {
+public class BGraph extends UGraph implements IBipartiteGraph {
 
 	private final int fixedCount;
 	private final int freeCount;
@@ -23,7 +23,7 @@ public class BipartiteGraph extends UGraph implements IBipartiteGraph {
 	Optional<CrossingCounts> reducedCrossingCounts;
 	Optional<CrossingCounts> crossingCounts;
 
-	public BipartiteGraph(final int fixedCount, final int freeCount, final int edgeCount) {
+	public BGraph(final int fixedCount, final int freeCount, final int edgeCount) {
 		super(fixedCount + freeCount + 1, edgeCount);
 		this.fixedCount = fixedCount;
 		this.freeCount = freeCount;
@@ -104,10 +104,10 @@ public class BipartiteGraph extends UGraph implements IBipartiteGraph {
 		return crossingCounts.get();
 	}
 
-	public static BipartiteGraph generate(int fixedCount, int freeCount, double density, long seed) {
+	public static BGraph generate(int fixedCount, int freeCount, double density, long seed) {
 		final Random rnd = new Random(seed);
 		final int expectedEdgeCount = (int) Math.ceil(density * fixedCount * freeCount);
-		final BipartiteGraph graph = new BipartiteGraph(fixedCount, freeCount, expectedEdgeCount);
+		final BGraph graph = new BGraph(fixedCount, freeCount, expectedEdgeCount);
 		for (int i = 1; i <= fixedCount; i++) {
 			for (int j = 1; j <= freeCount; j++) {
 				if (rnd.nextDouble() < density) {
@@ -156,7 +156,7 @@ public class BipartiteGraph extends UGraph implements IBipartiteGraph {
 	}
 
 	public static void main(String[] args) {
-		BipartiteGraph bigraph = generate(Integer.parseInt(args[0]), Integer.parseInt(args[1]),
+		BGraph bigraph = generate(Integer.parseInt(args[0]), Integer.parseInt(args[1]),
 				Double.parseDouble(args[2]), Long.parseLong(args[3]));
 		System.out.println(bigraph.toPaceInputString());
 	}

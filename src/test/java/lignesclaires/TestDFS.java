@@ -18,28 +18,28 @@ import java.util.Scanner;
 import org.junit.Test;
 
 import gnu.trove.set.hash.TIntHashSet;
-import lignesclaires.bigraph.BlockCutTree;
-import lignesclaires.bigraph.BlockDecomposition;
-import lignesclaires.bigraph.DepthFirstSearch;
-import lignesclaires.bigraph.ForestDFS;
-import lignesclaires.bigraph.NodeDFS;
+import lignesclaires.graph.BlockCutForest;
+import lignesclaires.graph.BlockDecomposition;
+import lignesclaires.graph.DepthFirstSearch;
+import lignesclaires.graph.ForestDFS;
+import lignesclaires.graph.NodeDFS;
 import lignesclaires.parser.EdgeListParser;
 import lignesclaires.parser.InvalidGraphFormatException;
-import lignesclaires.specs.IGenericGraph;
+import lignesclaires.specs.IGraph;
 import lignesclaires.specs.IGraphParser;
 
 public class TestDFS {
 
-	private IGenericGraph g;
+	private IGraph g;
 
 	private final DepthFirstSearch dfs = new DepthFirstSearch();
 	private ForestDFS f;
 
 	private final BlockDecomposition bdec = new BlockDecomposition();
-	private BlockCutTree d;
+	private BlockCutForest d;
 
-	private final IGenericGraph getResourceGraph(final String resourcePath) throws InvalidGraphFormatException {
-		final IGraphParser<IGenericGraph> parser = new EdgeListParser(false);
+	private final IGraph getResourceGraph(final String resourcePath) throws InvalidGraphFormatException {
+		final IGraphParser<IGraph> parser = new EdgeListParser(false);
 		final InputStream in = getClass().getClassLoader().getResourceAsStream(resourcePath);
 		return parser.parse(new Scanner(in));
 	}

@@ -6,7 +6,7 @@
  * Licensed under the BSD 3-clause license.
  * See LICENSE file in the project root for full license information.
  */
-package lignesclaires.bigraph;
+package lignesclaires.graph;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +20,7 @@ import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
 import lignesclaires.specs.IDotty;
 
-public class BlockCutTree implements IDotty {
+public class BlockCutForest implements IDotty {
 
 	private final ForestDFS forest;
 
@@ -30,7 +30,7 @@ public class BlockCutTree implements IDotty {
 
 	private OptionalInt localCrossingsLB;
 
-	public BlockCutTree(final ForestDFS forest, final List<TIntArrayList> blocks) {
+	public BlockCutForest(final ForestDFS forest, final List<TIntArrayList> blocks) {
 		super();
 		this.forest = forest;
 		this.blocks = blocks;

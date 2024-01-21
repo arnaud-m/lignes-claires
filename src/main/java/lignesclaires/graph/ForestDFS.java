@@ -6,7 +6,7 @@
  * Licensed under the BSD 3-clause license.
  * See LICENSE file in the project root for full license information.
  */
-package lignesclaires.bigraph;
+package lignesclaires.graph;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -14,20 +14,20 @@ import java.util.stream.Stream;
 
 import gnu.trove.iterator.TIntIterator;
 import lignesclaires.specs.IDotty;
-import lignesclaires.specs.IGenericGraph;
+import lignesclaires.specs.IGraph;
 
 public class ForestDFS implements IDotty {
 
-	private final IGenericGraph graph;
+	private final IGraph graph;
 	private final NodeDFS[] data;
 
-	private Optional<IGenericGraph> forest;
+	private Optional<IGraph> forest;
 	private Optional<NodeDFS[]> preorder;
 	private Optional<NodeDFS[]> postorder;
 
 	private Optional<NodeDFS[]> roots;
 
-	public ForestDFS(final IGenericGraph graph, final NodeDFS[] dataDFS) {
+	public ForestDFS(final IGraph graph, final NodeDFS[] dataDFS) {
 		super();
 		this.graph = graph;
 		this.data = dataDFS;
@@ -37,7 +37,7 @@ public class ForestDFS implements IDotty {
 		this.roots = Optional.empty();
 	}
 
-	public final IGenericGraph getGraph() {
+	public final IGraph getGraph() {
 		return graph;
 	}
 
@@ -53,7 +53,7 @@ public class ForestDFS implements IDotty {
 		return data[node.getParent()];
 	}
 
-	public final IGenericGraph getForest() {
+	public final IGraph getForest() {
 		if (forest.isEmpty()) {
 			final DGraph f = new DGraph(graph.getNodeCount(), graph.getNodeCount());
 			for (NodeDFS n : getPreorder()) {
@@ -68,7 +68,7 @@ public class ForestDFS implements IDotty {
 
 	private int[] computeSubTreeArcCounts() {
 		int[] counts = new int[graph.getNodeCount()];
-		IGenericGraph f = getForest();
+		IGraph f = getForest();
 		for (NodeDFS n : getPostorder()) {
 			final int i = n.getNode();
 			counts[i] = graph.getOutDegree(i);

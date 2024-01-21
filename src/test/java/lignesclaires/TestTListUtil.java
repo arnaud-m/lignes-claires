@@ -8,15 +8,15 @@
  */
 package lignesclaires;
 
-import static lignesclaires.bigraph.TListUtil.getBarycenter;
-import static lignesclaires.bigraph.TListUtil.getCrossingCount;
-import static lignesclaires.bigraph.TListUtil.getMedian;
-import static lignesclaires.bigraph.TListUtil.intersect;
-import static lignesclaires.bigraph.TListUtil.intersectSingloton;
-import static lignesclaires.bigraph.TListUtil.isEqual;
-import static lignesclaires.bigraph.TListUtil.lazyIntersectSingloton;
-import static lignesclaires.bigraph.TListUtil.sequence;
-import static lignesclaires.bigraph.TListUtil.wrap;
+import static lignesclaires.graph.TListUtil.getBarycenter;
+import static lignesclaires.graph.TListUtil.getCrossingCount;
+import static lignesclaires.graph.TListUtil.getMedian;
+import static lignesclaires.graph.TListUtil.intersect;
+import static lignesclaires.graph.TListUtil.intersectSingloton;
+import static lignesclaires.graph.TListUtil.isEqual;
+import static lignesclaires.graph.TListUtil.lazyIntersectSingloton;
+import static lignesclaires.graph.TListUtil.sequence;
+import static lignesclaires.graph.TListUtil.wrap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

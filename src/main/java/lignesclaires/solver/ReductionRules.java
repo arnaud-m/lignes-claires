@@ -6,18 +6,18 @@
  * Licensed under the BSD 3-clause license.
  * See LICENSE file in the project root for full license information.
  */
-package lignesclaires.bigraph.rules;
+package lignesclaires.solver;
 
 import java.util.ArrayList;
 
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.array.TIntArrayList;
-import lignesclaires.bigraph.CrossingCounts;
-import lignesclaires.bigraph.DGraph;
-import lignesclaires.bigraph.TListUtil;
-import lignesclaires.bigraph.UGraph;
+import lignesclaires.graph.CrossingCounts;
+import lignesclaires.graph.DGraph;
+import lignesclaires.graph.TListUtil;
+import lignesclaires.graph.UGraph;
 import lignesclaires.specs.IBipartiteGraph;
-import lignesclaires.specs.IGenericGraph;
+import lignesclaires.specs.IGraph;
 
 public class ReductionRules {
 
@@ -45,15 +45,15 @@ public class ReductionRules {
 		return graph;
 	}
 
-	public final IGenericGraph getOrderedGraph() {
+	public final IGraph getOrderedGraph() {
 		return ordered;
 	}
 
-	public final IGenericGraph getReducedGraph() {
+	public final IGraph getReducedGraph() {
 		return reduced;
 	}
 
-	public final IGenericGraph getIncomparableGraph() {
+	public final IGraph getIncomparableGraph() {
 		return incomparable;
 	}
 

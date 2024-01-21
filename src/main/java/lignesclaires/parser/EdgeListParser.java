@@ -11,13 +11,13 @@ package lignesclaires.parser;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-import lignesclaires.bigraph.AbstractGraph;
-import lignesclaires.bigraph.DGraph;
-import lignesclaires.bigraph.UGraph;
-import lignesclaires.specs.IGenericGraph;
+import lignesclaires.graph.AbstractGraph;
+import lignesclaires.graph.DGraph;
+import lignesclaires.graph.UGraph;
+import lignesclaires.specs.IGraph;
 import lignesclaires.specs.IGraphParser;
 
-public class EdgeListParser implements IGraphParser<IGenericGraph> {
+public class EdgeListParser implements IGraphParser<IGraph> {
 
 	private final boolean directed;
 
@@ -27,7 +27,7 @@ public class EdgeListParser implements IGraphParser<IGenericGraph> {
 	}
 
 	@Override
-	public IGenericGraph parse(final Scanner scanner) throws InvalidGraphFormatException {
+	public IGraph parse(final Scanner scanner) throws InvalidGraphFormatException {
 		try {
 			PaceInputParser.skipComments(scanner);
 			final int nodeCount = scanner.nextInt();

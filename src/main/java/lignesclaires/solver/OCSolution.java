@@ -14,7 +14,7 @@ import java.util.OptionalInt;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 
-import lignesclaires.bigraph.DepthFirstSearch;
+import lignesclaires.graph.DepthFirstSearch;
 
 public class OCSolution {
 

@@ -6,16 +6,16 @@
  * Licensed under the BSD 3-clause license.
  * See LICENSE file in the project root for full license information.
  */
-package lignesclaires.bigraph;
+package lignesclaires.graph;
 
 import gnu.trove.TCollections;
 import gnu.trove.impl.Constants;
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
-import lignesclaires.specs.IGenericGraph;
+import lignesclaires.specs.IGraph;
 
-public abstract class AbstractGraph implements IGenericGraph {
+public abstract class AbstractGraph implements IGraph {
 
 	protected final TIntArrayList[] adjLists;
 
@@ -50,16 +50,6 @@ public abstract class AbstractGraph implements IGenericGraph {
 	@Override
 	public final int getEdgeCount() {
 		return edgeCount;
-	}
-
-	@Override
-	public final boolean isIsolated(final int node) {
-		return adjLists[node].isEmpty();
-	}
-
-	@Override
-	public final boolean isLeaf(final int node) {
-		return adjLists[node].size() == 1;
 	}
 
 	@Override

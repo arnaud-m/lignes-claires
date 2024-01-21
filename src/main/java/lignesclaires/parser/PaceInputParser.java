@@ -11,7 +11,7 @@ package lignesclaires.parser;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-import lignesclaires.bigraph.BipartiteGraph;
+import lignesclaires.graph.BGraph;
 import lignesclaires.specs.IBipartiteGraph;
 import lignesclaires.specs.IGraphParser;
 
@@ -26,7 +26,7 @@ public class PaceInputParser implements IGraphParser<IBipartiteGraph> {
 			final int fixedCount = scanner.nextInt();
 			final int freeCount = scanner.nextInt();
 			final int edgeCount = scanner.nextInt();
-			BipartiteGraph bigraph = new BipartiteGraph(fixedCount, freeCount, edgeCount);
+			BGraph bigraph = new BGraph(fixedCount, freeCount, edgeCount);
 			for (int i = 0; i < edgeCount; i++) {
 				final int fixed = scanner.nextInt();
 				if (fixed < 1 || fixed > fixedCount) {
