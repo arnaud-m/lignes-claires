@@ -53,7 +53,7 @@ public class BGraph extends UGraph implements IBipartiteGraph {
 	}
 
 	@Override
-	public final int getDegree(final int free) {
+	public final int getFreeDegree(final int free) {
 		return getOutDegree(freeOffset + free);
 	}
 

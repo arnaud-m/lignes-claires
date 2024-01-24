@@ -143,7 +143,7 @@ public class ReductionRules {
 
 		@Override
 		public boolean apply(int i, int j) {
-			if (graph.getDegree(i) == 2 && graph.getDegree(j) == 2) {
+			if (graph.getFreeDegree(i) == 2 && graph.getFreeDegree(j) == 2) {
 				if (counts.getCrossingCount(i, j) == 1 && counts.getCrossingCount(j, i) == 2) {
 					ordered.addEdge(i, j);
 					return true;

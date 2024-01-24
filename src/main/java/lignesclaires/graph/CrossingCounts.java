@@ -14,6 +14,7 @@ import java.util.Formatter;
 import org.chocosolver.solver.constraints.extension.Tuples;
 
 import gnu.trove.map.hash.TObjectIntHashMap;
+import lignesclaires.choco.AssignmentRowBuilder;
 
 public final class CrossingCounts {
 
@@ -61,10 +62,26 @@ public final class CrossingCounts {
 		return tuples;
 	}
 
+	public AssignmentRowBuilder getHRowBuilder(int i) {
+		return new AssignmentRowBuilder(counts[i]);
+	}
+
+	public final static String toString(int[][] matrix) {
+		try (final Formatter formatter = new Formatter(new StringBuilder())) {
+			for (int i = 0; i < matrix.length; i++) {
+				for (int j = 0; j < matrix.length - 1; j++) {
+					formatter.format("% 2d ", matrix[i][j]);
+				}
+				formatter.format("% 2d%n", matrix[i][matrix.length - 1]);
+			}
+			formatter.format("]%n");
+			return formatter.toString();
+		}
+	}
+
 	@Override
 	public String toString() {
-		final StringBuilder b = new StringBuilder();
-		try (final Formatter formatter = new Formatter(b)) {
+		try (final Formatter formatter = new Formatter(new StringBuilder())) {
 			formatter.format("CrossingCounts [constant= %d, counts =%n", constant);
 			for (int i = 0; i < counts.length; i++) {
 				for (int j = 0; j < counts.length - 1; j++) {

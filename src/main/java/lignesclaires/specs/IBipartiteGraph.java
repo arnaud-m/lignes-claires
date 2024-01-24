@@ -21,6 +21,6 @@ public interface IBipartiteGraph extends IBipartiteGraphDimension, IGraph {
 
 	int getFreeNode(int free);
 
-	int getDegree(int free);
+	int getFreeDegree(int free);
 
 }

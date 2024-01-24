@@ -156,6 +156,7 @@ public final class LignesClaires {
 
 		final BlockDecomposition bdec = new BlockDecomposition();
 		final BlockCutForest d = bdec.execute(f);
+		LOGGER.log(Level.CONFIG, () -> "\nc LOCAL_CROSSINGS_LB " + d.getLocalCrossingsLB());
 		writeString(d.toDotty(), graphname + "-bctree.dot");
 	}
 

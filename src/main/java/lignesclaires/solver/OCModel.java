@@ -21,6 +21,7 @@ import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
 
 import lignesclaires.LignesClaires;
+import lignesclaires.choco.PropAssignmentLowerBound;
 import lignesclaires.choco.PropBinaryDisjunction;
 import lignesclaires.graph.BGraph;
 import lignesclaires.graph.CrossingCounts;
@@ -62,7 +63,7 @@ public class OCModel implements IOCModel {
 		model.inverseChanneling(positions, permutation).post();
 		objective = model.intVar("objective", 0, m * m);
 		model.setObjective(false, objective);
-		this.rrPath = Optional.of("graph");
+		this.rrPath = Optional.empty();
 	}
 
 	@Override
@@ -162,6 +163,10 @@ public class OCModel implements IOCModel {
 		objective.ge(lb).decompose().post();
 	}
 
+	private void postAssignmentLowerBound() {
+		model.post(new Constraint("AssignmentLowerBound", new PropAssignmentLowerBound(bigraph, positions, objective)));
+	}
+
 	private void exportReductionRules(final ReductionRules rules) {
 		if (rrPath.isPresent()) {
 			final String prefix = rrPath.get();
@@ -184,7 +189,9 @@ public class OCModel implements IOCModel {
 		objBuilder.postObjective();
 		if (hasFlag(LB)) {
 			postLowerBound();
+			postAssignmentLowerBound();
 		}
+
 	}
 
 	public void configureSearch(final OCSearch search) {
