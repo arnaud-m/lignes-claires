@@ -8,7 +8,6 @@
  */
 package lignesclaires.solver;
 
-import java.awt.Point;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -20,7 +19,6 @@ import org.chocosolver.solver.search.limits.FailCounter;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
 
-import lignesclaires.LignesClaires;
 import lignesclaires.choco.PropAssignmentLowerBound;
 import lignesclaires.choco.PropBinaryDisjunction;
 import lignesclaires.graph.BGraph;
@@ -122,10 +120,6 @@ public class OCModel implements IOCModel {
 			}
 		}
 
-		public final void addOrdered(final Point p) {
-			addOrdered(p.x, p.y);
-		}
-
 		public void addOrdered(final int i, final int j) {
 			constant += counts.getCrossingCount(i, j);
 			positions[i].lt(positions[j]).post();
@@ -167,22 +161,32 @@ public class OCModel implements IOCModel {
 		model.post(new Constraint("AssignmentLowerBound", new PropAssignmentLowerBound(bigraph, positions, objective)));
 	}
 
-	private void exportReductionRules(final ReductionRules rules) {
-		if (rrPath.isPresent()) {
-			final String prefix = rrPath.get();
-			LignesClaires.writeString(rules.getOrderedGraph().toDotty(), prefix + "-ordered.dot");
-			LignesClaires.writeString(rules.getReducedGraph().toDotty(), prefix + "-reduced.dot");
-			LignesClaires.writeString(rules.getIncomparableGraph().toDotty(), prefix + "-incomparable.dot");
-		}
+	private void exportReductionRules(final ReductionRules rules, final ReductionRules2 rules2) {
+//		if (rrPath.isPresent()) {
+//			final String prefix = rrPath.get();
+//			LignesClaires.toDotty(rules2.getOrderedGraph(), prefix + "-ordered2.dot");
+//			LignesClaires.writeString(rules.getOrderedGraph().toDotty(), prefix + "-ordered.dot");
+//			LignesClaires.writeString(rules.getReducedGraph().toDotty(), prefix + "-reduced.dot");
+//			LignesClaires.writeString(rules.getIncomparableGraph().toDotty(), prefix + "-incomparable.dot");
+//		}
+		rrPath.ifPresent(rules2::exportGraph);
 	}
+
+	private static boolean DEBUG = false;
 
 	@Override
 	public void buildModel() {
 		final ObjectiveBuilder objBuilder = new ObjectiveBuilder(hasFlag(DISJ));
 		final ReductionRules rules = new ReductionRules(bigraph, hasFlag(RR1), hasFlag(RR2), hasFlag(RR3));
-		exportReductionRules(rules);
-		rules.getOrderedGraph().forEachEdge(objBuilder::addOrdered);
-		rules.getIncomparableGraph().forEachEdge(objBuilder::addIncomparable);
+		final ReductionRules2 rules2 = new ReductionRules2(bigraph, hasFlag(RR1), hasFlag(RR2), hasFlag(RR3));
+		exportReductionRules(rules, rules2);
+		if (DEBUG) {
+			rules.getReducedGraph().forEachEdge(objBuilder::addOrdered);
+			rules.getIncomparableGraph().forEachEdge(objBuilder::addIncomparable);
+		} else {
+			rules2.forEachOrderedEdge(objBuilder::addOrdered);
+			rules2.forEachIncomparableEdge(objBuilder::addIncomparable);
+		}
 		if (hasFlag(RRLO2)) {
 			postPermutationBinaryTable(bigraph.getCrossingCounts().getTuplesLO2());
 		}

@@ -13,10 +13,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.jgrapht.Graph;
+import org.jgrapht.nio.Attribute;
+import org.jgrapht.nio.DefaultAttribute;
+import org.jgrapht.nio.dot.DOTExporter;
 
 import lignesclaires.cmd.OptionsParser;
 import lignesclaires.cmd.Verbosity;
@@ -135,6 +142,21 @@ public final class LignesClaires {
 			LOGGER.log(Level.INFO, "Export file {0} [OK]", filePath);
 		} catch (IOException e) {
 			LOGGER.log(Level.WARNING, e, () -> "Write file " + filePath + FAIL);
+		}
+	}
+
+	public static <E> void toDotty(final Graph<Integer, E> graph, final String filePath) {
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+			DOTExporter<Integer, E> exporter = new DOTExporter<>(Object::toString);
+			exporter.setVertexAttributeProvider(v -> {
+				Map<String, Attribute> map = new LinkedHashMap<>();
+				map.put("shape", DefaultAttribute.createAttribute("plain"));
+				return map;
+			});
+			exporter.exportGraph(graph, writer);
+			LOGGER.log(Level.INFO, "Export graph {0} [OK]", filePath);
+		} catch (IOException e) {
+			LOGGER.log(Level.WARNING, e, () -> "Export graph " + filePath + FAIL);
 		}
 	}
 

@@ -78,7 +78,7 @@ public class AssignmentBuilder {
 		}
 		for (int i = 0; i < n; i++) {
 			for (int j = n; j < 2 * n; j++) {
-				graph.addEdge(i, j, new DefaultWeightedEdge());
+				graph.addEdge(i, j);
 			}
 		}
 		return graph;
