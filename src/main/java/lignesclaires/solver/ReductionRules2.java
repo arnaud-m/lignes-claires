@@ -19,7 +19,6 @@ import org.jgrapht.alg.TransitiveReduction;
 import org.jgrapht.generate.ComplementGraphGenerator;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
-import org.jgrapht.graph.builder.GraphTypeBuilder;
 import org.jgrapht.nio.dot.DOTExporter;
 
 import lignesclaires.LignesClaires;
@@ -42,17 +41,11 @@ public class ReductionRules2 {
 		super();
 		this.graph = graph;
 		this.counts = graph.getCrossingCounts();
-		final int n = graph.getFreeCount();
-		ordered = new DirectedAcyclicGraph<>(DefaultEdge.class);
-		this.incomparable = createIncomparableGraph(n);
+		ordered = JGraphtUtil.directedAcyclic();
+		this.incomparable = JGraphtUtil.unweightedUndirected();
 		rules = buildRules(useRule1, useRule2, useRule3);
 		buildOrderedGraph();
 		buildIncomparableGraph();
-	}
-
-	private static Graph<Integer, DefaultEdge> createIncomparableGraph(final int n) {
-		return GraphTypeBuilder.<Integer, DefaultEdge>undirected().allowingMultipleEdges(false).allowingSelfLoops(false)
-				.edgeClass(DefaultEdge.class).weighted(false).buildGraph();
 	}
 
 	public final IBipartiteGraph getBiGraph() {
@@ -67,16 +60,12 @@ public class ReductionRules2 {
 		return incomparable;
 	}
 
-	public static final <E extends DefaultEdge> void forEachEdge(Graph<Integer, E> graph, IEdgeConsumer consumer) {
-		graph.edgeSet().forEach(e -> consumer.accept(graph.getEdgeSource(e), graph.getEdgeTarget(e)));
-	}
-
 	public void forEachOrderedEdge(IEdgeConsumer consumer) {
-		forEachEdge(ordered, consumer);
+		JGraphtUtil.forEachEdge(ordered, consumer);
 	}
 
 	public void forEachIncomparableEdge(IEdgeConsumer consumer) {
-		forEachEdge(incomparable, consumer);
+		JGraphtUtil.forEachEdge(incomparable, consumer);
 	}
 
 	public final void exportGraph(final String filePathNoExt) {
