@@ -14,11 +14,15 @@ import static org.junit.Assert.assertTrue;
 import java.io.InputStream;
 import java.util.Scanner;
 
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import lignesclaires.config.LignesClairesConfig;
+import lignesclaires.graph.JGraphtUtil;
 import lignesclaires.parser.InvalidGraphFormatException;
+import lignesclaires.parser.PACEImporter;
 import lignesclaires.parser.PaceInputParser;
 import lignesclaires.solver.OCModel;
 import lignesclaires.solver.OCSearch;
@@ -43,6 +47,13 @@ public class TestSolver {
 	private final IBipartiteGraph getResourceGraph(final String resourcePath) throws InvalidGraphFormatException {
 		final IGraphParser<IBipartiteGraph> parser = new PaceInputParser();
 		final InputStream in = getClass().getClassLoader().getResourceAsStream(resourcePath);
+		// Temporary
+		final InputStream in2 = getClass().getClassLoader().getResourceAsStream(resourcePath);
+		PACEImporter<Integer, DefaultEdge> importer = new PACEImporter<>();
+		importer.setVertexFactory(i -> i);
+		Graph<Integer, DefaultEdge> graph = JGraphtUtil.unweightedUndirected();
+		importer.importGraph(graph, in2);
+		//
 		return parser.parse(new Scanner(in));
 	}
 

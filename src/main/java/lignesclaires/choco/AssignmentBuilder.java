@@ -8,7 +8,8 @@
  */
 package lignesclaires.choco;
 
-import java.util.Formatter;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,14 +17,18 @@ import org.chocosolver.solver.variables.IntVar;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.interfaces.MatchingAlgorithm.Matching;
 import org.jgrapht.alg.matching.KuhnMunkresMinimalWeightBipartitePerfectMatching;
+import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.builder.GraphTypeBuilder;
+import org.jgrapht.nio.dot.DOTExporter;
 
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.list.linked.TIntLinkedList;
 import lignesclaires.graph.CrossingCounts;
+import lignesclaires.graph.JGraphtUtil;
+import lignesclaires.parser.PACEImporter;
 import lignesclaires.specs.IBipartiteGraph;
 
 public class AssignmentBuilder {
@@ -156,24 +161,18 @@ public class AssignmentBuilder {
 
 	}
 
-	@Override
-	public String toString() {
-		try (final Formatter formatter = new Formatter(new StringBuilder())) {
-			formatter.format("AssignmentBuilder [%n");
-//			final int n = matrix.length;
-//			final int costUB = n * n * n;
-//			for (int i = 0; i < n; i++) {
-//				for (int j = 0; j < n; j++) {
-//					if (matrix[i][j] < costUB) {
-//						formatter.format("% 2d ", matrix[i][j]);
-//					} else {
-//						formatter.format("-- ");
-//					}
-//				}
-//				formatter.format("%n");
-//			}
-			formatter.format("]%n");
-			return formatter.toString();
-		}
+	public static void main(String[] args) {
+		PACEImporter<Integer, DefaultEdge> importer = new PACEImporter<>();
+		importer.setVertexFactory(i -> i);
+		Graph<Integer, DefaultEdge> graph = JGraphtUtil.unweightedUndirected();
+		importer.importGraph(graph,
+				new StringReader("c this is a comment\n" + "p ocr 3 3 3\n" + "1 5\n" + "2 4\n" + "3 6"));
+		System.out.println(graph);
+		System.out.println(JGraphtUtil.toString(graph));
+		DOTExporter<Integer, DefaultEdge> exporter = JGraphtUtil.plainDotExporter();
+		StringWriter writer = new StringWriter();
+		exporter.exportGraph(graph, writer);
+		System.out.println(writer);
 	}
+
 }

@@ -31,10 +31,10 @@ public final class JGraphtUtil {
 
 	public static <V, E> String toString(final Graph<V, E> graph) {
 		CSVExporter<V, E> exporter = new CSVExporter<>(CSVFormat.ADJACENCY_LIST);
+		exporter.setVertexIdProvider(Object::toString);
 		StringWriter writer = new StringWriter();
 		exporter.exportGraph(graph, writer);
 		return writer.toString();
-
 	}
 
 	public static <E> void addVertices(Graph<Integer, E> graph, final int n) {
