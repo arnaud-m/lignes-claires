@@ -8,10 +8,15 @@
  */
 package lignesclaires.specs;
 
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
+
 import gnu.trove.list.TIntList;
 import lignesclaires.graph.CrossingCounts;
 
 public interface IBipartiteGraph extends IBipartiteGraphDimension, IGraph {
+
+	Graph<Integer, DefaultEdge> getGraph();
 
 	CrossingCounts getCrossingCounts();
 

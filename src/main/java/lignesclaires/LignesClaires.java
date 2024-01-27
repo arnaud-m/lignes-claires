@@ -13,14 +13,19 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.jgrapht.Graph;
+import org.jgrapht.alg.connectivity.BlockCutpointGraph;
+import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.nio.Attribute;
 import org.jgrapht.nio.DefaultAttribute;
 import org.jgrapht.nio.dot.DOTExporter;
@@ -28,10 +33,8 @@ import org.jgrapht.nio.dot.DOTExporter;
 import lignesclaires.cmd.OptionsParser;
 import lignesclaires.cmd.Verbosity;
 import lignesclaires.config.LignesClairesConfig;
-import lignesclaires.graph.BlockCutForest;
-import lignesclaires.graph.BlockDecomposition;
 import lignesclaires.graph.DepthFirstSearch;
-import lignesclaires.graph.ForestDFS;
+import lignesclaires.graph.JGraphtUtil;
 import lignesclaires.parser.InvalidGraphFormatException;
 import lignesclaires.parser.PaceInputParser;
 import lignesclaires.solver.OCSolution;
@@ -147,12 +150,7 @@ public final class LignesClaires {
 
 	public static <E> void toDotty(final Graph<Integer, E> graph, final String filePath) {
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-			DOTExporter<Integer, E> exporter = new DOTExporter<>(Object::toString);
-			exporter.setVertexAttributeProvider(v -> {
-				Map<String, Attribute> map = new LinkedHashMap<>();
-				map.put("shape", DefaultAttribute.createAttribute("plain"));
-				return map;
-			});
+			DOTExporter<Integer, E> exporter = JGraphtUtil.plainDotExporter();
 			exporter.exportGraph(graph, writer);
 			LOGGER.log(Level.INFO, "Export graph {0} [OK]", filePath);
 		} catch (IOException e) {
@@ -170,16 +168,34 @@ public final class LignesClaires {
 		return idx < 0 ? name : name.substring(0, idx);
 	}
 
+	private static class SimpleVertexIdProvider<V> implements Function<V, String> {
+
+		private final AtomicInteger nextId = new AtomicInteger(0);
+		private final HashMap<V, String> vertexIds = new HashMap<>();
+
+		@Override
+		public String apply(V t) {
+			return vertexIds.computeIfAbsent(t, v -> String.valueOf(nextId.getAndIncrement()));
+		}
+
+	}
+
 	private static void exportBlockCutTree(IBipartiteGraph graph, final String graphfile) {
 		final String graphname = getFilenameWithoutExtension(graphfile);
-		final DepthFirstSearch dfs = new DepthFirstSearch();
-		final ForestDFS f = dfs.execute(graph);
-		writeString(f.toDotty(), graphname + "-forest.dot");
+		Graph<Integer, DefaultEdge> bigraph = graph.getGraph();
+		BlockCutpointGraph<Integer, DefaultEdge> blockcut = new BlockCutpointGraph<>(bigraph);
+		final DOTExporter<Graph<Integer, DefaultEdge>, DefaultEdge> exporter = new DOTExporter<>(
+				new SimpleVertexIdProvider<>());
+		exporter.setVertexAttributeProvider(v -> {
+			Map<String, Attribute> map = new LinkedHashMap<>();
+			map.put("shape", DefaultAttribute.createAttribute(v.vertexSet().size() == 1 ? "plain" : "box"));
+			map.put("label", DefaultAttribute.createAttribute(DepthFirstSearch.toString(v.vertexSet().stream(), " ")));
+			return map;
+		});
+		File file = new File(graphname + "-blockcut.dot");
+		exporter.exportGraph(blockcut, file);
+		LOGGER.log(Level.INFO, "Export graph {0} [OK]", file);
 
-		final BlockDecomposition bdec = new BlockDecomposition();
-		final BlockCutForest d = bdec.execute(f);
-		LOGGER.log(Level.CONFIG, () -> "\nc LOCAL_CROSSINGS_LB " + d.getLocalCrossingsLB());
-		writeString(d.toDotty(), graphname + "-bctree.dot");
 	}
 
 	private static OCSolution solve(final IBipartiteGraph bigraph, final LignesClairesConfig config) {

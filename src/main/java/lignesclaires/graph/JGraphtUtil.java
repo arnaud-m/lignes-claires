@@ -43,6 +43,12 @@ public final class JGraphtUtil {
 		}
 	}
 
+	public static <E> void addVertices(Graph<Integer, E> graph, final int begin, final int end) {
+		for (int i = begin; i < end; i++) {
+			graph.addVertex(i);
+		}
+	}
+
 	public static Graph<Integer, DefaultEdge> unweightedUndirected() {
 		return GraphTypeBuilder.<Integer, DefaultEdge>undirected().allowingMultipleEdges(false).allowingSelfLoops(false)
 				.edgeClass(DefaultEdge.class).weighted(false).buildGraph();

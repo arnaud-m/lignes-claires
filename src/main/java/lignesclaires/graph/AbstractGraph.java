@@ -8,6 +8,9 @@
  */
 package lignesclaires.graph;
 
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
+
 import gnu.trove.TCollections;
 import gnu.trove.impl.Constants;
 import gnu.trove.iterator.TIntIterator;
@@ -19,11 +22,14 @@ public abstract class AbstractGraph implements IGraph {
 
 	protected final TIntArrayList[] adjLists;
 
+	protected final Graph<Integer, DefaultEdge> graph;
+
 	protected int edgeCount = 0;
 
 	protected AbstractGraph(final TIntArrayList[] adjLists) {
 		super();
 		this.adjLists = adjLists;
+		graph = JGraphtUtil.unweightedUndirected();
 	}
 
 	protected AbstractGraph(final int n, final int capacity) {
@@ -40,6 +46,14 @@ public abstract class AbstractGraph implements IGraph {
 		for (TIntArrayList adjList : adjLists) {
 			adjList.sort();
 		}
+		JGraphtUtil.addVertices(graph, 1, getNodeCount());
+		forEachEdge(graph::addEdge);
+		System.out.println(graph.vertexSet().size() + " " + getNodeCount());
+
+	}
+
+	public final Graph<Integer, DefaultEdge> getGraph() {
+		return graph;
 	}
 
 	@Override
@@ -59,7 +73,8 @@ public abstract class AbstractGraph implements IGraph {
 
 	@Override
 	public final int getOutDegree(final int node) {
-		return adjLists[node].size();
+		// return adjLists[node].size();
+		return graph.vertexSet().isEmpty() ? adjLists[node].size() : graph.outDegreeOf(node) + 1;
 	}
 
 	@Override
