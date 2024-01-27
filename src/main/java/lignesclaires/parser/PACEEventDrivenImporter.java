@@ -11,9 +11,12 @@ package lignesclaires.parser;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 import org.jgrapht.alg.util.Triple;
 import org.jgrapht.nio.BaseEventDrivenImporter;
@@ -32,9 +35,7 @@ public class PACEEventDrivenImporter extends BaseEventDrivenImporter<Integer, Tr
 	private boolean zeroBasedNumbering;
 	private boolean renumberVertices;
 
-	private int fixedCount;
-	private int freeCount;
-	private int edgeCount;
+	private List<BiConsumer<Integer, Integer>> partitionCountConsumers;
 
 	private Map<String, Integer> vertexMap;
 	private int nextId;
@@ -47,14 +48,25 @@ public class PACEEventDrivenImporter extends BaseEventDrivenImporter<Integer, Tr
 		this.zeroBasedNumbering = true;
 		this.renumberVertices = true;
 		this.vertexMap = new HashMap<>();
+		this.partitionCountConsumers = new ArrayList<>();
 	}
 
-	public final int getFixedCount() {
-		return fixedCount;
+	/**
+	 * Add a partition count consumer.
+	 * 
+	 * @param consumer the consumer
+	 */
+	public void addPartitionCountConsumer(BiConsumer<Integer, Integer> consumer) {
+		partitionCountConsumers.add(consumer);
 	}
 
-	public final int getFreeCount() {
-		return freeCount;
+	/**
+	 * Notify for the partition count.
+	 * 
+	 * @param vertexCount the number of vertices in the graph
+	 */
+	protected void notifyPartitionCount(Integer fixedCount, Integer freeCount) {
+		partitionCountConsumers.forEach(c -> c.accept(fixedCount, freeCount));
 	}
 
 	/**
@@ -106,10 +118,7 @@ public class PACEEventDrivenImporter extends BaseEventDrivenImporter<Integer, Tr
 		notifyImportEvent(ImportEvent.START);
 
 		// Dimensions
-		readDimensions(in);
-		final int size = freeCount + fixedCount;
-		notifyVertexCount(size);
-		notifyEdgeCount(edgeCount);
+		notifyDimensions(in);
 
 		// add edges
 		String[] cols = skipComments(in);
@@ -170,14 +179,17 @@ public class PACEEventDrivenImporter extends BaseEventDrivenImporter<Integer, Tr
 		return cols;
 	}
 
-	private void readDimensions(BufferedReader input) throws ImportException {
+	private void notifyDimensions(BufferedReader input) throws ImportException {
 		final String[] cols = skipComments(input);
 		if (cols != null && cols[0].equals("p") && cols.length >= 5) {
 			try {
-				fixedCount = Integer.parseInt(cols[2]);
-				freeCount = Integer.parseInt(cols[3]);
-				edgeCount = Integer.parseInt(cols[4]);
+				final int fixedCount = Integer.parseInt(cols[2]);
+				final int freeCount = Integer.parseInt(cols[3]);
+				final int edgeCount = Integer.parseInt(cols[4]);
 				if (fixedCount >= 0 && freeCount >= 0 && edgeCount >= 0) {
+					notifyVertexCount(fixedCount + freeCount);
+					notifyPartitionCount(fixedCount, freeCount);
+					notifyEdgeCount(edgeCount);
 					return;
 				}
 			} catch (NumberFormatException e) {
@@ -185,6 +197,7 @@ public class PACEEventDrivenImporter extends BaseEventDrivenImporter<Integer, Tr
 			}
 		}
 		throw new ImportException("Failed to read graph dimensions.");
+
 	}
 
 	/**

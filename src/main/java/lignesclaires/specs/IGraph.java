@@ -8,25 +8,18 @@
  */
 package lignesclaires.specs;
 
-import gnu.trove.iterator.TIntIterator;
-import gnu.trove.list.TIntList;
+public interface IGraph extends IGraphDimension {
 
-public interface IGraph extends IGraphDimension, IDotty {
+	// boolean isIsolated(int node);
 
-	boolean isDirected();
+	// boolean isLeaf(int node);
 
-	boolean isIsolated(int node);
+	// int getOutDegree(int node);
 
-	boolean isLeaf(int node);
+	// int getInDegree(int node);
 
-	TIntList getNeighbors(int node);
+	// TIntIterator getNeighborIterator(int node);
 
-	int getOutDegree(int node);
-
-	int getInDegree(int node);
-
-	TIntIterator getNeighborIterator(int node);
-
-	void forEachEdge(IEdgeConsumer consumer);
+	// void forEachEdge(IEdgeConsumer consumer);
 
 }

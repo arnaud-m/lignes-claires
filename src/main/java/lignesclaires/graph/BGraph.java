@@ -9,27 +9,31 @@
 package lignesclaires.graph;
 
 import java.util.Optional;
-import java.util.Random;
+
+import org.jgrapht.Graph;
+import org.jgrapht.Graphs;
+import org.jgrapht.graph.DefaultEdge;
 
 import gnu.trove.list.TIntList;
+import gnu.trove.list.array.TIntArrayList;
 import lignesclaires.specs.IBipartiteGraph;
 
-public class BGraph extends UGraph implements IBipartiteGraph {
+public class BGraph extends AbstractGraph implements IBipartiteGraph {
 
 	private final int fixedCount;
 	private final int freeCount;
 	private final int freeOffset;
 
-	Optional<CrossingCounts> reducedCrossingCounts;
 	Optional<CrossingCounts> crossingCounts;
+	Optional<CrossingCounts> reducedCrossingCounts;
 
-	public BGraph(final int fixedCount, final int freeCount, final int edgeCount) {
-		super(fixedCount + freeCount + 1, edgeCount);
+	public BGraph(Graph<Integer, DefaultEdge> graph, int fixedCount, int freeCount) {
+		super(graph);
 		this.fixedCount = fixedCount;
 		this.freeCount = freeCount;
 		this.freeOffset = fixedCount + 1;
-		reducedCrossingCounts = Optional.empty();
 		crossingCounts = Optional.empty();
+		reducedCrossingCounts = Optional.empty();
 	}
 
 	@Override
@@ -54,19 +58,28 @@ public class BGraph extends UGraph implements IBipartiteGraph {
 
 	@Override
 	public final int getFreeDegree(final int free) {
-		return getOutDegree(freeOffset + free);
+		return graph.degreeOf(freeOffset + free);
 	}
 
 	public <E> E[] permutateMedians(final E[] objects) {
-		return TListUtil.permutate(objects, TListUtil::getMedian, adjLists, freeOffset);
+		return TListUtil.permutate(objects, i -> TListUtil.getMedian(getNeighbors(freeOffset + i)));
 	}
 
 	public <E> E[] permutateBarycenters(final E[] objects) {
-		return TListUtil.permutate(objects, TListUtil::getBarycenter, adjLists, freeOffset);
+		return TListUtil.permutate(objects, i -> TListUtil.getBarycenter(getNeighbors(freeOffset + i)));
+	}
+
+	public TIntArrayList getNeighbors(int node) {
+		final TIntArrayList neighbors = new TIntArrayList(graph.degreeOf(node));
+		for (Integer v : Graphs.neighborListOf(graph, node)) {
+			neighbors.add(v);
+		}
+		neighbors.sort();
+		return neighbors;
 	}
 
 	protected int getCrossingCount(int left, int right) {
-		return TListUtil.getCrossingCount(adjLists[freeOffset + left], adjLists[freeOffset + right]);
+		return TListUtil.getCrossingCount(getNeighbors(freeOffset + left), getNeighbors(freeOffset + right));
 	}
 
 	protected void computeCrossingCounts() {
@@ -102,63 +115,6 @@ public class BGraph extends UGraph implements IBipartiteGraph {
 			computeCrossingCounts();
 		}
 		return crossingCounts.get();
-	}
-
-	public static BGraph generate(int fixedCount, int freeCount, double density, long seed) {
-		final Random rnd = new Random(seed);
-		final int expectedEdgeCount = (int) Math.ceil(density * fixedCount * freeCount);
-		final BGraph graph = new BGraph(fixedCount, freeCount, expectedEdgeCount);
-		for (int i = 1; i <= fixedCount; i++) {
-			for (int j = 1; j <= freeCount; j++) {
-				if (rnd.nextDouble() < density) {
-					graph.addEdge(i, i + j);
-				}
-			}
-		}
-		return graph;
-	}
-
-	private void appendEdgeList(final StringBuilder b, final int i) {
-		adjLists[i].forEach(j -> {
-			b.append(i).append(" ").append(j).append('\n');
-			return true;
-		});
-	}
-
-	public String toPaceInputString() {
-		final StringBuilder b = new StringBuilder();
-		b.append("p ocr");
-		b.append(" ").append(getFixedCount());
-		b.append(" ").append(getFreeCount());
-		b.append(" ").append(getEdgeCount());
-		b.append('\n');
-		final int n = getFixedCount();
-		for (int i = 1; i <= n; i++) {
-			appendEdgeList(b, i);
-		}
-		b.deleteCharAt(b.length() - 1);
-		return b.toString();
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder b = new StringBuilder();
-		b.append("BipartiteGraph [");
-		b.append("fixed:").append(getFixedCount());
-		b.append(", free:").append(getFreeCount());
-		b.append(", edges:").append(getEdgeCount());
-		b.append("][Free Layer]\n");
-		for (int i = freeOffset; i < getNodeCount(); i++) {
-			b.append(i).append(": ").append(adjLists[i]).append('\n');
-		}
-		b.deleteCharAt(b.length() - 1);
-		return b.toString();
-	}
-
-	public static void main(String[] args) {
-		BGraph bigraph = generate(Integer.parseInt(args[0]), Integer.parseInt(args[1]),
-				Double.parseDouble(args[2]), Long.parseLong(args[3]));
-		System.out.println(bigraph.toPaceInputString());
 	}
 
 }

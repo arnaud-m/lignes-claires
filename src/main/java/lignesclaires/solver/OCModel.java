@@ -161,7 +161,7 @@ public class OCModel implements IOCModel {
 		model.post(new Constraint("AssignmentLowerBound", new PropAssignmentLowerBound(bigraph, positions, objective)));
 	}
 
-	private void exportReductionRules(final ReductionRules rules, final ReductionRules2 rules2) {
+	private void exportReductionRules(final ReductionRules2 rules2) {
 //		if (rrPath.isPresent()) {
 //			final String prefix = rrPath.get();
 //			LignesClaires.toDotty(rules2.getOrderedGraph(), prefix + "-ordered2.dot");
@@ -172,21 +172,13 @@ public class OCModel implements IOCModel {
 		rrPath.ifPresent(rules2::exportGraph);
 	}
 
-	private static boolean DEBUG = false;
-
 	@Override
 	public void buildModel() {
 		final ObjectiveBuilder objBuilder = new ObjectiveBuilder(hasFlag(DISJ));
-		final ReductionRules rules = new ReductionRules(bigraph, hasFlag(RR1), hasFlag(RR2), hasFlag(RR3));
 		final ReductionRules2 rules2 = new ReductionRules2(bigraph, hasFlag(RR1), hasFlag(RR2), hasFlag(RR3));
-		exportReductionRules(rules, rules2);
-		if (DEBUG) {
-			rules.getReducedGraph().forEachEdge(objBuilder::addOrdered);
-			rules.getIncomparableGraph().forEachEdge(objBuilder::addIncomparable);
-		} else {
-			rules2.forEachOrderedEdge(objBuilder::addOrdered);
-			rules2.forEachIncomparableEdge(objBuilder::addIncomparable);
-		}
+		exportReductionRules(rules2);
+		rules2.forEachOrderedEdge(objBuilder::addOrdered);
+		rules2.forEachIncomparableEdge(objBuilder::addIncomparable);
 		if (hasFlag(RRLO2)) {
 			postPermutationBinaryTable(bigraph.getCrossingCounts().getTuplesLO2());
 		}

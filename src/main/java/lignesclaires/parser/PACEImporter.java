@@ -11,6 +11,7 @@ package lignesclaires.parser;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -40,6 +41,10 @@ public class PACEImporter<V, E> extends BaseEventDrivenImporter<V, E> implements
 	private Function<Integer, V> vertexFactory;
 	private final double defaultWeight;
 
+	private int fixedCount;
+
+	private int freeCount;
+
 	/**
 	 * Construct a new DIMACSImporter
 	 * 
@@ -55,6 +60,22 @@ public class PACEImporter<V, E> extends BaseEventDrivenImporter<V, E> implements
 	 */
 	public PACEImporter() {
 		this(Graph.DEFAULT_EDGE_WEIGHT);
+	}
+
+	public final int getFixedCount() {
+		return fixedCount;
+	}
+
+	public final void setFixedCount(int fixedCount) {
+		this.fixedCount = fixedCount;
+	}
+
+	public final int getFreeCount() {
+		return freeCount;
+	}
+
+	public final void setFreeCount(int freeCount) {
+		this.freeCount = freeCount;
 	}
 
 	/**
@@ -103,6 +124,7 @@ public class PACEImporter<V, E> extends BaseEventDrivenImporter<V, E> implements
 		PACEEventDrivenImporter genericImporter = new PACEEventDrivenImporter().renumberVertices(false)
 				.zeroBasedNumbering(false);
 		Consumers consumers = new Consumers(graph);
+		genericImporter.addPartitionCountConsumer(consumers.partitionCountConsumer);
 		genericImporter.addVertexCountConsumer(consumers.nodeCountConsumer);
 		genericImporter.addEdgeConsumer(consumers.edgeConsumer);
 		genericImporter.importInput(input);
@@ -116,6 +138,11 @@ public class PACEImporter<V, E> extends BaseEventDrivenImporter<V, E> implements
 			this.graph = graph;
 			this.list = new ArrayList<>();
 		}
+
+		public final BiConsumer<Integer, Integer> partitionCountConsumer = (fixed, free) -> {
+			fixedCount = fixed;
+			freeCount = free;
+		};
 
 		public final Consumer<Integer> nodeCountConsumer = n -> {
 			for (int i = 1; i <= n; i++) {

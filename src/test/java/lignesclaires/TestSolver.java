@@ -11,17 +11,17 @@ package lignesclaires;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.Scanner;
 
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.nio.ImportException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import lignesclaires.config.LignesClairesConfig;
 import lignesclaires.graph.JGraphtUtil;
-import lignesclaires.parser.InvalidGraphFormatException;
 import lignesclaires.parser.PACEImporter;
 import lignesclaires.parser.PaceInputParser;
 import lignesclaires.solver.OCModel;
@@ -44,7 +44,8 @@ public class TestSolver {
 		JULogUtil.configureTestLoggers();
 	}
 
-	private final IBipartiteGraph getResourceGraph(final String resourcePath) throws InvalidGraphFormatException {
+	private final IBipartiteGraph getResourceGraph(final String resourcePath)
+			throws ImportException, FileNotFoundException {
 		final IGraphParser<IBipartiteGraph> parser = new PaceInputParser();
 		final InputStream in = getClass().getClassLoader().getResourceAsStream(resourcePath);
 		// Temporary
@@ -54,10 +55,11 @@ public class TestSolver {
 		Graph<Integer, DefaultEdge> graph = JGraphtUtil.unweightedUndirected();
 		importer.importGraph(graph, in2);
 		//
-		return parser.parse(new Scanner(in));
+		return parser.parse(in);
 	}
 
-	public void testAll(String resourcePath, int optimum) throws OCSolverException, InvalidGraphFormatException {
+	public void testAll(String resourcePath, int optimum)
+			throws OCSolverException, ImportException, FileNotFoundException, ImportException, FileNotFoundException {
 		final IBipartiteGraph graph = getResourceGraph(resourcePath);
 		for (OCSearch search : OCSearch.values()) {
 			config.setSearch(search);
@@ -71,72 +73,73 @@ public class TestSolver {
 		}
 	}
 
-	public void testTiny(String resourcePath, int optimum) throws OCSolverException, InvalidGraphFormatException {
+	public void testTiny(String resourcePath, int optimum)
+			throws OCSolverException, ImportException, FileNotFoundException {
 		testAll("tiny_test_set/" + resourcePath, optimum);
 	}
 
 	@Test
-	public void testComplete_4_5() throws OCSolverException, InvalidGraphFormatException {
+	public void testComplete_4_5() throws OCSolverException, ImportException, FileNotFoundException {
 		testTiny("complete_4_5.gr", 60);
 	}
 
 	@Test
-	public void testCycle_8_shuffled() throws OCSolverException, InvalidGraphFormatException {
+	public void testCycle_8_shuffled() throws OCSolverException, ImportException, FileNotFoundException {
 		testTiny("cycle_8_shuffled.gr", 4);
 	}
 
 	@Test
-	public void testCycle_8_sorted() throws OCSolverException, InvalidGraphFormatException {
+	public void testCycle_8_sorted() throws OCSolverException, ImportException, FileNotFoundException {
 		testTiny("cycle_8_sorted.gr", 3);
 	}
 
 	@Test
-	public void testGrid_9_shuffled() throws OCSolverException, InvalidGraphFormatException {
+	public void testGrid_9_shuffled() throws OCSolverException, ImportException, FileNotFoundException {
 		testTiny("grid_9_shuffled.gr", 17);
 	}
 
 	@Test
-	public void testLadder_4_4_shuffled() throws OCSolverException, InvalidGraphFormatException {
+	public void testLadder_4_4_shuffled() throws OCSolverException, ImportException, FileNotFoundException {
 		testTiny("ladder_4_4_shuffled.gr", 11);
 	}
 
 	@Test
-	public void testLadder_4_4_sorted() throws OCSolverException, InvalidGraphFormatException {
+	public void testLadder_4_4_sorted() throws OCSolverException, ImportException, FileNotFoundException {
 		testTiny("ladder_4_4_sorted.gr", 3);
 	}
 
 	@Test
-	public void testMatching_4_4() throws OCSolverException, InvalidGraphFormatException {
+	public void testMatching_4_4() throws OCSolverException, ImportException, FileNotFoundException {
 		testTiny("matching_4_4.gr", 0);
 	}
 
 	@Test
-	public void testPath_9_shuffled() throws OCSolverException, InvalidGraphFormatException {
+	public void testPath_9_shuffled() throws OCSolverException, ImportException, FileNotFoundException {
 		testTiny("path_9_shuffled.gr", 6);
 	}
 
 	@Test
-	public void testPath_9_sorted() throws OCSolverException, InvalidGraphFormatException {
+	public void testPath_9_sorted() throws OCSolverException, ImportException, FileNotFoundException {
 		testTiny("path_9_sorted.gr", 0);
 	}
 
 	@Test
-	public void testPlane_5_6() throws OCSolverException, InvalidGraphFormatException {
+	public void testPlane_5_6() throws OCSolverException, ImportException, FileNotFoundException {
 		testTiny("plane_5_6.gr", 0);
 	}
 
 	@Test
-	public void testStar_6() throws OCSolverException, InvalidGraphFormatException {
+	public void testStar_6() throws OCSolverException, ImportException, FileNotFoundException {
 		testTiny("star_6.gr", 0);
 	}
 
 	@Test
-	public void testTree_6_10() throws OCSolverException, InvalidGraphFormatException {
+	public void testTree_6_10() throws OCSolverException, ImportException, FileNotFoundException {
 		testTiny("tree_6_10.gr", 13);
 	}
 
 	@Test
-	public void testWebsite_20() throws OCSolverException, InvalidGraphFormatException {
+	public void testWebsite_20() throws OCSolverException, ImportException, FileNotFoundException {
 		testTiny("website_20.gr", 17);
 	}
 

@@ -10,19 +10,26 @@ package lignesclaires.specs;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Scanner;
+import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 
-import lignesclaires.parser.InvalidGraphFormatException;
+import org.jgrapht.nio.ImportException;
 
 public interface IGraphParser<E extends IGraph> {
 
-	E parse(Scanner scanner) throws InvalidGraphFormatException;
+	E parse(Reader reader) throws ImportException, FileNotFoundException;
 
-	default E parse(File file) throws FileNotFoundException, InvalidGraphFormatException {
-		return parse(new Scanner(file));
+	default E parse(InputStream instream) throws ImportException, FileNotFoundException {
+		return parse(new InputStreamReader(instream));
 	}
 
-	default E parse(String filepath) throws FileNotFoundException, InvalidGraphFormatException {
+	default E parse(File file) throws ImportException, FileNotFoundException {
+		return parse(new FileReader(file));
+	}
+
+	default E parse(String filepath) throws ImportException, FileNotFoundException {
 		return parse(new File(filepath));
 	}
 

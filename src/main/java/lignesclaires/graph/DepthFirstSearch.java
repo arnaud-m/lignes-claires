@@ -8,15 +8,12 @@
  */
 package lignesclaires.graph;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import gnu.trove.TIntCollection;
 import gnu.trove.iterator.TIntIterator;
-import lignesclaires.specs.IGraph;
 
 /**
  * https://en.wikipedia.org/wiki/Bridge_(graph_theory)
@@ -25,109 +22,6 @@ import lignesclaires.specs.IGraph;
  * 
  */
 public class DepthFirstSearch {
-
-	// Input
-	private IGraph graph;
-
-	// Output
-	private NodeDFS[] data;
-
-	// Temporary
-	private int root;
-	private int preNum;
-	private int postNum;
-	private Deque<StackIterator> stack = new ArrayDeque<>();
-
-	private void setUp(final IGraph graph) {
-		this.graph = graph;
-		final int n = graph.getNodeCount();
-		data = new NodeDFS[n];
-		root = 0;
-		preNum = 0;
-		postNum = 0;
-		stack.clear();
-	}
-
-	private boolean findRoot() {
-		while (root < data.length) {
-			if (data[root] == null) {
-				pushNode(root, root);
-				return true;
-			}
-			root++;
-		}
-		return false;
-	}
-
-	private void pushNode(final int node, final int parent) {
-		data[node] = new NodeDFS(node, parent, preNum++);
-		stack.push(new StackIterator(node, graph.getNeighborIterator(node)));
-	}
-
-	private void popNode(final int node) {
-		stack.pop();
-		data[node].setPostorder(postNum++);
-	}
-
-	public ForestDFS execute(final IGraph graph) {
-		setUp(graph);
-		while (findRoot()) {
-			while (!stack.isEmpty()) {
-				final StackIterator elt = stack.peek();
-				final int node = elt.node;
-				if (elt.hasNext()) {
-					final int child = elt.next();
-					if (data[child] == null) {
-						pushNode(child, node);
-					} else {
-						data[node].awakeOnOutEdge(data[child]);
-					}
-				} else {
-					popNode(node);
-					data[data[node].getParent()].awakeOnInEdge(data[node]);
-				}
-
-			}
-		}
-		return new ForestDFS(graph, data);
-	}
-
-	protected static final class StackIterator implements TIntIterator {
-		public final int node;
-		private final TIntIterator iter;
-
-		public StackIterator(final int index, final IGraph graph) {
-			super();
-			this.node = index;
-			this.iter = graph.getNeighborIterator(index);
-		}
-
-		public StackIterator(final int index, final TIntIterator iter) {
-			super();
-			this.node = index;
-			this.iter = iter;
-		}
-
-		public int getNode() {
-			return node;
-		}
-
-		@Override
-		public boolean hasNext() {
-			return iter.hasNext();
-		}
-
-		@Override
-		public void remove() {
-			iter.remove();
-		}
-
-		@Override
-		public int next() {
-			return iter.next();
-		}
-
-	}
 
 	public static <E> String toString(Stream<E> stream, CharSequence delimiter) {
 		return stream.map(Object::toString).collect(Collectors.joining(delimiter));
@@ -152,11 +46,6 @@ public class DepthFirstSearch {
 
 	public static String toString(Object[] o, CharSequence delimiter) {
 		return toString(Stream.of(o), delimiter);
-	}
-
-	@Override
-	public String toString() {
-		return "DepthFirstSearch:\n" + toString(data, "\n");
 	}
 
 }

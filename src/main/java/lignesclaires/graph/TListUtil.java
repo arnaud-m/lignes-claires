@@ -10,6 +10,7 @@ package lignesclaires.graph;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.function.IntToDoubleFunction;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Stream;
 
@@ -94,6 +95,18 @@ public final class TListUtil {
 		for (int i = 0; i < n; i++) {
 			indices[i] = Integer.valueOf(i);
 			values[i] = func.applyAsDouble(lists[offset + i]);
+		}
+		Arrays.sort(indices, (Integer arg0, Integer arg1) -> Double.compare(values[arg0], values[arg1]));
+		return Stream.of(indices).map(i -> vars[i]).toArray(m -> (E[]) Array.newInstance(vars[0].getClass(), m));
+	}
+
+	public static <E> E[] permutate(final E[] vars, final IntToDoubleFunction func) {
+		final int n = vars.length;
+		final Integer[] indices = new Integer[n];
+		final double[] values = new double[n];
+		for (int i = 0; i < n; i++) {
+			indices[i] = Integer.valueOf(i);
+			values[i] = func.applyAsDouble(i);
 		}
 		Arrays.sort(indices, (Integer arg0, Integer arg1) -> Double.compare(values[arg0], values[arg1]));
 		return Stream.of(indices).map(i -> vars[i]).toArray(m -> (E[]) Array.newInstance(vars[0].getClass(), m));

@@ -8,54 +8,28 @@
  */
 package lignesclaires.parser;
 
-import java.util.NoSuchElementException;
-import java.util.Scanner;
+import java.io.FileNotFoundException;
+import java.io.Reader;
+
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.nio.ImportException;
 
 import lignesclaires.graph.BGraph;
+import lignesclaires.graph.JGraphtUtil;
 import lignesclaires.specs.IBipartiteGraph;
 import lignesclaires.specs.IGraphParser;
 
 public class PaceInputParser implements IGraphParser<IBipartiteGraph> {
 
 	@Override
-	public IBipartiteGraph parse(final Scanner scanner) throws InvalidGraphFormatException {
-		try {
-			skipComments(scanner);
-			scanner.next();
-			scanner.next();
-			final int fixedCount = scanner.nextInt();
-			final int freeCount = scanner.nextInt();
-			final int edgeCount = scanner.nextInt();
-			BGraph bigraph = new BGraph(fixedCount, freeCount, edgeCount);
-			for (int i = 0; i < edgeCount; i++) {
-				final int fixed = scanner.nextInt();
-				if (fixed < 1 || fixed > fixedCount) {
-					throw new InvalidGraphFormatException("Invalid fixed node:" + fixed);
-				}
-				final int free = scanner.nextInt();
-				if (free < fixedCount + 1 || free > fixedCount + freeCount + 1) {
-					throw new InvalidGraphFormatException("Invalid free node:" + free);
-				}
-				bigraph.addEdge(fixed, free);
-			}
-			bigraph.sort();
-			return bigraph;
-		} catch (ArrayIndexOutOfBoundsException | NoSuchElementException | IllegalStateException e) {
-			throw new InvalidGraphFormatException();
-		}
-	}
+	public IBipartiteGraph parse(Reader reader) throws ImportException, FileNotFoundException {
+		final PACEImporter<Integer, DefaultEdge> importer = new PACEImporter<>();
+		importer.setVertexFactory(i -> i);
+		final Graph<Integer, DefaultEdge> graph = JGraphtUtil.unweightedUndirected();
 
-	public static final void skipComments(final Scanner sc) {
-		final String pattern = "c\\h*.*\\v";
-		boolean skipCLine = true;
-		do {
-			try {
-				sc.skip(pattern);
-			} catch (NoSuchElementException e) {
-				skipCLine = false;
-			}
-			// System.out.println("A " + sc.next());
-		} while (skipCLine);
+		importer.importGraph(graph, reader);
+		return new BGraph(graph, importer.getFixedCount(), importer.getFreeCount());
 	}
 
 }

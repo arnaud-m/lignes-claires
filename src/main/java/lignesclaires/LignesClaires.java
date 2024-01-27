@@ -28,6 +28,7 @@ import org.jgrapht.alg.connectivity.BlockCutpointGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.nio.Attribute;
 import org.jgrapht.nio.DefaultAttribute;
+import org.jgrapht.nio.ImportException;
 import org.jgrapht.nio.dot.DOTExporter;
 
 import lignesclaires.cmd.OptionsParser;
@@ -35,7 +36,6 @@ import lignesclaires.cmd.Verbosity;
 import lignesclaires.config.LignesClairesConfig;
 import lignesclaires.graph.DepthFirstSearch;
 import lignesclaires.graph.JGraphtUtil;
-import lignesclaires.parser.InvalidGraphFormatException;
 import lignesclaires.parser.PaceInputParser;
 import lignesclaires.solver.OCSolution;
 import lignesclaires.solver.OCSolver;
@@ -132,7 +132,7 @@ public final class LignesClaires {
 				}
 			}
 			return Optional.of(bigraph);
-		} catch (InvalidGraphFormatException | FileNotFoundException e) {
+		} catch (ImportException | FileNotFoundException e) {
 			LOGGER.log(Level.SEVERE, e, () -> "Parse file " + graphfile + FAIL);
 		}
 		return Optional.empty();
