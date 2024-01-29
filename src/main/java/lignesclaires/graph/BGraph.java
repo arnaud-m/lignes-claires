@@ -12,9 +12,9 @@ import java.util.Optional;
 
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
+import org.jgrapht.alg.connectivity.BlockCutpointGraph;
 import org.jgrapht.graph.DefaultEdge;
 
-import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 import lignesclaires.specs.IBipartiteGraph;
 
@@ -24,16 +24,23 @@ public class BGraph extends AbstractGraph implements IBipartiteGraph {
 	private final int freeCount;
 	private final int freeOffset;
 
+	Optional<TIntArrayList[]> freeAdjLists;
+
 	Optional<CrossingCounts> crossingCounts;
+
 	Optional<CrossingCounts> reducedCrossingCounts;
+
+	Optional<BlockCutpointGraph<Integer, DefaultEdge>> blockCutGraph;
 
 	public BGraph(Graph<Integer, DefaultEdge> graph, int fixedCount, int freeCount) {
 		super(graph);
 		this.fixedCount = fixedCount;
 		this.freeCount = freeCount;
 		this.freeOffset = fixedCount + 1;
+		freeAdjLists = Optional.empty();
 		crossingCounts = Optional.empty();
 		reducedCrossingCounts = Optional.empty();
+		blockCutGraph = Optional.empty();
 	}
 
 	@Override
@@ -51,9 +58,28 @@ public class BGraph extends AbstractGraph implements IBipartiteGraph {
 		return freeOffset + free;
 	}
 
-	@Override
-	public final TIntList getFreeNeighbors(final int free) {
-		return getNeighbors(freeOffset + free);
+	private TIntArrayList getNeighbors(int node) {
+		final TIntArrayList neighbors = new TIntArrayList(graph.outDegreeOf(node));
+		for (Integer v : Graphs.neighborListOf(graph, node)) {
+			neighbors.add(v);
+		}
+		neighbors.sort();
+		return neighbors;
+	}
+
+	private void buildFreeAdjacencyLists() {
+		final TIntArrayList[] adjLists = new TIntArrayList[freeCount];
+		for (int i = 0; i < freeCount; i++) {
+			adjLists[i] = getNeighbors(freeOffset + i);
+		}
+		freeAdjLists = Optional.of(adjLists);
+	}
+
+	protected TIntArrayList[] getFreeAdjacencyLists() {
+		if (freeAdjLists.isEmpty()) {
+			buildFreeAdjacencyLists();
+		}
+		return freeAdjLists.get();
 	}
 
 	@Override
@@ -62,35 +88,25 @@ public class BGraph extends AbstractGraph implements IBipartiteGraph {
 	}
 
 	public <E> E[] permutateMedians(final E[] objects) {
-		return TListUtil.permutate(objects, i -> TListUtil.getMedian(getNeighbors(freeOffset + i)));
+		final TIntArrayList[] adjLists = getFreeAdjacencyLists();
+		return TListUtil.permutate(objects, i -> TListUtil.getMedian(adjLists[i]));
 	}
 
 	public <E> E[] permutateBarycenters(final E[] objects) {
-		return TListUtil.permutate(objects, i -> TListUtil.getBarycenter(getNeighbors(freeOffset + i)));
+		final TIntArrayList[] adjLists = getFreeAdjacencyLists();
+		return TListUtil.permutate(objects, i -> TListUtil.getBarycenter(adjLists[i]));
 	}
 
-	public TIntArrayList getNeighbors(int node) {
-		final TIntArrayList neighbors = new TIntArrayList(graph.degreeOf(node));
-		for (Integer v : Graphs.neighborListOf(graph, node)) {
-			neighbors.add(v);
-		}
-		neighbors.sort();
-		return neighbors;
-	}
-
-	protected int getCrossingCount(int left, int right) {
-		return TListUtil.getCrossingCount(getNeighbors(freeOffset + left), getNeighbors(freeOffset + right));
-	}
-
-	protected void computeCrossingCounts() {
+	protected void buildCrossingCounts() {
 		final int n = getFreeCount();
 		final int[][] counts = new int[n][n];
 		final int[][] redCounts = new int[n][n];
 		int constant = 0;
+		final TIntArrayList[] adjLists = getFreeAdjacencyLists();
 		for (int i = 0; i < n; i++) {
 			for (int j = i + 1; j < n; j++) {
-				counts[i][j] = getCrossingCount(i, j);
-				counts[j][i] = getCrossingCount(j, i);
+				counts[i][j] = TListUtil.getCrossingCount(adjLists[i], adjLists[j]);
+				counts[j][i] = TListUtil.getCrossingCount(adjLists[j], adjLists[i]);
 				final int min = Math.min(counts[i][j], counts[j][i]);
 				constant += min;
 				redCounts[i][j] = counts[i][j] - min;
@@ -104,7 +120,7 @@ public class BGraph extends AbstractGraph implements IBipartiteGraph {
 	@Override
 	public final CrossingCounts getReducedCrossingCounts() {
 		if (reducedCrossingCounts.isEmpty()) {
-			computeCrossingCounts();
+			buildCrossingCounts();
 		}
 		return reducedCrossingCounts.get();
 	}
@@ -112,9 +128,17 @@ public class BGraph extends AbstractGraph implements IBipartiteGraph {
 	@Override
 	public final CrossingCounts getCrossingCounts() {
 		if (crossingCounts.isEmpty()) {
-			computeCrossingCounts();
+			buildCrossingCounts();
 		}
 		return crossingCounts.get();
+	}
+
+	public final BlockCutpointGraph<Integer, DefaultEdge> getBlockCutGraph() {
+		if (blockCutGraph.isEmpty()) {
+			blockCutGraph = Optional.of(new BlockCutpointGraph<>(graph));
+		}
+		return blockCutGraph.get();
+
 	}
 
 }

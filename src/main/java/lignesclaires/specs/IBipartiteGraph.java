@@ -11,7 +11,6 @@ package lignesclaires.specs;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 
-import gnu.trove.list.TIntList;
 import lignesclaires.graph.CrossingCounts;
 
 public interface IBipartiteGraph extends IBipartiteGraphDimension, IGraph {
@@ -21,8 +20,6 @@ public interface IBipartiteGraph extends IBipartiteGraphDimension, IGraph {
 	CrossingCounts getCrossingCounts();
 
 	CrossingCounts getReducedCrossingCounts();
-
-	TIntList getFreeNeighbors(int free);
 
 	int getFreeNode(int free);
 

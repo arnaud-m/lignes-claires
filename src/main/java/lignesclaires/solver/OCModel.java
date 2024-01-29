@@ -161,7 +161,7 @@ public class OCModel implements IOCModel {
 		model.post(new Constraint("AssignmentLowerBound", new PropAssignmentLowerBound(bigraph, positions, objective)));
 	}
 
-	private void exportReductionRules(final ReductionRules2 rules2) {
+	private void exportReductionRules(final ReductionRules rules2) {
 //		if (rrPath.isPresent()) {
 //			final String prefix = rrPath.get();
 //			LignesClaires.toDotty(rules2.getOrderedGraph(), prefix + "-ordered2.dot");
@@ -175,7 +175,7 @@ public class OCModel implements IOCModel {
 	@Override
 	public void buildModel() {
 		final ObjectiveBuilder objBuilder = new ObjectiveBuilder(hasFlag(DISJ));
-		final ReductionRules2 rules2 = new ReductionRules2(bigraph, hasFlag(RR1), hasFlag(RR2), hasFlag(RR3));
+		final ReductionRules rules2 = new ReductionRules(bigraph, hasFlag(RR1), hasFlag(RR2), hasFlag(RR3));
 		exportReductionRules(rules2);
 		rules2.forEachOrderedEdge(objBuilder::addOrdered);
 		rules2.forEachIncomparableEdge(objBuilder::addIncomparable);

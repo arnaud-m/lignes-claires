@@ -24,11 +24,10 @@ import org.jgrapht.nio.dot.DOTExporter;
 import lignesclaires.LignesClaires;
 import lignesclaires.graph.CrossingCounts;
 import lignesclaires.graph.JGraphtUtil;
-import lignesclaires.graph.TListUtil;
 import lignesclaires.specs.IBipartiteGraph;
 import lignesclaires.specs.IEdgeConsumer;
 
-public class ReductionRules2 {
+public class ReductionRules {
 
 	private final IBipartiteGraph graph;
 	private final CrossingCounts counts;
@@ -37,7 +36,7 @@ public class ReductionRules2 {
 	private final Graph<Integer, DefaultEdge> incomparable;
 	private final IReductionRule[] rules;
 
-	public ReductionRules2(IBipartiteGraph graph, boolean useRule1, boolean useRule2, boolean useRule3) {
+	public ReductionRules(IBipartiteGraph graph, boolean useRule1, boolean useRule2, boolean useRule3) {
 		super();
 		this.graph = graph;
 		this.counts = graph.getCrossingCounts();
@@ -142,7 +141,7 @@ public class ReductionRules2 {
 
 		@Override
 		public boolean apply(int i, int j) {
-			if (TListUtil.isEqual(graph.getFreeNeighbors(i), graph.getFreeNeighbors(j))) {
+			if (JGraphtUtil.hasSameNeighbors(graph.getGraph(), graph.getFreeNode(i), graph.getFreeNode(j))) {
 				ordered.addEdge(i, j);
 				return true;
 			}

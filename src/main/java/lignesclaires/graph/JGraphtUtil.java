@@ -9,10 +9,14 @@
 package lignesclaires.graph;
 
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import org.jgrapht.Graph;
+import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.graph.builder.GraphTypeBuilder;
@@ -69,8 +73,35 @@ public final class JGraphtUtil {
 		return exporter;
 	}
 
+	public static DOTExporter<Graph<Integer, DefaultEdge>, DefaultEdge> blockCutExporter() {
+		final DOTExporter<Graph<Integer, DefaultEdge>, DefaultEdge> exporter = new DOTExporter<>(
+				new SimpleVertexIdProvider<>());
+		exporter.setVertexAttributeProvider(v -> {
+			Map<String, Attribute> map = new LinkedHashMap<>();
+			map.put("shape", DefaultAttribute.createAttribute(v.vertexSet().size() == 1 ? "plain" : "box"));
+			map.put("label", DefaultAttribute.createAttribute(DepthFirstSearch.toString(v.vertexSet().stream(), " ")));
+			return map;
+		});
+		return exporter;
+	}
+
+	private static class SimpleVertexIdProvider<V> implements Function<V, String> {
+
+		private final AtomicInteger nextId = new AtomicInteger(0);
+		private final HashMap<V, String> vertexIds = new HashMap<>();
+
+		@Override
+		public String apply(V t) {
+			return vertexIds.computeIfAbsent(t, v -> String.valueOf(nextId.getAndIncrement()));
+		}
+	}
+
 	public static final <E extends DefaultEdge> void forEachEdge(Graph<Integer, E> graph, IEdgeConsumer consumer) {
 		graph.edgeSet().forEach(e -> consumer.accept(graph.getEdgeSource(e), graph.getEdgeTarget(e)));
+	}
+
+	public static <V, E> boolean hasSameNeighbors(Graph<V, E> graph, V i, V j) {
+		return Graphs.neighborSetOf(graph, i).equals(Graphs.neighborSetOf(graph, j));
 	}
 
 }

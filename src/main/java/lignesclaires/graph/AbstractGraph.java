@@ -17,13 +17,8 @@ public abstract class AbstractGraph implements IGraph {
 
 	protected final Graph<Integer, DefaultEdge> graph;
 
-	protected int nodeCount = 0;
-	protected int edgeCount = 0;
-
 	protected AbstractGraph(final Graph<Integer, DefaultEdge> graph) {
 		this.graph = graph;
-		nodeCount = graph.vertexSet().size();
-		edgeCount = graph.edgeSet().size();
 	}
 
 	public final Graph<Integer, DefaultEdge> getGraph() {
@@ -32,12 +27,12 @@ public abstract class AbstractGraph implements IGraph {
 
 	@Override
 	public final int getNodeCount() {
-		return nodeCount;
+		return graph.vertexSet().size();
 	}
 
 	@Override
 	public final int getEdgeCount() {
-		return edgeCount;
+		return graph.edgeSet().size();
 	}
 
 	@Override
