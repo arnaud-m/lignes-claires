@@ -68,8 +68,8 @@ public class ReductionRules {
 	}
 
 	public final void exportGraph(final String filePathNoExt) {
-		LignesClaires.toDotty(ordered, filePathNoExt + "-ordered.dot");
-		LignesClaires.toDotty(incomparable, filePathNoExt + "-incomparable.dot");
+		LignesClaires.exportPlainDotGraph(ordered, filePathNoExt + "-ordered.dot");
+		LignesClaires.exportPlainDotGraph(incomparable, filePathNoExt + "-incomparable.dot");
 	}
 
 	private IReductionRule[] buildRules(boolean useRule1, boolean useRule2, boolean useRule3) {

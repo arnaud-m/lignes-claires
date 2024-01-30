@@ -9,6 +9,7 @@
 package lignesclaires.specs;
 
 import org.jgrapht.Graph;
+import org.jgrapht.alg.connectivity.BlockCutpointGraph;
 import org.jgrapht.graph.DefaultEdge;
 
 import lignesclaires.graph.CrossingCounts;
@@ -20,6 +21,8 @@ public interface IBipartiteGraph extends IBipartiteGraphDimension, IGraph {
 	CrossingCounts getCrossingCounts();
 
 	CrossingCounts getReducedCrossingCounts();
+
+	BlockCutpointGraph<Integer, DefaultEdge> getBlockCutGraph();
 
 	int getFreeNode(int free);
 

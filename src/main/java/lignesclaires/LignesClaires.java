@@ -8,7 +8,6 @@
  */
 package lignesclaires;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -19,14 +18,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.nio.GraphExporter;
 import org.jgrapht.nio.ImportException;
-import org.jgrapht.nio.dot.DOTExporter;
 
 import lignesclaires.cmd.OptionsParser;
 import lignesclaires.cmd.Verbosity;
 import lignesclaires.config.LignesClairesConfig;
-import lignesclaires.graph.BGraph;
 import lignesclaires.graph.JGraphtUtil;
 import lignesclaires.parser.PaceInputParser;
 import lignesclaires.solver.OCSolution;
@@ -64,8 +61,8 @@ public final class LignesClaires {
 
 			final Optional<IBipartiteGraph> optGraph = parse(config.getGraphFile());
 			if (optGraph.isPresent()) {
-				if (config.exportBlockCutTree()) {
-					exportBlockCutTree(optGraph.get(), config.getGraphFile());
+				if (config.exportBlockCutGraph()) {
+					exportBlockCutGraph(optGraph.get(), config.getGraphFile());
 				}
 				final OCSolution solution = solve(optGraph.get(), config);
 				final Optional<String> optsol = config.getSolutionFile();
@@ -130,23 +127,16 @@ public final class LignesClaires {
 		return Optional.empty();
 	}
 
-	public static void writeString(final String content, final String filePath) {
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-			// Write the string to the file
-			writer.write(content);
-			LOGGER.log(Level.INFO, "Export file {0} [OK]", filePath);
-		} catch (IOException e) {
-			LOGGER.log(Level.WARNING, e, () -> "Write file " + filePath + FAIL);
-		}
+	public static <E> void exportPlainDotGraph(final Graph<Integer, E> graph, final String filePath) {
+		exportGraph(graph, JGraphtUtil.plainDotExporter(), filePath);
 	}
 
-	public static <E> void toDotty(final Graph<Integer, E> graph, final String filePath) {
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-			DOTExporter<Integer, E> exporter = JGraphtUtil.plainDotExporter();
-			exporter.exportGraph(graph, writer);
-			LOGGER.log(Level.INFO, "Export graph {0} [OK]", filePath);
-		} catch (IOException e) {
-			LOGGER.log(Level.WARNING, e, () -> "Export graph " + filePath + FAIL);
+	public static <V, E> void exportGraph(final Graph<V, E> graph, GraphExporter<V, E> exporter, final String path) {
+		try {
+			exporter.exportGraph(graph, new File(path));
+			LOGGER.log(Level.INFO, "Export graph {0} [OK]", path);
+		} catch (ImportException e) {
+			LOGGER.log(Level.WARNING, e, () -> "Export graph " + path + FAIL);
 		}
 	}
 
@@ -160,12 +150,10 @@ public final class LignesClaires {
 		return idx < 0 ? name : name.substring(0, idx);
 	}
 
-	private static void exportBlockCutTree(IBipartiteGraph graph, final String graphfile) {
-		final String graphname = getFilenameWithoutExtension(graphfile);
-		final File file = new File(graphname + "-blockcut.dot");
-		final DOTExporter<Graph<Integer, DefaultEdge>, DefaultEdge> exporter = JGraphtUtil.blockCutExporter();
-		exporter.exportGraph(((BGraph) graph).getBlockCutGraph(), file);
-		LOGGER.log(Level.INFO, "Export graph {0} [OK]", file);
+	private static void exportBlockCutGraph(IBipartiteGraph graph, final String graphfile) {
+		exportGraph(graph.getBlockCutGraph(), JGraphtUtil.blockCutExporter(),
+				getFilenameWithoutExtension(graphfile) + "-blockcut.dot");
+
 	}
 
 	private static OCSolution solve(final IBipartiteGraph bigraph, final LignesClairesConfig config) {

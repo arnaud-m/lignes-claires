@@ -48,8 +48,8 @@ public class LignesClairesConfig {
 	@Option(name = "--time", usage = "Limit the time taken by the solver (in seconds).")
 	private long timeLimit;
 
-	@Option(name = "--bctree", usage = "Export the DFS and Block-Cut trees to graphviz.")
-	private boolean blockCutTree;
+	@Option(name = "--blockcut", usage = "Export the DFS and Block-Cut trees to graphviz.")
+	private boolean blockCutGraph;
 
 	@Option(name = "--ordering", usage = "Export the ordered, reduced, and incomparable graphs to graphviz.")
 	private boolean orderingGraphs;
@@ -112,8 +112,8 @@ public class LignesClairesConfig {
 		this.timeLimit = timeLimit;
 	}
 
-	public final boolean exportBlockCutTree() {
-		return blockCutTree;
+	public final boolean exportBlockCutGraph() {
+		return blockCutGraph;
 	}
 
 	public final boolean exportOrderingGraphs() {
@@ -121,7 +121,7 @@ public class LignesClairesConfig {
 	}
 
 	public final void setBlockCutTree(boolean blockCutTree) {
-		this.blockCutTree = blockCutTree;
+		this.blockCutGraph = blockCutTree;
 	}
 
 	public final List<String> getArguments() {

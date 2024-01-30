@@ -175,10 +175,10 @@ public class OCModel implements IOCModel {
 	@Override
 	public void buildModel() {
 		final ObjectiveBuilder objBuilder = new ObjectiveBuilder(hasFlag(DISJ));
-		final ReductionRules rules2 = new ReductionRules(bigraph, hasFlag(RR1), hasFlag(RR2), hasFlag(RR3));
-		exportReductionRules(rules2);
-		rules2.forEachOrderedEdge(objBuilder::addOrdered);
-		rules2.forEachIncomparableEdge(objBuilder::addIncomparable);
+		final ReductionRules rules = new ReductionRules(bigraph, hasFlag(RR1), hasFlag(RR2), hasFlag(RR3));
+		exportReductionRules(rules);
+		rules.forEachOrderedEdge(objBuilder::addOrdered);
+		rules.forEachIncomparableEdge(objBuilder::addIncomparable);
 		if (hasFlag(RRLO2)) {
 			postPermutationBinaryTable(bigraph.getCrossingCounts().getTuplesLO2());
 		}

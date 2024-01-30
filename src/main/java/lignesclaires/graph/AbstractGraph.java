@@ -42,7 +42,8 @@ public abstract class AbstractGraph implements IGraph {
 		final int n = getNodeCount();
 		b.append("n:").append(n);
 		b.append(", e:").append(getEdgeCount());
-		b.append("]\n");
+		b.append(",\n").append(JGraphtUtil.toString(graph));
+		b.append("]");
 		return b.toString();
 	}
 

@@ -9,6 +9,8 @@
 package lignesclaires.graph;
 
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
@@ -16,10 +18,12 @@ import org.jgrapht.alg.connectivity.BlockCutpointGraph;
 import org.jgrapht.graph.DefaultEdge;
 
 import gnu.trove.list.array.TIntArrayList;
+import lignesclaires.LignesClaires;
 import lignesclaires.specs.IBipartiteGraph;
 
 public class BGraph extends AbstractGraph implements IBipartiteGraph {
 
+	private final static Logger LOGGER = LignesClaires.LOGGER;
 	private final int fixedCount;
 	private final int freeCount;
 	private final int freeOffset;
@@ -97,6 +101,24 @@ public class BGraph extends AbstractGraph implements IBipartiteGraph {
 		return TListUtil.permutate(objects, i -> TListUtil.getBarycenter(adjLists[i]));
 	}
 
+	protected void logOnCrossingCounts() {
+		if (LOGGER.isLoggable(Level.INFO)) {
+			if (LOGGER.isLoggable(Level.CONFIG)) {
+				if (LOGGER.isLoggable(Level.FINE)) {
+					LOGGER.log(Level.CONFIG, "Crossing Counts\nc CONSTANT {0}\n{1}\n{2}",
+							new Object[] { reducedCrossingCounts.get().getConstant(),
+									crossingCounts.get().getDimacsPatterns(), crossingCounts.get() });
+				} else {
+					LOGGER.log(Level.CONFIG, "Crossing Counts\nc CONSTANT {0}\n{1}\n", new Object[] {
+							reducedCrossingCounts.get().getConstant(), crossingCounts.get().getDimacsPatterns() });
+				}
+			} else {
+				LOGGER.log(Level.INFO, "Crossing Counts\nc CONSTANT {0}\n",
+						new Object[] { reducedCrossingCounts.get().getConstant() });
+			}
+		}
+	}
+
 	protected void buildCrossingCounts() {
 		final int n = getFreeCount();
 		final int[][] counts = new int[n][n];
@@ -121,6 +143,7 @@ public class BGraph extends AbstractGraph implements IBipartiteGraph {
 	public final CrossingCounts getReducedCrossingCounts() {
 		if (reducedCrossingCounts.isEmpty()) {
 			buildCrossingCounts();
+			logOnCrossingCounts();
 		}
 		return reducedCrossingCounts.get();
 	}
@@ -129,16 +152,19 @@ public class BGraph extends AbstractGraph implements IBipartiteGraph {
 	public final CrossingCounts getCrossingCounts() {
 		if (crossingCounts.isEmpty()) {
 			buildCrossingCounts();
+			logOnCrossingCounts();
 		}
 		return crossingCounts.get();
 	}
 
+	@Override
 	public final BlockCutpointGraph<Integer, DefaultEdge> getBlockCutGraph() {
 		if (blockCutGraph.isEmpty()) {
 			blockCutGraph = Optional.of(new BlockCutpointGraph<>(graph));
+			LignesClaires.LOGGER.log(Level.INFO, "Block-Cut Graph\nc BLOCKS {0}\nc CUTPOINTS {1}",
+					new Object[] { blockCutGraph.get().getBlocks().size(), blockCutGraph.get().getCutpoints().size() });
 		}
 		return blockCutGraph.get();
-
 	}
 
 }
