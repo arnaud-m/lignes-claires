@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
 import org.jgrapht.alg.connectivity.BlockCutpointGraph;
+import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.DefaultEdge;
 
 import gnu.trove.list.array.TIntArrayList;
@@ -23,7 +24,7 @@ import lignesclaires.specs.IBipartiteGraph;
 
 public class BGraph extends AbstractGraph implements IBipartiteGraph {
 
-	private final static Logger LOGGER = LignesClaires.LOGGER;
+	private static final Logger LOGGER = LignesClaires.LOGGER;
 	private final int fixedCount;
 	private final int freeCount;
 	private final int freeOffset;
@@ -101,21 +102,25 @@ public class BGraph extends AbstractGraph implements IBipartiteGraph {
 		return TListUtil.permutate(objects, i -> TListUtil.getBarycenter(adjLists[i]));
 	}
 
+	public void logOnConnectedComponents() {
+		if (LOGGER.isLoggable(Level.CONFIG)) {
+			ConnectivityInspector<Integer, DefaultEdge> inspector = new ConnectivityInspector<>(graph);
+			final IntFrequency freq = new IntFrequency();
+			graph.vertexSet().forEach(v -> freq.add(graph.degreeOf(v)));
+			LOGGER.log(Level.CONFIG, "Degree Distribution:\nc DIST_DEGREES {0}", freq);
+
+			LOGGER.log(Level.CONFIG, "Connected Components:\nc CONNECTED_NB {0}", inspector.connectedSets().size());
+
+		}
+	}
+
 	protected void logOnCrossingCounts() {
 		if (LOGGER.isLoggable(Level.INFO)) {
-			if (LOGGER.isLoggable(Level.CONFIG)) {
-				if (LOGGER.isLoggable(Level.FINE)) {
-					LOGGER.log(Level.CONFIG, "Crossing Counts\nc CONSTANT {0}\n{1}\n{2}",
-							new Object[] { reducedCrossingCounts.get().getConstant(),
-									crossingCounts.get().getDimacsPatterns(), crossingCounts.get() });
-				} else {
-					LOGGER.log(Level.CONFIG, "Crossing Counts\nc CONSTANT {0}\n{1}\n", new Object[] {
-							reducedCrossingCounts.get().getConstant(), crossingCounts.get().getDimacsPatterns() });
-				}
-			} else {
-				LOGGER.log(Level.INFO, "Crossing Counts\nc CONSTANT {0}\n",
-						new Object[] { reducedCrossingCounts.get().getConstant() });
-			}
+			LOGGER.log(Level.INFO, "Crossing Counts:\nc LB_CCOUNTS {0}", getReducedCrossingCounts().getConstant());
+			LOGGER.log(Level.CONFIG, "Crossing Count Distribution:\nc DIST_CCOUNTS {0}",
+					getCrossingCounts().getDistribution());
+			LOGGER.log(Level.FINE, "Crossing Count Patterns:\n{0}", getCrossingCounts().getPatterns());
+			LOGGER.log(Level.FINER, "Crossing Count Matrix:\n{0}", getCrossingCounts());
 		}
 	}
 

@@ -36,7 +36,7 @@ public final class ChocoLogger {
 	public static void logOnModel(final Model model) {
 		if (LOGGER.isLoggable(Level.INFO)) {
 			LOGGER.log(Level.INFO, "Model diagnostics:\n{0}", toDimacs(model));
-			LOGGER.log(Level.FINE, "Display model:\n{0}", model);
+			LOGGER.log(Level.FINER, "Display model:\n{0}", model);
 		}
 	}
 

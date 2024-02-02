@@ -24,6 +24,7 @@ import org.jgrapht.nio.ImportException;
 import lignesclaires.cmd.OptionsParser;
 import lignesclaires.cmd.Verbosity;
 import lignesclaires.config.LignesClairesConfig;
+import lignesclaires.graph.BGraph;
 import lignesclaires.graph.JGraphtUtil;
 import lignesclaires.parser.PaceInputParser;
 import lignesclaires.solver.OCSolution;
@@ -61,7 +62,8 @@ public final class LignesClaires {
 
 			final Optional<IBipartiteGraph> optGraph = parse(config.getGraphFile());
 			if (optGraph.isPresent()) {
-				if (config.exportBlockCutGraph()) {
+				((BGraph) optGraph.get()).logOnConnectedComponents();
+				if (config.isReport()) {
 					exportBlockCutGraph(optGraph.get(), config.getGraphFile());
 				}
 				final OCSolution solution = solve(optGraph.get(), config);
@@ -151,6 +153,9 @@ public final class LignesClaires {
 	}
 
 	private static void exportBlockCutGraph(IBipartiteGraph graph, final String graphfile) {
+		// TODO Export degreee distribution
+		// TODO Export crossing count distribution
+		// TODO Export diameter, eccentricity
 		exportGraph(graph.getBlockCutGraph(), JGraphtUtil.blockCutExporter(),
 				getFilenameWithoutExtension(graphfile) + "-blockcut.dot");
 

@@ -25,7 +25,7 @@ public class OCSolver implements IOCSolver {
 	@Override
 	public OCSolution solve(final IBipartiteGraph bigraph, final LignesClairesConfig config) throws OCSolverException {
 		final OCModel mod = new OCModel(bigraph, config.getModelMask());
-		if (config.exportOrderingGraphs()) {
+		if (config.isReport()) {
 			mod.setExportPath(LignesClaires.getFilenameWithoutExtension(config.getGraphFile()));
 		}
 		mod.buildModel();
@@ -47,15 +47,17 @@ public class OCSolver implements IOCSolver {
 			solver.showDecisions();
 		}
 		final Solution sol = mod.createSolution();
-		while (solver.solve()) {
-			sol.record();
-			ChocoLogger.logOnSolution(Level.FINE, mod, sol);
-		}
+		if (!config.isDryRun()) {
+			while (solver.solve()) {
+				sol.record();
+				ChocoLogger.logOnSolution(Level.FINE, mod, sol);
+			}
 
-		if (mod.getSolver().getSolutionCount() > 0) {
-			ChocoLogger.logOnSolution(Level.INFO, mod, sol);
+			if (mod.getSolver().getSolutionCount() > 0) {
+				ChocoLogger.logOnSolution(Level.INFO, mod, sol);
+			}
+			ChocoLogger.logOnSolver(mod);
 		}
-		ChocoLogger.logOnSolver(mod);
 		return new OCSolution(mod, sol);
 	}
 

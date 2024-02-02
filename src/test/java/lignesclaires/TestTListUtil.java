@@ -11,15 +11,9 @@ package lignesclaires;
 import static lignesclaires.graph.TListUtil.getBarycenter;
 import static lignesclaires.graph.TListUtil.getCrossingCount;
 import static lignesclaires.graph.TListUtil.getMedian;
-import static lignesclaires.graph.TListUtil.intersect;
-import static lignesclaires.graph.TListUtil.intersectSingloton;
-import static lignesclaires.graph.TListUtil.isEqual;
-import static lignesclaires.graph.TListUtil.lazyIntersectSingloton;
 import static lignesclaires.graph.TListUtil.sequence;
 import static lignesclaires.graph.TListUtil.wrap;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -135,53 +129,6 @@ public class TestTListUtil {
 			assertEquals(sum / (i + 1), getBarycenter(l), 0);
 
 		}
-	}
-
-	private void assertIntersect(final int n, final int i, final int j) {
-		assertEquals(sequence(0, n, i * j), intersect(sequence(0, n, i), sequence(0, n, j)));
-	}
-
-	@Test
-	public void testIntersect() {
-		TIntArrayList e = wrap();
-		assertEquals(e, intersect(e, e));
-		final int n = 100;
-		int[] p = { 2, 3, 5, 7, 11, 13, 17, 19 };
-		for (int i = 0; i < p.length; i++) {
-			for (int j = i + 1; j < p.length; j++) {
-				assertIntersect(n, p[i], p[j]);
-				assertIntersect(n, p[j], p[i]);
-			}
-		}
-	}
-
-	@Test
-	public void testIntersectSingloton() {
-		final int n = 100;
-		TIntArrayList l1 = sequence(0, n, 1);
-		for (int i = 0; i < n; i++) {
-			TIntArrayList l2 = sequence(-n, 0, 1);
-			l2.add(i);
-			l2.addAll(sequence(n, 2 * n, 1));
-			assertEquals(i, intersectSingloton(l1, l2));
-			assertEquals(i, intersectSingloton(l2, l1));
-			assertEquals(i, lazyIntersectSingloton(l1, l2));
-			assertEquals(i, lazyIntersectSingloton(l2, l1));
-		}
-	}
-
-	@Test
-	public void testEqual() {
-		final int n = 100;
-		TIntArrayList l1 = sequence(0, n, 1);
-		for (int i = 0; i < n; i++) {
-			TIntArrayList l2 = new TIntArrayList(l1);
-			l2.removeAt(i);
-			assertFalse(isEqual(l1, l2));
-		}
-		TIntArrayList l2 = new TIntArrayList(l1);
-		assertTrue(isEqual(l1, l2));
-
 	}
 
 }

@@ -15,7 +15,6 @@ import java.util.Optional;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
-import org.kohsuke.args4j.spi.ExplicitBooleanOptionHandler;
 
 import lignesclaires.cmd.Verbosity;
 import lignesclaires.solver.OCSearch;
@@ -32,27 +31,27 @@ public class LignesClairesConfig {
 	@Option(name = "-v", aliases = { "--verbose" }, usage = "Increase the verbosity of the program.")
 	private Verbosity verbosity = Verbosity.NORMAL;
 
+	@Option(name = "-r", aliases = { "--report" }, usage = "Report on analysis and processing of the input graph.")
+	private boolean report;
+
+	@Option(name = "-d", aliases = { "--dry-run" }, usage = "Report on analysis and processing of the input graph.")
+	private boolean dryRun;
+
+	// TODO Replace by a search mask?
 	@Option(name = "-s", aliases = { "--search" }, usage = "Set the search strategy of the solver.")
 	private OCSearch search = OCSearch.DEFAULT;
 
 	@Option(name = "-m", aliases = { "--model" }, usage = "Set the search strategy of the solver.")
 	private int modelMask = ~0; // Using bitwise NOT operator to set all bits to 1.
 
-	@Option(name = "-r", aliases = {
-			"--restart" }, handler = ExplicitBooleanOptionHandler.class, usage = "Activate geometrical restarts.")
-	private boolean withRestarts = false;
+	@Option(name = "--restart", usage = "Activate geometrical restarts.")
+	private boolean withRestarts;
 
 	@Option(name = "--solution", usage = "Limit the number of solutions returned by the solver.")
 	private int solutionLimit;
 
 	@Option(name = "--time", usage = "Limit the time taken by the solver (in seconds).")
 	private long timeLimit;
-
-	@Option(name = "--blockcut", usage = "Export the DFS and Block-Cut trees to graphviz.")
-	private boolean blockCutGraph;
-
-	@Option(name = "--ordering", usage = "Export the ordered, reduced, and incomparable graphs to graphviz.")
-	private boolean orderingGraphs;
 
 	/**
 	 * Receives other command line parameters than options.
@@ -70,6 +69,22 @@ public class LignesClairesConfig {
 
 	public final void setVerbosity(final Verbosity verbosity) {
 		this.verbosity = verbosity;
+	}
+
+	public final boolean isReport() {
+		return report;
+	}
+
+	public final void setReport(boolean report) {
+		this.report = report;
+	}
+
+	public final boolean isDryRun() {
+		return dryRun;
+	}
+
+	public final void setDryRun(boolean dryRun) {
+		this.dryRun = dryRun;
 	}
 
 	public final OCSearch getSearch() {
@@ -110,18 +125,6 @@ public class LignesClairesConfig {
 
 	public final void setTimeLimit(final int timeLimit) {
 		this.timeLimit = timeLimit;
-	}
-
-	public final boolean exportBlockCutGraph() {
-		return blockCutGraph;
-	}
-
-	public final boolean exportOrderingGraphs() {
-		return orderingGraphs;
-	}
-
-	public final void setBlockCutTree(boolean blockCutTree) {
-		this.blockCutGraph = blockCutTree;
 	}
 
 	public final List<String> getArguments() {

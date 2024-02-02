@@ -8,13 +8,76 @@
  */
 package lignesclaires.graph;
 
-import java.awt.Point;
-import java.util.Formatter;
+import java.util.Arrays;
 
 import org.chocosolver.solver.constraints.extension.Tuples;
 
-import gnu.trove.map.hash.TObjectIntHashMap;
 import lignesclaires.choco.AssignmentRowBuilder;
+
+class IntFrequency {
+
+	private int[] frequencies;
+
+	public IntFrequency() {
+		super();
+		frequencies = new int[1];
+	}
+
+	public void add(int i) {
+		if (i >= frequencies.length) {
+			frequencies = Arrays.copyOf(frequencies, i + 1);
+		}
+		frequencies[i]++;
+	}
+
+	@Override
+	public String toString() {
+		return DepthFirstSearch.toString(frequencies, " ");
+	}
+}
+
+class CrossingCountPatterns {
+
+	private int[][] matrix;
+	private int m;
+
+	public CrossingCountPatterns() {
+		super();
+		matrix = new int[0][0];
+		m = 0;
+	}
+
+	private void addColumns(int j) {
+		if (j >= m) {
+			m = j + 1;
+			for (int k = 0; k < matrix.length; k++) {
+				matrix[k] = Arrays.copyOf(matrix[k], m);
+			}
+		}
+	}
+
+	private void addRows(int i) {
+		final int n = matrix.length;
+		if (i >= n) {
+			matrix = Arrays.copyOf(matrix, i + 1);
+			for (int k = n; k <= i; k++) {
+				matrix[k] = new int[m];
+			}
+		}
+	}
+
+	public void addPattern(int i, int j) {
+		addColumns(j);
+		addRows(i);
+		matrix[i][j]++;
+	}
+
+	@Override
+	public String toString() {
+		return DepthFirstSearch.toString(matrix, "% 3d");
+	}
+
+}
 
 public final class CrossingCounts {
 
@@ -35,31 +98,28 @@ public final class CrossingCounts {
 		return constant;
 	}
 
-	private Point getKey(final int i, final int j) {
-		return counts[i][j] <= counts[j][i] ? new Point(counts[i][j], counts[j][i])
-				: new Point(counts[j][i], counts[i][j]);
+	public final IntFrequency getDistribution() {
+		IntFrequency frequency = new IntFrequency();
+		for (int i = 0; i < counts.length; i++) {
+			for (int j = 0; j < counts.length; j++) {
+				frequency.add(counts[i][j]);
+			}
+		}
+		return frequency;
 	}
 
-	public final TObjectIntHashMap<Point> getPatternDistribution() {
-		TObjectIntHashMap<Point> patterns = new TObjectIntHashMap<>();
+	public final CrossingCountPatterns getPatterns() {
+		CrossingCountPatterns patterns = new CrossingCountPatterns();
 		for (int i = 0; i < counts.length; i++) {
 			for (int j = i + 1; j < counts.length; j++) {
-				patterns.adjustOrPutValue(getKey(i, j), 1, 1);
+				if (counts[i][j] <= counts[j][i]) {
+					patterns.addPattern(counts[i][j], counts[j][i]);
+				} else {
+					patterns.addPattern(counts[j][i], counts[i][j]);
+				}
 			}
 		}
 		return patterns;
-	}
-
-	public final String getDimacsPatterns() {
-		final StringBuilder b = new StringBuilder();
-		getPatternDistribution().forEachEntry((p, v) -> {
-			b.append("c PATTERN ").append(p.x).append(' ').append(p.y).append(' ').append(v).append('\n');
-			return true;
-		});
-		if (b.length() > 0) {
-			b.deleteCharAt(b.length() - 1);
-		}
-		return b.toString();
 	}
 
 	public Tuples getTuplesLO2() {
@@ -82,15 +142,7 @@ public final class CrossingCounts {
 
 	@Override
 	public String toString() {
-		try (final Formatter formatter = new Formatter(new StringBuilder())) {
-			for (int i = 0; i < counts.length; i++) {
-				for (int j = 0; j < counts.length - 1; j++) {
-					formatter.format("% 2d ", counts[i][j]);
-				}
-				formatter.format("% 2d%n", counts[i][counts.length - 1]);
-			}
-			return formatter.toString();
-		}
+		return DepthFirstSearch.toString(counts, "% 2d");
 	}
 
 }

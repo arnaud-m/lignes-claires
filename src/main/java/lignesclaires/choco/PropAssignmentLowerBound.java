@@ -22,6 +22,7 @@ public class PropAssignmentLowerBound extends Propagator<IntVar> {
 
 	private final IntVar[] positions;
 	private final IntVar cost;
+	private final int constant;
 
 	private final AssignmentBuilder builder;
 
@@ -29,7 +30,7 @@ public class PropAssignmentLowerBound extends Propagator<IntVar> {
 		super(ArrayUtils.concat(positions, cost), PropagatorPriority.VERY_SLOW, false);
 		this.positions = positions;
 		this.cost = cost;
-		// System.out.println(bigraph.getReducedCrossingCounts());
+		this.constant = bigraph.getReducedCrossingCounts().getConstant();
 		builder = new AssignmentBuilder(bigraph);
 	}
 
@@ -38,37 +39,22 @@ public class PropAssignmentLowerBound extends Propagator<IntVar> {
 		return IntEventType.boundAndInst();
 	}
 
+	static boolean isOn = true;
+
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
 		builder.buildAssignmentGraph(positions);
-//		Graph<Integer, DefaultWeightedEdge> graph = GraphTypeBuilder.<Integer, DefaultWeightedEdge>undirected()
-//				.allowingMultipleEdges(false).allowingSelfLoops(false).edgeClass(DefaultWeightedEdge.class)
-//				.weighted(true).buildGraph();
-		// int[][] costs = builder.getCostMatrix();
-//		final int n = costs.length;
-//		Set<Integer> s1 = new HashSet<>();
-//		Set<Integer> s2 = new HashSet<>();
-//		for (int i = 0; i < n; i++) {
-//			graph.addVertex(i);
-//			s1.add(i);
-//			graph.addVertex(n + i);
-//			s2.add(n + i);
-//		}
-//		for (int i = 0; i < n; i++) {
-//			for (int j = 0; j < n; j++) {
-//				DefaultWeightedEdge e = new DefaultWeightedEdge();
-//				graph.addEdge(i, n + j, e);
-//
-//				graph.setEdgeWeight(e, costs[i][j]);
-//			}
-//		}
-		// System.out.println(graph);
-//		KuhnMunkresMinimalWeightBipartitePerfectMatching<Integer, DefaultWeightedEdge> hungarian = new KuhnMunkresMinimalWeightBipartitePerfectMatching<Integer, DefaultWeightedEdge>(
-//				graph, s1, s2);
+		final int weight = (int) Math.ceil(builder.solveAssignment().getWeight());
 
-		System.err.println(builder.solveAssignment().getWeight());
-		// System.out.println(Arrays.toString(positions));
-		// System.out.println(builder);
+		final int lb = constant + weight;
+		if (lb > cost.getUB()) {
+			System.err.println(cost + " " + (constant + weight));
+		} else if (lb > cost.getLB()) {
+			System.out.println(cost + " " + (constant + weight));
+		}
+		if (isOn) {
+			cost.updateLowerBound(constant + weight, this);
+		}
 	}
 
 	@Override
