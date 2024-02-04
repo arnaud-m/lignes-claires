@@ -8,8 +8,6 @@
  */
 package lignesclaires.solver;
 
-import java.util.logging.Level;
-
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 
@@ -43,22 +41,24 @@ public class OCSolver implements IOCSolver {
 		}
 
 		ChocoLogger.logOnModel(mod);
-		if (config.getVerbosity() == Verbosity.DEBUG) {
+		if (config.getVerbosity() == Verbosity.TRACE) {
 			solver.showDecisions();
 		}
 		final Solution sol = mod.createSolution();
 		if (!config.isDryRun()) {
 			while (solver.solve()) {
 				sol.record();
-				ChocoLogger.logOnSolution(Level.FINE, mod, sol);
+				ChocoLogger.logOnSolution(mod, sol);
 			}
 
 			if (mod.getSolver().getSolutionCount() > 0) {
-				ChocoLogger.logOnSolution(Level.INFO, mod, sol);
+				ChocoLogger.logOnBestSolution(mod, sol);
 			}
 			ChocoLogger.logOnSolver(mod);
+			return new OCSolution(mod, sol);
+		} else {
+			return OCSolution.getUnknownInstance();
 		}
-		return new OCSolution(mod, sol);
 	}
 
 }

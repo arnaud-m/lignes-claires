@@ -112,6 +112,7 @@ public class OCModel implements IOCModel {
 			costs = new IntVar[n * (n - 1) / 2 + 1];
 			this.index = 1;
 			this.constant = counts.getConstant();
+			// FIXME decomposition by default
 			if (decompose) {
 				builder = (pi, pj, c) -> pi.lt(pj).iff(c.eq(0)).decompose();
 			} else {
@@ -232,7 +233,7 @@ public class OCModel implements IOCModel {
 	}
 
 	public final String printSolution(final Solution s) {
-		StringBuilder b = new StringBuilder();
+		final StringBuilder b = new StringBuilder();
 		b.append('v');
 		for (int i = 0; i < permutation.length; i++) {
 			b.append(' ').append(s.getIntVal(permutation[i]));

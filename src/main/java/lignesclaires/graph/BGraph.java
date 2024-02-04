@@ -15,14 +15,13 @@ import java.util.logging.Logger;
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
 import org.jgrapht.alg.connectivity.BlockCutpointGraph;
-import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.DefaultEdge;
 
 import gnu.trove.list.array.TIntArrayList;
 import lignesclaires.LignesClaires;
 import lignesclaires.specs.IBipartiteGraph;
 
-public class BGraph extends AbstractGraph implements IBipartiteGraph {
+public class BGraph extends GraphBean implements IBipartiteGraph {
 
 	private static final Logger LOGGER = LignesClaires.LOGGER;
 	private final int fixedCount;
@@ -104,13 +103,8 @@ public class BGraph extends AbstractGraph implements IBipartiteGraph {
 
 	public void logOnConnectedComponents() {
 		if (LOGGER.isLoggable(Level.CONFIG)) {
-			ConnectivityInspector<Integer, DefaultEdge> inspector = new ConnectivityInspector<>(graph);
-			final IntFrequency freq = new IntFrequency();
-			graph.vertexSet().forEach(v -> freq.add(graph.degreeOf(v)));
-			LOGGER.log(Level.CONFIG, "Degree Distribution:\nc DIST_DEGREES {0}", freq);
-
-			LOGGER.log(Level.CONFIG, "Connected Components:\nc CONNECTED_NB {0}", inspector.connectedSets().size());
-
+			GraphLogger.logOnConnectedComponents(graph);
+			GraphLogger.logOnDegreeDistribution(graph);
 		}
 	}
 
@@ -148,7 +142,7 @@ public class BGraph extends AbstractGraph implements IBipartiteGraph {
 	public final CrossingCounts getReducedCrossingCounts() {
 		if (reducedCrossingCounts.isEmpty()) {
 			buildCrossingCounts();
-			logOnCrossingCounts();
+			GraphLogger.logOnCrossingCounts(this);
 		}
 		return reducedCrossingCounts.get();
 	}
@@ -157,7 +151,7 @@ public class BGraph extends AbstractGraph implements IBipartiteGraph {
 	public final CrossingCounts getCrossingCounts() {
 		if (crossingCounts.isEmpty()) {
 			buildCrossingCounts();
-			logOnCrossingCounts();
+			GraphLogger.logOnCrossingCounts(this);
 		}
 		return crossingCounts.get();
 	}
@@ -166,7 +160,7 @@ public class BGraph extends AbstractGraph implements IBipartiteGraph {
 	public final BlockCutpointGraph<Integer, DefaultEdge> getBlockCutGraph() {
 		if (blockCutGraph.isEmpty()) {
 			blockCutGraph = Optional.of(new BlockCutpointGraph<>(graph));
-			LignesClaires.LOGGER.log(Level.INFO, "Block-Cut Graph\nc BLOCKS {0}\nc CUTPOINTS {1}",
+			LignesClaires.LOGGER.log(Level.CONFIG, "Block-Cut Graph\nc BLOCKS {0}\nc CUTPOINTS {1}",
 					new Object[] { blockCutGraph.get().getBlocks().size(), blockCutGraph.get().getCutpoints().size() });
 		}
 		return blockCutGraph.get();

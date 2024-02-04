@@ -12,36 +12,27 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class DepthFirstSearch {
+public final class ToStringUtil {
+
+	private ToStringUtil() {
+		super();
+	}
 
 	public static <E> String toString(Stream<E> stream, CharSequence delimiter) {
 		return stream.map(Object::toString).collect(Collectors.joining(delimiter));
 	}
 
-	public static final String toString(int[] values, CharSequence delimiter) {
+	public static String toString(int[] values, CharSequence delimiter) {
 		return IntStream.of(values).mapToObj(Integer::toString).collect(Collectors.joining(delimiter));
 	}
 
-	public static final String toString(int[] values, String format, CharSequence delimiter) {
+	public static String toString(int[] values, String format, CharSequence delimiter) {
 		return IntStream.of(values).mapToObj(v -> String.format(format, v)).collect(Collectors.joining(delimiter));
 	}
 
-	public static final String toString(int[][] values, String format) {
-		return toString(Stream.of(values).map(t -> DepthFirstSearch.toString(t, format, " ")), "\n");
+	public static String toString(int[][] values, String format) {
+		return toString(Stream.of(values).map(t -> ToStringUtil.toString(t, format, " ")), "\n");
 	}
-
-//	public static final String toString(IntStream stream, CharSequence delimiter) {
-//		return stream.mapToObj(Integer::toString).collect(Collectors.joining(delimiter));
-//	}
-
-//	public static String toString(TIntCollection collection, CharSequence delimiter) {
-//		final StringBuilder b = new StringBuilder();
-//		for (TIntIterator it = collection.iterator(); it.hasNext();) {
-//			b.append(it.next()).append(delimiter);
-//		}
-//		b.delete(b.length() - delimiter.length(), b.length());
-//		return b.toString();
-//	}
 
 	public static String toString(Object[] o, CharSequence delimiter) {
 		return toString(Stream.of(o), delimiter);

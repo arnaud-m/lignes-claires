@@ -24,5 +24,8 @@ public enum Verbosity {
 	/** The very verbose level. */
 	VERY_VERBOSE,
 	/** The debug level. */
-	DEBUG;
+	DEBUG,
+	/** The trace level. */
+	TRACE;
+
 }

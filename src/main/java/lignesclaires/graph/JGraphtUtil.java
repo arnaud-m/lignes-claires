@@ -79,7 +79,7 @@ public final class JGraphtUtil {
 		exporter.setVertexAttributeProvider(v -> {
 			Map<String, Attribute> map = new LinkedHashMap<>();
 			map.put("shape", DefaultAttribute.createAttribute(v.vertexSet().size() == 1 ? "plain" : "box"));
-			map.put("label", DefaultAttribute.createAttribute(DepthFirstSearch.toString(v.vertexSet().stream(), " ")));
+			map.put("label", DefaultAttribute.createAttribute(ToStringUtil.toString(v.vertexSet().stream(), " ")));
 			return map;
 		});
 		return exporter;

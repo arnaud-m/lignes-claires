@@ -13,11 +13,11 @@ import org.jgrapht.graph.DefaultEdge;
 
 import lignesclaires.specs.IGraph;
 
-public abstract class AbstractGraph implements IGraph {
+public class GraphBean implements IGraph<Integer, DefaultEdge> {
 
 	protected final Graph<Integer, DefaultEdge> graph;
 
-	protected AbstractGraph(final Graph<Integer, DefaultEdge> graph) {
+	protected GraphBean(final Graph<Integer, DefaultEdge> graph) {
 		this.graph = graph;
 	}
 
@@ -46,5 +46,4 @@ public abstract class AbstractGraph implements IGraph {
 		b.append("]");
 		return b.toString();
 	}
-
 }

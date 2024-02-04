@@ -14,17 +14,20 @@ import java.util.OptionalInt;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 
-import lignesclaires.graph.DepthFirstSearch;
+import lignesclaires.graph.ToStringUtil;
 
 public class OCSolution {
+
+	public static final OCSolution SINGLOTON_UNKNOWN = new OCSolution(Status.UNKNOWN);
+	public static final OCSolution SINGLOTON_ERROR = new OCSolution(Status.ERROR);
 
 	private final Status status;
 	private final OptionalInt objective;
 	private final Optional<int[]> permutation;
 
-	public OCSolution() {
+	public OCSolution(final Status status) {
 		super();
-		this.status = Status.ERROR;
+		this.status = status;
 		this.objective = OptionalInt.empty();
 		this.permutation = Optional.empty();
 	}
@@ -55,9 +58,17 @@ public class OCSolution {
 		return permutation;
 	}
 
+	public static final OCSolution getUnknownInstance() {
+		return SINGLOTON_UNKNOWN;
+	}
+
+	public static final OCSolution getErrorInstance() {
+		return SINGLOTON_ERROR;
+	}
+
 	@Override
 	public String toString() {
-		return permutation.isEmpty() ? "" : DepthFirstSearch.toString(permutation.get(), "\n");
+		return permutation.isEmpty() ? "" : ToStringUtil.toString(permutation.get(), "\n");
 	}
 
 }

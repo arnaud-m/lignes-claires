@@ -99,6 +99,9 @@ public final class LignesClaires {
 			JULogUtil.configureLoggers(Level.FINE);
 			break;
 		case DEBUG:
+			JULogUtil.configureLoggers(Level.FINER);
+			break;
+		case TRACE:
 			JULogUtil.configureLoggers(Level.ALL);
 			break;
 		default:
@@ -118,9 +121,7 @@ public final class LignesClaires {
 			if (LOGGER.isLoggable(Level.INFO)) {
 				LOGGER.log(Level.INFO, "Parse graph [OK]\ni {0}\n{1}",
 						new Object[] { getFilenameWithoutExtension(file), toDimacs(bigraph) });
-				if (LOGGER.isLoggable(Level.CONFIG)) {
-					LOGGER.log(Level.CONFIG, "Display graph:\n{0}", bigraph);
-				}
+				LOGGER.log(Level.FINER, "Display graph:\n{0}", bigraph);
 			}
 			return Optional.of(bigraph);
 		} catch (ImportException | FileNotFoundException e) {
@@ -153,9 +154,6 @@ public final class LignesClaires {
 	}
 
 	private static void exportBlockCutGraph(IBipartiteGraph graph, final String graphfile) {
-		// TODO Export degreee distribution
-		// TODO Export crossing count distribution
-		// TODO Export diameter, eccentricity
 		exportGraph(graph.getBlockCutGraph(), JGraphtUtil.blockCutExporter(),
 				getFilenameWithoutExtension(graphfile) + "-blockcut.dot");
 
@@ -170,7 +168,7 @@ public final class LignesClaires {
 		} catch (OCSolverException e) {
 			LOGGER.log(Level.SEVERE, "Solve OCM [FAIL]", e);
 		}
-		return new OCSolution();
+		return OCSolution.getErrorInstance();
 	}
 
 	private static void exportSolution(final String solfile, final OCSolution solution) {

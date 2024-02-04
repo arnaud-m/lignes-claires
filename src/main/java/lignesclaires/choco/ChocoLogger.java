@@ -36,15 +36,20 @@ public final class ChocoLogger {
 	public static void logOnModel(final Model model) {
 		if (LOGGER.isLoggable(Level.INFO)) {
 			LOGGER.log(Level.INFO, "Model diagnostics:\n{0}", toDimacs(model));
-			LOGGER.log(Level.FINER, "Display model:\n{0}", model);
+			LOGGER.log(Level.FINER, "Display model:{0}", model);
 		}
 	}
 
-	public static void logOnSolution(final Level level, final OCModel model, final Solution solution) {
-		if (LOGGER.isLoggable(level)) {
-			LOGGER.log(level, "Display solution #{0}:\n{1}",
-					new Object[] { model.getSolver().getSolutionCount(), model.printSolution(solution) });
-		}
+	public static void logOnSolution(final OCModel model, final Solution solution) {
+		LOGGER.log(Level.FINE, "Display solution #{0}:\no {1}\n{2}",
+				new Object[] { model.getSolver().getSolutionCount(),
+						model.getSolver().getObjectiveManager().getBestSolutionValue(),
+						model.printSolution(solution) });
+	}
+
+	public static void logOnBestSolution(final OCModel model, final Solution solution) {
+		LOGGER.log(Level.CONFIG, "Display Best Solution #{0}:\n{1}",
+				new Object[] { model.getSolver().getSolutionCount(), model.printSolution(solution) });
 	}
 
 	public static void logOnSolver(final IChocoModel m) {

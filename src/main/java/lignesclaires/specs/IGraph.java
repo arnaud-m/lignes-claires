@@ -8,18 +8,10 @@
  */
 package lignesclaires.specs;
 
-public interface IGraph extends IGraphDimension {
+import org.jgrapht.Graph;
 
-	// boolean isIsolated(int node);
+public interface IGraph<V, E> extends IGraphDimension {
 
-	// boolean isLeaf(int node);
-
-	// int getOutDegree(int node);
-
-	// int getInDegree(int node);
-
-	// TIntIterator getNeighborIterator(int node);
-
-	// void forEachEdge(IEdgeConsumer consumer);
+	Graph<V, E> getGraph();
 
 }

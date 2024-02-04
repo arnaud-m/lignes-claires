@@ -14,7 +14,7 @@ import org.chocosolver.solver.constraints.extension.Tuples;
 
 import lignesclaires.choco.AssignmentRowBuilder;
 
-class IntFrequency {
+final class IntFrequency {
 
 	private int[] frequencies;
 
@@ -32,11 +32,11 @@ class IntFrequency {
 
 	@Override
 	public String toString() {
-		return DepthFirstSearch.toString(frequencies, " ");
+		return ToStringUtil.toString(frequencies, " ");
 	}
 }
 
-class CrossingCountPatterns {
+final class CrossingCountPatterns {
 
 	private int[][] matrix;
 	private int m;
@@ -74,7 +74,7 @@ class CrossingCountPatterns {
 
 	@Override
 	public String toString() {
-		return DepthFirstSearch.toString(matrix, "% 3d");
+		return ToStringUtil.toString(matrix, "%3d");
 	}
 
 }
@@ -142,7 +142,7 @@ public final class CrossingCounts {
 
 	@Override
 	public String toString() {
-		return DepthFirstSearch.toString(counts, "% 2d");
+		return ToStringUtil.toString(counts, "%2d");
 	}
 
 }

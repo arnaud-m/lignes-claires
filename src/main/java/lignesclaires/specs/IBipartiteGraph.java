@@ -8,15 +8,12 @@
  */
 package lignesclaires.specs;
 
-import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.BlockCutpointGraph;
 import org.jgrapht.graph.DefaultEdge;
 
 import lignesclaires.graph.CrossingCounts;
 
-public interface IBipartiteGraph extends IBipartiteGraphDimension, IGraph {
-
-	Graph<Integer, DefaultEdge> getGraph();
+public interface IBipartiteGraph extends IBipartiteGraphDimension, IGraph<Integer, DefaultEdge> {
 
 	CrossingCounts getCrossingCounts();
 
