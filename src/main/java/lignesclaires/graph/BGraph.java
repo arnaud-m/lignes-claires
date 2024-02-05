@@ -108,16 +108,6 @@ public class BGraph extends GraphBean implements IBipartiteGraph {
 		}
 	}
 
-	protected void logOnCrossingCounts() {
-		if (LOGGER.isLoggable(Level.INFO)) {
-			LOGGER.log(Level.INFO, "Crossing Counts:\nc LB_CCOUNTS {0}", getReducedCrossingCounts().getConstant());
-			LOGGER.log(Level.CONFIG, "Crossing Count Distribution:\nc DIST_CCOUNTS {0}",
-					getCrossingCounts().getDistribution());
-			LOGGER.log(Level.FINE, "Crossing Count Patterns:\n{0}", getCrossingCounts().getPatterns());
-			LOGGER.log(Level.FINER, "Crossing Count Matrix:\n{0}", getCrossingCounts());
-		}
-	}
-
 	protected void buildCrossingCounts() {
 		final int n = getFreeCount();
 		final int[][] counts = new int[n][n];
@@ -160,8 +150,7 @@ public class BGraph extends GraphBean implements IBipartiteGraph {
 	public final BlockCutpointGraph<Integer, DefaultEdge> getBlockCutGraph() {
 		if (blockCutGraph.isEmpty()) {
 			blockCutGraph = Optional.of(new BlockCutpointGraph<>(graph));
-			LignesClaires.LOGGER.log(Level.CONFIG, "Block-Cut Graph\nc BLOCKS {0}\nc CUTPOINTS {1}",
-					new Object[] { blockCutGraph.get().getBlocks().size(), blockCutGraph.get().getCutpoints().size() });
+			GraphLogger.logOnBlockCutGraph(blockCutGraph.get());
 		}
 		return blockCutGraph.get();
 	}

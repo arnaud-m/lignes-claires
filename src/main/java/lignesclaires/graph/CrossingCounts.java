@@ -12,6 +12,7 @@ import java.util.Arrays;
 
 import org.chocosolver.solver.constraints.extension.Tuples;
 
+import lignesclaires.ToStringUtil;
 import lignesclaires.choco.AssignmentRowBuilder;
 
 final class IntFrequency {

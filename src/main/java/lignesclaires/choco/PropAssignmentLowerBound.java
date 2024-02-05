@@ -47,13 +47,15 @@ public class PropAssignmentLowerBound extends Propagator<IntVar> {
 		final int weight = (int) Math.ceil(builder.solveAssignment().getWeight());
 
 		final int lb = constant + weight;
-		if (lb > cost.getUB()) {
-			System.err.println(cost + " " + (constant + weight));
-		} else if (lb > cost.getLB()) {
-			System.out.println(cost + " " + (constant + weight));
-		}
+//		if (lb > cost.getUB()) {
+//			System.err.println(cost + " " + (constant + weight));
+//		} else if (lb > cost.getLB()) {
+//			System.out.println(cost + " " + (constant + weight));
+//		}
+		// System.out.println(cost + " " + (constant + weight));
+
 		if (isOn) {
-			cost.updateLowerBound(constant + weight, this);
+			cost.updateLowerBound(lb, this);
 		}
 	}
 

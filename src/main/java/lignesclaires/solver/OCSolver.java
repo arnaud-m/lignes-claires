@@ -50,7 +50,6 @@ public class OCSolver implements IOCSolver {
 				sol.record();
 				ChocoLogger.logOnSolution(mod, sol);
 			}
-
 			if (mod.getSolver().getSolutionCount() > 0) {
 				ChocoLogger.logOnBestSolution(mod, sol);
 			}

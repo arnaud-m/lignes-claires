@@ -14,7 +14,7 @@ import java.util.OptionalInt;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 
-import lignesclaires.graph.ToStringUtil;
+import lignesclaires.ToStringUtil;
 
 public class OCSolution {
 

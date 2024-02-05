@@ -63,9 +63,9 @@ public class TestSolver {
 		final IBipartiteGraph graph = getResourceGraph(resourcePath);
 		for (OCSearch search : OCSearch.values()) {
 			config.setSearch(search);
-			for (int modelMask = 0; modelMask < OCModel.LB; modelMask++) {
+			for (int modelMask = 0; modelMask < 2 * OCModel.LB - 1; modelMask++) {
 				config.setModelMask(modelMask);
-				OCSolution sol = solver.solve(graph, config);
+				final OCSolution sol = solver.solve(graph, config);
 				assertEquals(Status.OPTIMUM, sol.getStatus());
 				assertTrue(sol.getObjective().isPresent());
 				assertEquals(optimum, sol.getObjective().getAsInt());

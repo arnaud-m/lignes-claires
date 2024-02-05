@@ -18,7 +18,7 @@ public interface IOCModel extends IChocoModel {
 
 	IntVar[] getPermutationVars();
 
-	IntVar getMinCrossingCounts();
+	IntVar getCrossingCountVar();
 
 	/**
 	 * Post the constraints of the model.

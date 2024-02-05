@@ -26,6 +26,7 @@ import org.jgrapht.nio.csv.CSVExporter;
 import org.jgrapht.nio.csv.CSVFormat;
 import org.jgrapht.nio.dot.DOTExporter;
 
+import lignesclaires.ToStringUtil;
 import lignesclaires.specs.IEdgeConsumer;
 
 public final class JGraphtUtil {

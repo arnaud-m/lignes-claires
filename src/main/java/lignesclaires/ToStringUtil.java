@@ -6,7 +6,7 @@
  * Licensed under the BSD 3-clause license.
  * See LICENSE file in the project root for full license information.
  */
-package lignesclaires.graph;
+package lignesclaires;
 
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;

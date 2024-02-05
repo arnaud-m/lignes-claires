@@ -80,7 +80,7 @@ public class OCModel implements IOCModel {
 	}
 
 	@Override
-	public IntVar getMinCrossingCounts() {
+	public IntVar getCrossingCountVar() {
 		return objective;
 	}
 
@@ -162,22 +162,11 @@ public class OCModel implements IOCModel {
 		model.post(new Constraint("AssignmentLowerBound", new PropAssignmentLowerBound(bigraph, positions, objective)));
 	}
 
-	private void exportReductionRules(final ReductionRules rules2) {
-//		if (rrPath.isPresent()) {
-//			final String prefix = rrPath.get();
-//			LignesClaires.toDotty(rules2.getOrderedGraph(), prefix + "-ordered2.dot");
-//			LignesClaires.writeString(rules.getOrderedGraph().toDotty(), prefix + "-ordered.dot");
-//			LignesClaires.writeString(rules.getReducedGraph().toDotty(), prefix + "-reduced.dot");
-//			LignesClaires.writeString(rules.getIncomparableGraph().toDotty(), prefix + "-incomparable.dot");
-//		}
-		rrPath.ifPresent(rules2::exportGraph);
-	}
-
 	@Override
 	public void buildModel() {
 		final ObjectiveBuilder objBuilder = new ObjectiveBuilder(hasFlag(DISJ));
 		final ReductionRules rules = new ReductionRules(bigraph, hasFlag(RR1), hasFlag(RR2), hasFlag(RR3));
-		exportReductionRules(rules);
+		rrPath.ifPresent(rules::exportGraph);
 		rules.forEachOrderedEdge(objBuilder::addOrdered);
 		rules.forEachIncomparableEdge(objBuilder::addIncomparable);
 		if (hasFlag(RRLO2)) {

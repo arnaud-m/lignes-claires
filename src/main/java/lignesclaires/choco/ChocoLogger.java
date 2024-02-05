@@ -48,7 +48,7 @@ public final class ChocoLogger {
 	}
 
 	public static void logOnBestSolution(final OCModel model, final Solution solution) {
-		LOGGER.log(Level.CONFIG, "Display Best Solution #{0}:\n{1}",
+		LOGGER.log(Level.INFO, "Display best solution #{0}:\n{1}",
 				new Object[] { model.getSolver().getSolutionCount(), model.printSolution(solution) });
 	}
 
