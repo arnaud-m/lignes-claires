@@ -137,6 +137,14 @@ public final class CrossingCounts {
 		return tuples;
 	}
 
+	public Tuples getForbiddenCycles(int i, int j, int k) {
+		Tuples tuples = new Tuples();
+		tuples.add(counts[i][j], counts[j][k], counts[k][i]);
+		tuples.add(counts[j][i], counts[k][j], counts[i][k]);
+		return tuples;
+
+	}
+
 	public AssignmentRowBuilder getHRowBuilder(int i) {
 		return new AssignmentRowBuilder(counts[i]);
 	}

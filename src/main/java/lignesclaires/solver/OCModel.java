@@ -18,11 +18,15 @@ import org.chocosolver.solver.constraints.extension.Tuples;
 import org.chocosolver.solver.search.limits.FailCounter;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultWeightedEdge;
+import org.jgrapht.graph.builder.GraphTypeBuilder;
 
 import lignesclaires.choco.PropAssignmentLowerBound;
 import lignesclaires.choco.PropBinaryDisjunction;
 import lignesclaires.graph.BGraph;
 import lignesclaires.graph.CrossingCounts;
+import lignesclaires.graph.JGraphtUtil;
 import lignesclaires.specs.IBipartiteGraph;
 import lignesclaires.specs.IOCModel;
 
@@ -94,9 +98,33 @@ public class OCModel implements IOCModel {
 
 	}
 
+	static class DisjunctiveEdge extends DefaultWeightedEdge {
+
+		private static final long serialVersionUID = -5854833531505777218L;
+
+		private final IntVar cost;
+
+		public DisjunctiveEdge(IntVar cost) {
+			super();
+			this.cost = cost;
+		}
+
+		public final IntVar getCost() {
+			return cost;
+		}
+
+	}
+
+	public static Graph<Integer, DisjunctiveEdge> disjunctiveGraph() {
+		return GraphTypeBuilder.<Integer, DisjunctiveEdge>undirected().allowingMultipleEdges(false)
+				.allowingSelfLoops(false).edgeClass(DisjunctiveEdge.class).weighted(true).buildGraph();
+	}
+
 	private final class ObjectiveBuilder {
 
 		private final CrossingCounts counts;
+
+		private final Graph<Integer, DisjunctiveEdge> disjGraph;
 
 		private final IntVar[] costs;
 		private int index;
@@ -109,6 +137,8 @@ public class OCModel implements IOCModel {
 			super();
 			this.counts = bigraph.getReducedCrossingCounts();
 			final int n = bigraph.getFreeCount();
+			this.disjGraph = disjunctiveGraph();
+			JGraphtUtil.addVertices(disjGraph, n);
 			costs = new IntVar[n * (n - 1) / 2 + 1];
 			this.index = 1;
 			this.constant = counts.getConstant();
@@ -135,6 +165,8 @@ public class OCModel implements IOCModel {
 			final int cji = counts.getCrossingCount(j, i);
 			if (cij != cji) {
 				costs[index] = createCostVar(i, j, cij, cji);
+				DisjunctiveEdge e = new DisjunctiveEdge(costs[index]);
+				disjGraph.addEdge(i, j, e);
 				Constraint c = cij == 0 ? builder.buildCostConstraint(positions[i], positions[j], costs[index])
 						: builder.buildCostConstraint(positions[j], positions[i], costs[index]);
 				model.post(c);
@@ -169,6 +201,16 @@ public class OCModel implements IOCModel {
 		rrPath.ifPresent(rules::exportGraph);
 		rules.forEachOrderedEdge(objBuilder::addOrdered);
 		rules.forEachIncomparableEdge(objBuilder::addIncomparable);
+		// System.out.println(JGraphtUtil.toString(objBuilder.disjGraph));
+//		GraphMetrics2.forEachTriangle(objBuilder.disjGraph, (i, j, k) -> {
+//			DisjunctiveEdge ij = objBuilder.disjGraph.getEdge(i, j);
+//			DisjunctiveEdge jk = objBuilder.disjGraph.getEdge(j, k);
+//			DisjunctiveEdge ki = objBuilder.disjGraph.getEdge(k, i);
+
+//			model.table(new IntVar[] { ij.getCost(), jk.getCost(), ki.getCost() },
+//					getGraph().getReducedCrossingCounts().getForbiddenCycles(i, j, k)).post();
+//		});
+
 		if (hasFlag(RRLO2)) {
 			postPermutationBinaryTable(bigraph.getCrossingCounts().getTuplesLO2());
 		}

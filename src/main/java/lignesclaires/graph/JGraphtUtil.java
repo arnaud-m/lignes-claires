@@ -57,7 +57,6 @@ public final class JGraphtUtil {
 	public static Graph<Integer, DefaultEdge> unweightedUndirected() {
 		return GraphTypeBuilder.<Integer, DefaultEdge>undirected().allowingMultipleEdges(false).allowingSelfLoops(false)
 				.edgeClass(DefaultEdge.class).weighted(false).buildGraph();
-
 	}
 
 	public static DirectedAcyclicGraph<Integer, DefaultEdge> directedAcyclic() {

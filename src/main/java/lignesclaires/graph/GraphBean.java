@@ -9,19 +9,18 @@
 package lignesclaires.graph;
 
 import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultEdge;
 
 import lignesclaires.specs.IGraph;
 
-public class GraphBean implements IGraph<Integer, DefaultEdge> {
+public class GraphBean<V, E> implements IGraph<V, E> {
 
-	protected final Graph<Integer, DefaultEdge> graph;
+	protected final Graph<V, E> graph;
 
-	protected GraphBean(final Graph<Integer, DefaultEdge> graph) {
+	protected GraphBean(final Graph<V, E> graph) {
 		this.graph = graph;
 	}
 
-	public final Graph<Integer, DefaultEdge> getGraph() {
+	public final Graph<V, E> getGraph() {
 		return graph;
 	}
 

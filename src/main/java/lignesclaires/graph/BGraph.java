@@ -9,8 +9,6 @@
 package lignesclaires.graph;
 
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
@@ -18,12 +16,10 @@ import org.jgrapht.alg.connectivity.BlockCutpointGraph;
 import org.jgrapht.graph.DefaultEdge;
 
 import gnu.trove.list.array.TIntArrayList;
-import lignesclaires.LignesClaires;
 import lignesclaires.specs.IBipartiteGraph;
 
-public class BGraph extends GraphBean implements IBipartiteGraph {
+public class BGraph extends GraphBean<Integer, DefaultEdge> implements IBipartiteGraph {
 
-	private static final Logger LOGGER = LignesClaires.LOGGER;
 	private final int fixedCount;
 	private final int freeCount;
 	private final int freeOffset;
@@ -101,11 +97,9 @@ public class BGraph extends GraphBean implements IBipartiteGraph {
 		return TListUtil.permutate(objects, i -> TListUtil.getBarycenter(adjLists[i]));
 	}
 
-	public void logOnConnectedComponents() {
-		if (LOGGER.isLoggable(Level.CONFIG)) {
-			GraphLogger.logOnConnectedComponents(graph);
-			GraphLogger.logOnDegreeDistribution(graph);
-		}
+	public void logOnGraphMetrics() {
+		GraphLogger.logOnConnectedComponents(graph);
+		GraphLogger.logOnDegreeDistribution(graph);
 	}
 
 	protected void buildCrossingCounts() {

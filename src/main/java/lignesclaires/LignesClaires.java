@@ -62,7 +62,8 @@ public final class LignesClaires {
 
 			final Optional<IBipartiteGraph> optGraph = parse(config.getGraphFile());
 			if (optGraph.isPresent()) {
-				((BGraph) optGraph.get()).logOnConnectedComponents();
+
+				((BGraph) optGraph.get()).logOnGraphMetrics();
 				if (config.isReport()) {
 					exportBlockCutGraph(optGraph.get(), config.getGraphFile());
 				}
