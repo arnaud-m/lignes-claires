@@ -87,6 +87,11 @@ public class BGraph extends GraphBean<Integer, DefaultEdge> implements IBipartit
 		return graph.degreeOf(freeOffset + free);
 	}
 
+	public Integer[] permutateMedians() {
+		final TIntArrayList[] adjLists = getFreeAdjacencyLists();
+		return TListUtil.permutate(getFreeCount(), i -> TListUtil.getMedian(adjLists[i]));
+	}
+
 	public <E> E[] permutateMedians(final E[] objects) {
 		final TIntArrayList[] adjLists = getFreeAdjacencyLists();
 		return TListUtil.permutate(objects, i -> TListUtil.getMedian(adjLists[i]));

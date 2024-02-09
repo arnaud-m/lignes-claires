@@ -10,6 +10,7 @@ package lignesclaires.solver;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.logging.Level;
 
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
@@ -22,10 +23,13 @@ import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.builder.GraphTypeBuilder;
 
+import lignesclaires.LignesClaires;
+import lignesclaires.ToStringUtil;
 import lignesclaires.choco.PropAssignmentLowerBound;
 import lignesclaires.choco.PropBinaryDisjunction;
 import lignesclaires.graph.BGraph;
 import lignesclaires.graph.CrossingCounts;
+import lignesclaires.graph.GraphTriangles;
 import lignesclaires.graph.JGraphtUtil;
 import lignesclaires.specs.IBipartiteGraph;
 import lignesclaires.specs.IOCModel;
@@ -52,6 +56,7 @@ public class OCModel implements IOCModel {
 	public static final int RRLO2 = 8;
 	public static final int DISJ = 16;
 	public static final int LB = 32;
+	public static final int TRANS = 64;
 
 	public OCModel(final IBipartiteGraph bigraph, final int modelMask) {
 		super();
@@ -102,7 +107,7 @@ public class OCModel implements IOCModel {
 
 		private static final long serialVersionUID = -5854833531505777218L;
 
-		private final IntVar cost;
+		private final transient IntVar cost;
 
 		public DisjunctiveEdge(IntVar cost) {
 			super();
@@ -133,7 +138,7 @@ public class OCModel implements IOCModel {
 
 		private final CostConstraintBuilder builder;
 
-		public ObjectiveBuilder(final boolean decompose) {
+		public ObjectiveBuilder(final boolean useBinaryDisjunction) {
 			super();
 			this.counts = bigraph.getReducedCrossingCounts();
 			final int n = bigraph.getFreeCount();
@@ -142,12 +147,11 @@ public class OCModel implements IOCModel {
 			costs = new IntVar[n * (n - 1) / 2 + 1];
 			this.index = 1;
 			this.constant = counts.getConstant();
-			// FIXME decomposition by default
-			if (decompose) {
-				builder = (pi, pj, c) -> pi.lt(pj).iff(c.eq(0)).decompose();
-			} else {
+			if (useBinaryDisjunction) {
 				builder = (pi, pj, c) -> new Constraint("BinaryDisjunction",
 						new PropBinaryDisjunction(new IntVar[] { pi, pj, c }));
+			} else {
+				builder = (pi, pj, c) -> pi.lt(pj).iff(c.eq(0)).decompose();
 			}
 		}
 
@@ -201,15 +205,19 @@ public class OCModel implements IOCModel {
 		rrPath.ifPresent(rules::exportGraph);
 		rules.forEachOrderedEdge(objBuilder::addOrdered);
 		rules.forEachIncomparableEdge(objBuilder::addIncomparable);
-		// System.out.println(JGraphtUtil.toString(objBuilder.disjGraph));
-//		GraphMetrics2.forEachTriangle(objBuilder.disjGraph, (i, j, k) -> {
-//			DisjunctiveEdge ij = objBuilder.disjGraph.getEdge(i, j);
-//			DisjunctiveEdge jk = objBuilder.disjGraph.getEdge(j, k);
-//			DisjunctiveEdge ki = objBuilder.disjGraph.getEdge(k, i);
+		LignesClaires.LOGGER.log(Level.INFO, "Reduction rules:\nd ORDERED {0}\nd INCPOMPARABLE {1}", new Object[] {
+				rules.getOrderedGraph().edgeSet().size(), rules.getIncomparableGraph().edgeSet().size() });
 
-//			model.table(new IntVar[] { ij.getCost(), jk.getCost(), ki.getCost() },
-//					getGraph().getReducedCrossingCounts().getForbiddenCycles(i, j, k)).post();
-//		});
+		if (hasFlag(TRANS)) {
+			GraphTriangles.forEachTriangle(objBuilder.disjGraph, (i, j, k) -> {
+				DisjunctiveEdge ij = objBuilder.disjGraph.getEdge(i, j);
+				DisjunctiveEdge jk = objBuilder.disjGraph.getEdge(j, k);
+				DisjunctiveEdge ki = objBuilder.disjGraph.getEdge(k, i);
+
+				model.table(new IntVar[] { ij.getCost(), jk.getCost(), ki.getCost() },
+						getGraph().getReducedCrossingCounts().getForbiddenCycles(i, j, k)).post();
+			});
+		}
 
 		if (hasFlag(RRLO2)) {
 			postPermutationBinaryTable(bigraph.getCrossingCounts().getTuplesLO2());
@@ -220,6 +228,24 @@ public class OCModel implements IOCModel {
 			postAssignmentLowerBound();
 		}
 
+		final int n = bigraph.getFreeCount();
+		Integer[] freeNodes = new Integer[n];
+		for (int i = 0; i < freeNodes.length; i++) {
+			freeNodes[i] = i;
+		}
+		System.err.println(ToStringUtil.toString(freeNodes, " "));
+		System.err.println(bigraph.getCrossingCounts().getCrossingCounts(freeNodes));
+		System.err.println(bigraph.getCrossingCounts().greedySwitching(freeNodes));
+
+		BGraph gr = (BGraph) bigraph;
+		freeNodes = gr.permutateMedians();
+		System.err.println(ToStringUtil.toString(freeNodes, " "));
+		System.err.println(bigraph.getCrossingCounts().getCrossingCounts(freeNodes));
+		System.err.println(bigraph.getCrossingCounts().greedySwitching(freeNodes));
+		freeNodes = gr.permutateBarycenters(freeNodes);
+		System.err.println(ToStringUtil.toString(freeNodes, " "));
+		System.err.println(bigraph.getCrossingCounts().getCrossingCounts(freeNodes));
+		System.err.println(bigraph.getCrossingCounts().greedySwitching(freeNodes));
 	}
 
 	public void configureSearch(final OCSearch search) {

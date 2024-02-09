@@ -138,11 +138,43 @@ public final class CrossingCounts {
 	}
 
 	public Tuples getForbiddenCycles(int i, int j, int k) {
-		Tuples tuples = new Tuples();
+		Tuples tuples = new Tuples(false);
 		tuples.add(counts[i][j], counts[j][k], counts[k][i]);
 		tuples.add(counts[j][i], counts[k][j], counts[i][k]);
 		return tuples;
 
+	}
+
+	private int getSwitchingCount(int i, int j) {
+		return counts[i][j] - counts[j][i];
+	}
+
+	private void makeSwitch(Integer[] permutation, int i) {
+		final Integer tmp = permutation[i];
+		permutation[i] = permutation[i + 1];
+		permutation[i + 1] = tmp;
+	}
+
+	public int greedySwitching(final Integer[] permutation) {
+		int delta = 0;
+		for (int i = 0; i < permutation.length - 1; i++) {
+			final int scount = getSwitchingCount(permutation[i], permutation[i + 1]);
+			if (scount > 0) {
+				delta += scount;
+				makeSwitch(permutation, i);
+			}
+		}
+		return delta;
+	}
+
+	public int getCrossingCounts(final Integer[] permutation) {
+		int total = 0;
+		for (int i = 0; i < permutation.length; i++) {
+			for (int j = i + 1; j < permutation.length; j++) {
+				total += counts[permutation[i]][permutation[j]];
+			}
+		}
+		return total;
 	}
 
 	public AssignmentRowBuilder getHRowBuilder(int i) {
