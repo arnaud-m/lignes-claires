@@ -10,6 +10,7 @@ package lignesclaires.solver;
 
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.stream.Stream;
 
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
@@ -44,6 +45,12 @@ public class OCSolution {
 			this.objective = OptionalInt.empty();
 			this.permutation = Optional.empty();
 		}
+	}
+
+	public OCSolution(final int objective, final Integer[] permutation, final int offset) {
+		this.status = Status.SATISFIABLE;
+		this.objective = OptionalInt.of(objective);
+		this.permutation = Optional.of(Stream.of(permutation).mapToInt(i -> i + offset).toArray());
 	}
 
 	public final Status getStatus() {

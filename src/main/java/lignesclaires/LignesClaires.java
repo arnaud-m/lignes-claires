@@ -27,6 +27,7 @@ import lignesclaires.config.LignesClairesConfig;
 import lignesclaires.graph.BGraph;
 import lignesclaires.graph.JGraphtUtil;
 import lignesclaires.parser.PaceInputParser;
+import lignesclaires.solver.HeuristicSolver;
 import lignesclaires.solver.OCSolution;
 import lignesclaires.solver.OCSolver;
 import lignesclaires.solver.OCSolverException;
@@ -162,6 +163,12 @@ public final class LignesClaires {
 
 	private static OCSolution solve(final IBipartiteGraph bigraph, final LignesClairesConfig config) {
 		try {
+
+			final IOCSolver heuristics = new HeuristicSolver();
+			heuristics.solve(bigraph, config);
+			// TODO Pass upper bound to the CP solver
+			// TODO Handle solver termination
+
 			final IOCSolver solver = buildSolver(config);
 			final OCSolution solution = solver.solve(bigraph, config);
 			LOGGER.log(Level.INFO, "Solve OCM [{0}]", solution.getStatus());

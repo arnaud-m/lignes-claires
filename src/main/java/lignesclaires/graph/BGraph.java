@@ -102,6 +102,11 @@ public class BGraph extends GraphBean<Integer, DefaultEdge> implements IBipartit
 		return TListUtil.permutate(objects, i -> TListUtil.getBarycenter(adjLists[i]));
 	}
 
+	public Integer[] permutateBarycenters() {
+		final TIntArrayList[] adjLists = getFreeAdjacencyLists();
+		return TListUtil.permutate(getFreeCount(), i -> TListUtil.getBarycenter(adjLists[i]));
+	}
+
 	public void logOnGraphMetrics() {
 		GraphLogger.logOnConnectedComponents(graph);
 		GraphLogger.logOnDegreeDistribution(graph);

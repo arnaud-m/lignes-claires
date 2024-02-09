@@ -24,7 +24,6 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.builder.GraphTypeBuilder;
 
 import lignesclaires.LignesClaires;
-import lignesclaires.ToStringUtil;
 import lignesclaires.choco.PropAssignmentLowerBound;
 import lignesclaires.choco.PropBinaryDisjunction;
 import lignesclaires.graph.BGraph;
@@ -228,24 +227,6 @@ public class OCModel implements IOCModel {
 			postAssignmentLowerBound();
 		}
 
-		final int n = bigraph.getFreeCount();
-		Integer[] freeNodes = new Integer[n];
-		for (int i = 0; i < freeNodes.length; i++) {
-			freeNodes[i] = i;
-		}
-		System.err.println(ToStringUtil.toString(freeNodes, " "));
-		System.err.println(bigraph.getCrossingCounts().getCrossingCounts(freeNodes));
-		System.err.println(bigraph.getCrossingCounts().greedySwitching(freeNodes));
-
-		BGraph gr = (BGraph) bigraph;
-		freeNodes = gr.permutateMedians();
-		System.err.println(ToStringUtil.toString(freeNodes, " "));
-		System.err.println(bigraph.getCrossingCounts().getCrossingCounts(freeNodes));
-		System.err.println(bigraph.getCrossingCounts().greedySwitching(freeNodes));
-		freeNodes = gr.permutateBarycenters(freeNodes);
-		System.err.println(ToStringUtil.toString(freeNodes, " "));
-		System.err.println(bigraph.getCrossingCounts().getCrossingCounts(freeNodes));
-		System.err.println(bigraph.getCrossingCounts().greedySwitching(freeNodes));
 	}
 
 	public void configureSearch(final OCSearch search) {
