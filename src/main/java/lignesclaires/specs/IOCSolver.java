@@ -14,6 +14,11 @@ import lignesclaires.solver.OCSolverException;
 
 public interface IOCSolver {
 
-	OCSolution solve(IBipartiteGraph bigraph, LignesClairesConfig config) throws OCSolverException;
+	default OCSolution solve(IBipartiteGraph bigraph, LignesClairesConfig config) throws OCSolverException {
+		return solve(bigraph, OCSolution.getUnknownInstance(), config);
+	}
+
+	OCSolution solve(IBipartiteGraph bigraph, OCSolution initialSolution, LignesClairesConfig config)
+			throws OCSolverException;
 
 }

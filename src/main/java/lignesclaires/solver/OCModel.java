@@ -10,6 +10,7 @@ package lignesclaires.solver;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.logging.Level;
 
 import org.chocosolver.solver.Model;
@@ -180,12 +181,15 @@ public class OCModel implements IOCModel {
 		public void postObjective() {
 			costs[0] = model.intVar(constant);
 			model.sum(Arrays.copyOf(costs, index), "=", objective).post();
-
 		}
 	}
 
 	private boolean hasFlag(final int flag) {
 		return (modelMask & flag) != 0;
+	}
+
+	public void postUpperBound(OptionalInt ub) {
+		ub.ifPresent(v -> objective.lt(v).post());
 	}
 
 	private void postLowerBound() {

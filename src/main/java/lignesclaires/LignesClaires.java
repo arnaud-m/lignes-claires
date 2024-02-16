@@ -163,15 +163,13 @@ public final class LignesClaires {
 
 	private static OCSolution solve(final IBipartiteGraph bigraph, final LignesClairesConfig config) {
 		try {
-
 			final IOCSolver heuristics = new HeuristicSolver();
-			heuristics.solve(bigraph, config);
-			// TODO Pass upper bound to the CP solver
-			// TODO Handle solver termination
+			final OCSolution initialSolution = config.isWithHeuristics() ? heuristics.solve(bigraph, config)
+					: OCSolution.getUnknownInstance();
 
 			final IOCSolver solver = buildSolver(config);
-			final OCSolution solution = solver.solve(bigraph, config);
-			LOGGER.log(Level.INFO, "Solve OCM [{0}]", solution.getStatus());
+			OCSolution solution = solver.solve(bigraph, initialSolution, config);
+			LOGGER.log(Level.INFO, "Solve OCM:\n{0}", solution);
 			return solution;
 		} catch (OCSolverException e) {
 			LOGGER.log(Level.SEVERE, "Solve OCM [FAIL]", e);
@@ -181,7 +179,7 @@ public final class LignesClaires {
 
 	private static void exportSolution(final String solfile, final OCSolution solution) {
 		try (FileWriter fileWriter = new FileWriter(new File(solfile), false)) {
-			fileWriter.append(solution.toString());
+			fileWriter.append(solution.toPaceOutputString());
 			LOGGER.log(Level.INFO, "Export solution to file {0} [OK]", solfile);
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e, () -> "Export solution to file " + solfile + " [FAIL]");

@@ -47,6 +47,9 @@ public class LignesClairesConfig {
 	@Option(name = "--restart", usage = "Activate geometrical restarts.")
 	private boolean withRestarts;
 
+	@Option(name = "--heuristics", usage = "Activate heuristics.")
+	private boolean withHeuristics;
+
 	@Option(name = "--solution", usage = "Limit the number of solutions returned by the solver.")
 	private int solutionLimit;
 
@@ -105,6 +108,10 @@ public class LignesClairesConfig {
 
 	public final boolean isWithRestarts() {
 		return withRestarts;
+	}
+
+	public final boolean isWithHeuristics() {
+		return withHeuristics;
 	}
 
 	public final void setWithRestarts(boolean withRestarts) {

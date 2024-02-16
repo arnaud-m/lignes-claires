@@ -12,9 +12,6 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Stream;
 
-import org.chocosolver.solver.Solution;
-import org.chocosolver.solver.Solver;
-
 import lignesclaires.ToStringUtil;
 
 public class OCSolution {
@@ -26,31 +23,25 @@ public class OCSolution {
 	private final OptionalInt objective;
 	private final Optional<int[]> permutation;
 
-	public OCSolution(final Status status) {
+	public OCSolution(Status status, OptionalInt objective, Optional<int[]> permutation) {
 		super();
 		this.status = status;
-		this.objective = OptionalInt.empty();
-		this.permutation = Optional.empty();
+		this.objective = objective;
+		this.permutation = permutation;
 	}
 
-	public OCSolution(final OCModel model, final Solution solution) {
-		super();
-		this.status = Status.getStatus(model);
-		final Solver solver = model.getSolver();
-		if (solver.getSolutionCount() > 0) {
-			this.objective = solver.hasObjective() ? OptionalInt.of(solver.getBestSolutionValue().intValue())
-					: OptionalInt.empty();
-			this.permutation = Optional.of(model.recordSolution(solution));
-		} else {
-			this.objective = OptionalInt.empty();
-			this.permutation = Optional.empty();
-		}
+	public OCSolution(final Status status) {
+		this(status, OptionalInt.empty(), Optional.empty());
+	}
+
+	public OCSolution(final Status status, final int objective, final int[] permutation) {
+		this(status, OptionalInt.of(objective), Optional.of(permutation));
+
 	}
 
 	public OCSolution(final int objective, final Integer[] permutation, final int offset) {
-		this.status = Status.SATISFIABLE;
-		this.objective = OptionalInt.of(objective);
-		this.permutation = Optional.of(Stream.of(permutation).mapToInt(i -> i + offset).toArray());
+		this(Status.SATISFIABLE, OptionalInt.of(objective),
+				Optional.of(Stream.of(permutation).mapToInt(i -> i + offset).toArray()));
 	}
 
 	public final Status getStatus() {
@@ -73,9 +64,16 @@ public class OCSolution {
 		return SINGLOTON_ERROR;
 	}
 
+	public String toPaceOutputString() {
+		return permutation.isEmpty() ? "" : ToStringUtil.toString(permutation.get(), "\n");
+	}
+
 	@Override
 	public String toString() {
-		return permutation.isEmpty() ? "" : ToStringUtil.toString(permutation.get(), "\n");
+		final StringBuilder b = new StringBuilder();
+		b.append("s ").append(getStatus());
+		objective.ifPresent(obj -> b.append("\no ").append(obj));
+		return b.toString();
 	}
 
 }

@@ -21,12 +21,53 @@ import lignesclaires.specs.IOCSolver;
 public class OCSolver implements IOCSolver {
 
 	@Override
-	public OCSolution solve(final IBipartiteGraph bigraph, final LignesClairesConfig config) throws OCSolverException {
+	public OCSolution solve(final IBipartiteGraph bigraph, final OCSolution initialSolution,
+			final LignesClairesConfig config) throws OCSolverException {
+		if (initialSolution.getStatus() == Status.OPTIMUM) {
+			return initialSolution;
+		}
+		final OCModel mod = build(bigraph, initialSolution, config);
+		if (config.isDryRun()) {
+			return initialSolution;
+		} else {
+			final Solver solver = mod.getSolver();
+			final Solution sol = mod.createSolution();
+			while (solver.solve()) {
+				sol.record();
+				ChocoLogger.logOnSolution(mod, sol);
+			}
+			if (solver.getSolutionCount() > 0) {
+				ChocoLogger.logOnBestSolution(mod, sol);
+			}
+			ChocoLogger.logOnSolver(mod);
+
+			final Status status = Status.getStatus(mod);
+			switch (status) {
+			case OPTIMUM:
+			case SATISFIABLE:
+				return new OCSolution(status, solver.getBestSolutionValue().intValue(), mod.recordSolution(sol));
+			case UNSATISFIABLE: {
+				return initialSolution.getStatus() == Status.SATISFIABLE
+						? new OCSolution(Status.OPTIMUM, initialSolution.getObjective(),
+								initialSolution.getPermutation())
+						: new OCSolution(Status.UNSATISFIABLE);
+			}
+			default:
+				return initialSolution;
+			}
+
+		}
+	}
+
+	private OCModel build(final IBipartiteGraph bigraph, final OCSolution initialSolution,
+			final LignesClairesConfig config) {
 		final OCModel mod = new OCModel(bigraph, config.getModelMask());
 		if (config.isReport()) {
 			mod.setExportPath(LignesClaires.getFilenameWithoutExtension(config.getGraphFile()));
 		}
 		mod.buildModel();
+		mod.postUpperBound(initialSolution.getObjective());
+
 		mod.configureSearch(config.getSearch());
 		if (config.isWithRestarts()) {
 			mod.configureRestarts();
@@ -44,20 +85,7 @@ public class OCSolver implements IOCSolver {
 		if (config.getVerbosity() == Verbosity.TRACE) {
 			solver.showDecisions();
 		}
-		final Solution sol = mod.createSolution();
-		if (!config.isDryRun()) {
-			while (solver.solve()) {
-				sol.record();
-				ChocoLogger.logOnSolution(mod, sol);
-			}
-			if (mod.getSolver().getSolutionCount() > 0) {
-				ChocoLogger.logOnBestSolution(mod, sol);
-			}
-			ChocoLogger.logOnSolver(mod);
-			return new OCSolution(mod, sol);
-		} else {
-			return OCSolution.getUnknownInstance();
-		}
+		return mod;
 	}
 
 }

@@ -1,3 +1,11 @@
+/*
+ * This file is part of lignes-claires, https://github.com/arnaud-m/lignes-claires
+ *
+ * Copyright (c) 2024, Université Côte d'Azur. All rights reserved.
+ *
+ * Licensed under the BSD 3-clause license.
+ * See LICENSE file in the project root for full license information.
+ */
 package lignesclaires.solver;
 
 import java.util.logging.Level;
@@ -12,7 +20,8 @@ import lignesclaires.specs.IOCSolver;
 public class HeuristicSolver implements IOCSolver {
 
 	@Override
-	public OCSolution solve(IBipartiteGraph bigraph, LignesClairesConfig config) throws OCSolverException {
+	public OCSolution solve(IBipartiteGraph bigraph, OCSolution initialSolution, LignesClairesConfig config)
+			throws OCSolverException {
 		if (bigraph instanceof BGraph) {
 			final BGraph gr = (BGraph) bigraph;
 
