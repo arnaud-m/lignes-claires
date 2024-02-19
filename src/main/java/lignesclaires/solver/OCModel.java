@@ -8,6 +8,14 @@
  */
 package lignesclaires.solver;
 
+import static lignesclaires.solver.OCModelFlag.DISJ;
+import static lignesclaires.solver.OCModelFlag.LB;
+import static lignesclaires.solver.OCModelFlag.RR1;
+import static lignesclaires.solver.OCModelFlag.RR2;
+import static lignesclaires.solver.OCModelFlag.RR3;
+import static lignesclaires.solver.OCModelFlag.RRLO2;
+import static lignesclaires.solver.OCModelFlag.TRANS;
+
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -51,14 +59,6 @@ public class OCModel implements IOCModel {
 	private final int modelMask;
 
 	private Optional<String> rrPath;
-
-	public static final int RR1 = 1;
-	public static final int RR2 = 2;
-	public static final int RR3 = 4;
-	public static final int RRLO2 = 8;
-	public static final int DISJ = 16;
-	public static final int LB = 32;
-	public static final int TRANS = 64;
 
 	public OCModel(final IBipartiteGraph bigraph, final int modelMask) {
 		super();
@@ -186,10 +186,6 @@ public class OCModel implements IOCModel {
 		}
 	}
 
-	private boolean hasFlag(final int flag) {
-		return (modelMask & flag) != 0;
-	}
-
 	public void postUpperBound(OptionalInt ub) {
 		ub.ifPresent(v -> objective.lt(v).post());
 	}
@@ -205,8 +201,9 @@ public class OCModel implements IOCModel {
 
 	@Override
 	public void buildModel() {
-		final ObjectiveBuilder objBuilder = new ObjectiveBuilder(hasFlag(DISJ));
-		final ReductionRules rules = new ReductionRules(bigraph, hasFlag(RR1), hasFlag(RR2), hasFlag(RR3));
+		final ObjectiveBuilder objBuilder = new ObjectiveBuilder(DISJ.isPresent(modelMask));
+		final ReductionRules rules = new ReductionRules(bigraph, RR1.isPresent(modelMask), RR2.isPresent(modelMask),
+				RR3.isPresent(modelMask));
 		rrPath.ifPresent(rules::exportGraph);
 		rules.forEachOrderedEdge(objBuilder::addOrdered);
 		rules.forEachIncomparableEdge(objBuilder::addIncomparable);
@@ -214,7 +211,7 @@ public class OCModel implements IOCModel {
 				new Object[] { rules.getOrderedGraph().edgeSet().size(),
 						rules.getIncomparableGraph().edgeSet().size() });
 
-		if (hasFlag(TRANS)) {
+		if (TRANS.isPresent(modelMask)) {
 			GraphTriangles.forEachTriangle(objBuilder.disjGraph, (i, j, k) -> {
 				DisjunctiveEdge ij = objBuilder.disjGraph.getEdge(i, j);
 				DisjunctiveEdge jk = objBuilder.disjGraph.getEdge(j, k);
@@ -225,11 +222,11 @@ public class OCModel implements IOCModel {
 			});
 		}
 
-		if (hasFlag(RRLO2)) {
+		if (RRLO2.isPresent(modelMask)) {
 			postPermutationBinaryTable(bigraph.getCrossingCounts().getTuplesLO2());
 		}
 		objBuilder.postObjective();
-		if (hasFlag(LB)) {
+		if (LB.isPresent(modelMask)) {
 			postLowerBound();
 			postAssignmentLowerBound();
 		}

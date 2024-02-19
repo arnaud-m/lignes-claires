@@ -24,7 +24,7 @@ import lignesclaires.config.LignesClairesConfig;
 import lignesclaires.graph.JGraphtUtil;
 import lignesclaires.parser.PACEImporter;
 import lignesclaires.parser.PaceInputParser;
-import lignesclaires.solver.OCModel;
+import lignesclaires.solver.OCModelFlag;
 import lignesclaires.solver.OCSearch;
 import lignesclaires.solver.OCSolution;
 import lignesclaires.solver.OCSolver;
@@ -63,7 +63,7 @@ public class TestSolver {
 		final IBipartiteGraph graph = getResourceGraph(resourcePath);
 		for (OCSearch search : OCSearch.values()) {
 			config.setSearch(search);
-			for (int modelMask = 0; modelMask < 2 * OCModel.TRANS - 1; modelMask++) {
+			for (int modelMask = 0; modelMask < OCModelFlag.getAllFlags(); modelMask++) {
 				config.setModelMask(modelMask);
 				final OCSolution sol = solver.solve(graph, config);
 				assertEquals(Status.OPTIMUM, sol.getStatus());

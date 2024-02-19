@@ -40,7 +40,7 @@ public final class LignesClaires {
 
 	public static final Logger LOGGER = Logger.getLogger(LignesClaires.class.getName());
 
-	private static final String FAIL = " [FAIL";
+	private static final String FAIL = " [FAIL]";
 
 	private LignesClaires() {
 	}

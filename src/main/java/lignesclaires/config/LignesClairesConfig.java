@@ -10,13 +10,17 @@ package lignesclaires.config;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 
+import lignesclaires.cmd.OCModelOptionHandler;
+import lignesclaires.cmd.OCSearchOptionHandler;
 import lignesclaires.cmd.Verbosity;
+import lignesclaires.solver.OCModelFlag;
 import lignesclaires.solver.OCSearch;
 
 /**
@@ -41,8 +45,16 @@ public class LignesClairesConfig {
 	@Option(name = "-s", aliases = { "--search" }, usage = "Set the search strategy of the solver.")
 	private OCSearch search = OCSearch.DEFAULT;
 
-	@Option(name = "-m", aliases = { "--model" }, usage = "Set the search strategy of the solver.")
+	@Option(name = "-m", aliases = { "--model" }, usage = "Set the building strategy of the model.")
 	private int modelMask = ~0; // Using bitwise NOT operator to set all bits to 1.
+
+	@Option(name = "-m2", aliases = {
+			"--model2" }, handler = OCModelOptionHandler.class, usage = "Set the building strategy of the model.")
+	private EnumSet<OCModelFlag> modelMask2 = EnumSet.allOf(OCModelFlag.class);
+
+	@Option(name = "-s2", aliases = {
+			"--search2" }, handler = OCSearchOptionHandler.class, usage = "Set the search strategy of the solver.")
+	private EnumSet<OCSearch> search2 = EnumSet.allOf(OCSearch.class);
 
 	@Option(name = "--restart", usage = "Activate geometrical restarts.")
 	private boolean withRestarts;
@@ -91,6 +103,7 @@ public class LignesClairesConfig {
 	}
 
 	public final OCSearch getSearch() {
+		// System.out.println(search2);
 		return search;
 	}
 
@@ -99,6 +112,7 @@ public class LignesClairesConfig {
 	}
 
 	public final int getModelMask() {
+		// System.out.println(modelMask2);
 		return modelMask;
 	}
 
@@ -124,6 +138,14 @@ public class LignesClairesConfig {
 
 	public final long getTimeLimit() {
 		return timeLimit;
+	}
+
+	public boolean contains(OCModelFlag flag) {
+		return modelMask2.contains(flag);
+	}
+
+	public boolean contains(OCSearch flag) {
+		return search2.contains(flag);
 	}
 
 	public final void setSolutionLimit(final int solutionLimit) {
