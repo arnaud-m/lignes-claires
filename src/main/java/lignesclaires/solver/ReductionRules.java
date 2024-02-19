@@ -138,7 +138,8 @@ public class ReductionRules {
 	}
 
 	public class ReductionRule2 implements IReductionRule {
-
+		// TODO Can be strengthened : the two nodes can be merged or otherwise put in
+		// consecutive positions
 		@Override
 		public boolean apply(int i, int j) {
 			if (JGraphtUtil.hasSameNeighbors(graph.getGraph(), graph.getFreeNode(i), graph.getFreeNode(j))) {

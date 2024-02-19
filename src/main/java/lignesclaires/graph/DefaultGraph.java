@@ -12,11 +12,11 @@ import org.jgrapht.Graph;
 
 import lignesclaires.specs.IGraph;
 
-public class GraphBean<V, E> implements IGraph<V, E> {
+public class DefaultGraph<V, E> implements IGraph<V, E> {
 
 	protected final Graph<V, E> graph;
 
-	protected GraphBean(final Graph<V, E> graph) {
+	protected DefaultGraph(final Graph<V, E> graph) {
 		this.graph = graph;
 	}
 

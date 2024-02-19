@@ -9,6 +9,7 @@
 package lignesclaires.graph;
 
 import java.util.Optional;
+import java.util.function.IntToDoubleFunction;
 
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
@@ -18,7 +19,7 @@ import org.jgrapht.graph.DefaultEdge;
 import gnu.trove.list.array.TIntArrayList;
 import lignesclaires.specs.IBipartiteGraph;
 
-public class BGraph extends GraphBean<Integer, DefaultEdge> implements IBipartiteGraph {
+public class BGraph extends DefaultGraph<Integer, DefaultEdge> implements IBipartiteGraph {
 
 	private final int fixedCount;
 	private final int freeCount;
@@ -85,6 +86,17 @@ public class BGraph extends GraphBean<Integer, DefaultEdge> implements IBipartit
 	@Override
 	public final int getFreeDegree(final int free) {
 		return graph.degreeOf(freeOffset + free);
+	}
+
+	// TODO Many possible redundant computations of medians and barycenters
+	public final IntToDoubleFunction getFreeMedians() {
+		final TIntArrayList[] adjLists = getFreeAdjacencyLists();
+		return i -> TListUtil.getMedian(adjLists[i]);
+	}
+
+	public final IntToDoubleFunction getFreeBarycenters() {
+		final TIntArrayList[] adjLists = getFreeAdjacencyLists();
+		return i -> TListUtil.getBarycenter(adjLists[i]);
 	}
 
 	public Integer[] permutateMedians() {

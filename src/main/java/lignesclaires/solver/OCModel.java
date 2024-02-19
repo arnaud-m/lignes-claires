@@ -19,12 +19,14 @@ import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.extension.Tuples;
 import org.chocosolver.solver.search.limits.FailCounter;
 import org.chocosolver.solver.search.strategy.Search;
+import org.chocosolver.solver.search.strategy.selectors.variables.InputOrder;
 import org.chocosolver.solver.variables.IntVar;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.builder.GraphTypeBuilder;
 
 import lignesclaires.LignesClaires;
+import lignesclaires.choco.MinFuncValueSelector;
 import lignesclaires.choco.PropAssignmentLowerBound;
 import lignesclaires.choco.PropBinaryDisjunction;
 import lignesclaires.graph.BGraph;
@@ -208,8 +210,9 @@ public class OCModel implements IOCModel {
 		rrPath.ifPresent(rules::exportGraph);
 		rules.forEachOrderedEdge(objBuilder::addOrdered);
 		rules.forEachIncomparableEdge(objBuilder::addIncomparable);
-		LignesClaires.LOGGER.log(Level.INFO, "Reduction rules:\nd ORDERED {0}\nd INCPOMPARABLE {1}", new Object[] {
-				rules.getOrderedGraph().edgeSet().size(), rules.getIncomparableGraph().edgeSet().size() });
+		LignesClaires.LOGGER.log(Level.INFO, "Reduction rules:\nd ORDERED {0,number,#}\nd INCPOMPARABLE {1,number,#}",
+				new Object[] { rules.getOrderedGraph().edgeSet().size(),
+						rules.getIncomparableGraph().edgeSet().size() });
 
 		if (hasFlag(TRANS)) {
 			GraphTriangles.forEachTriangle(objBuilder.disjGraph, (i, j, k) -> {
@@ -240,8 +243,18 @@ public class OCModel implements IOCModel {
 			getSolver().setSearch(Search.inputOrderLBSearch(gr.permutateMedians(positions)));
 			break;
 		}
+		case PMEDIAN: {
+			getSolver().setSearch(Search.intVarSearch(new InputOrder<>(model),
+					new MinFuncValueSelector(gr.getFreeCount(), gr.getFreeMedians()), permutation));
+			break;
+		}
 		case BARYCENTER: {
 			getSolver().setSearch(Search.inputOrderLBSearch(gr.permutateBarycenters(positions)));
+			break;
+		}
+		case PBARYCENTER: {
+			getSolver().setSearch(Search.intVarSearch(new InputOrder<>(model),
+					new MinFuncValueSelector(gr.getFreeCount(), gr.getFreeBarycenters()), permutation));
 			break;
 		}
 		case DEFAULT:

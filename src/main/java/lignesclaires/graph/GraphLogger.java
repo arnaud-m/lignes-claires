@@ -57,7 +57,7 @@ public final class GraphLogger {
 					addMeasures(new AsSubgraph<V, E>(graph, cc), radius, diameter);
 				}
 			}
-			LOGGER.log(Level.CONFIG, "Connected components:\nc CONNECTED {0}\nc RADIUS  {1}\nc DIAMETER{2}",
+			LOGGER.log(Level.CONFIG, "Connected components:\nc CONNECTED {0,number,#}\nc RADIUS  {1}\nc DIAMETER{2}",
 					new Object[] { inspector.connectedSets().size(), radius, diameter });
 		}
 	}
@@ -82,7 +82,7 @@ public final class GraphLogger {
 
 	public static <V, E> void logOnBlockCutGraph(BlockCutpointGraph<V, E> graph) {
 		if (LOGGER.isLoggable(Level.CONFIG)) {
-			LOGGER.log(Level.CONFIG, "Block-Cut graph:\nc BLOCKS {0}\nc CUTPOINTS {1}",
+			LOGGER.log(Level.CONFIG, "Block-Cut graph:\nc BLOCKS {0,number,#}\nc CUTPOINTS {1,number,#}",
 					new Object[] { graph.getBlocks().size(), graph.getCutpoints().size() });
 
 		}
