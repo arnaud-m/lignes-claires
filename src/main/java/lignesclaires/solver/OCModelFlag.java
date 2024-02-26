@@ -12,15 +12,4 @@ public enum OCModelFlag {
 
 	RR1, RR2, RR3, RRLO2, DISJ, LB, TRANS;
 
-	@Deprecated
-	public final boolean isPresent(final int mask) {
-		final int flag = 1 << ordinal();
-		return (mask & flag) != 0;
-	}
-
-	@Deprecated
-	public static final int getAllFlags() {
-		return (1 << values().length) - 1;
-	}
-
 }

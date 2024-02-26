@@ -17,7 +17,6 @@ import static lignesclaires.solver.OCModelFlag.RRLO2;
 import static lignesclaires.solver.OCModelFlag.TRANS;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.logging.Level;
 
@@ -37,6 +36,7 @@ import lignesclaires.LignesClaires;
 import lignesclaires.choco.MinFuncValueSelector;
 import lignesclaires.choco.PropAssignmentLowerBound;
 import lignesclaires.choco.PropBinaryDisjunction;
+import lignesclaires.config.LignesClairesConfig;
 import lignesclaires.graph.BGraph;
 import lignesclaires.graph.CrossingCounts;
 import lignesclaires.graph.GraphTriangles;
@@ -48,6 +48,8 @@ public class OCModel implements IOCModel {
 
 	private final IBipartiteGraph bigraph;
 
+	private final LignesClairesConfig config;
+
 	private final Model model;
 
 	private final IntVar[] positions;
@@ -56,14 +58,10 @@ public class OCModel implements IOCModel {
 
 	private final IntVar objective;
 
-	private final int modelMask;
-
-	private Optional<String> rrPath;
-
-	public OCModel(final IBipartiteGraph bigraph, final int modelMask) {
+	public OCModel(final IBipartiteGraph bigraph, final LignesClairesConfig config) {
 		super();
 		this.bigraph = bigraph;
-		this.modelMask = modelMask;
+		this.config = config;
 		model = new Model("OCM");
 		final int n = bigraph.getFreeCount();
 		final int m = bigraph.getEdgeCount();
@@ -72,7 +70,6 @@ public class OCModel implements IOCModel {
 		model.inverseChanneling(positions, permutation).post();
 		objective = model.intVar("objective", 0, m * m);
 		model.setObjective(false, objective);
-		this.rrPath = Optional.empty();
 	}
 
 	@Override
@@ -93,10 +90,6 @@ public class OCModel implements IOCModel {
 	@Override
 	public IntVar getCrossingCountVar() {
 		return objective;
-	}
-
-	public void setExportPath(String path) {
-		rrPath = Optional.of(path);
 	}
 
 	private interface CostConstraintBuilder {
@@ -201,17 +194,18 @@ public class OCModel implements IOCModel {
 
 	@Override
 	public void buildModel() {
-		final ObjectiveBuilder objBuilder = new ObjectiveBuilder(DISJ.isPresent(modelMask));
-		final ReductionRules rules = new ReductionRules(bigraph, RR1.isPresent(modelMask), RR2.isPresent(modelMask),
-				RR3.isPresent(modelMask));
-		rrPath.ifPresent(rules::exportGraph);
+		final ObjectiveBuilder objBuilder = new ObjectiveBuilder(config.contains(DISJ));
+		final ReductionRules rules = new ReductionRules(bigraph, config.contains(RR1), config.contains(RR2),
+				config.contains(RR3));
+
+		config.report(rules::exportGraph);
 		rules.forEachOrderedEdge(objBuilder::addOrdered);
 		rules.forEachIncomparableEdge(objBuilder::addIncomparable);
 		LignesClaires.LOGGER.log(Level.INFO, "Reduction rules:\nd ORDERED {0,number,#}\nd INCPOMPARABLE {1,number,#}",
 				new Object[] { rules.getOrderedGraph().edgeSet().size(),
 						rules.getIncomparableGraph().edgeSet().size() });
 
-		if (TRANS.isPresent(modelMask)) {
+		if (config.contains(TRANS)) {
 			GraphTriangles.forEachTriangle(objBuilder.disjGraph, (i, j, k) -> {
 				DisjunctiveEdge ij = objBuilder.disjGraph.getEdge(i, j);
 				DisjunctiveEdge jk = objBuilder.disjGraph.getEdge(j, k);
@@ -222,42 +216,35 @@ public class OCModel implements IOCModel {
 			});
 		}
 
-		if (RRLO2.isPresent(modelMask)) {
+		if (config.contains(RRLO2)) {
 			postPermutationBinaryTable(bigraph.getCrossingCounts().getTuplesLO2());
 		}
 		objBuilder.postObjective();
-		if (LB.isPresent(modelMask)) {
+		if (config.contains(LB)) {
 			postLowerBound();
 			postAssignmentLowerBound();
 		}
 
 	}
 
-	public void configureSearch(final OCSearch search) {
+	public void configureSearch() {
 		BGraph gr = (BGraph) bigraph;
-		switch (search) {
-		case MEDIAN: {
-			getSolver().setSearch(Search.inputOrderLBSearch(gr.permutateMedians(positions)));
-			break;
-		}
-		case PMEDIAN: {
-			getSolver().setSearch(Search.intVarSearch(new InputOrder<>(model),
-					new MinFuncValueSelector(gr.getFreeCount(), gr.getFreeMedians()), permutation));
-			break;
-		}
-		case BARYCENTER: {
-			getSolver().setSearch(Search.inputOrderLBSearch(gr.permutateBarycenters(positions)));
-			break;
-		}
-		case PBARYCENTER: {
-			getSolver().setSearch(Search.intVarSearch(new InputOrder<>(model),
-					new MinFuncValueSelector(gr.getFreeCount(), gr.getFreeBarycenters()), permutation));
-			break;
-		}
-		case DEFAULT:
-			break;
-		default:
-			break;
+		if (!config.contains(OCSearchFlag.DEFAULT)) {
+			if (config.contains(OCSearchFlag.MEDIAN)) {
+				if (config.contains(OCSearchFlag.SEQUENCE)) {
+					getSolver().setSearch(Search.intVarSearch(new InputOrder<>(model),
+							new MinFuncValueSelector(gr.getFreeCount(), gr.getFreeMedians()), permutation));
+				} else {
+					getSolver().setSearch(Search.inputOrderLBSearch(gr.permutateMedians(positions)));
+				}
+			} else if (config.contains(OCSearchFlag.BARYCENTER)) {
+				if (config.contains(OCSearchFlag.SEQUENCE)) {
+					getSolver().setSearch(Search.intVarSearch(new InputOrder<>(model),
+							new MinFuncValueSelector(gr.getFreeCount(), gr.getFreeBarycenters()), permutation));
+				} else {
+					getSolver().setSearch(Search.inputOrderLBSearch(gr.permutateBarycenters(positions)));
+				}
+			}
 		}
 	}
 

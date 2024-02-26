@@ -11,7 +11,6 @@ package lignesclaires.solver;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 
-import lignesclaires.LignesClaires;
 import lignesclaires.choco.ChocoLogger;
 import lignesclaires.cmd.Verbosity;
 import lignesclaires.config.LignesClairesConfig;
@@ -61,15 +60,12 @@ public class OCSolver implements IOCSolver {
 
 	private OCModel build(final IBipartiteGraph bigraph, final OCSolution initialSolution,
 			final LignesClairesConfig config) {
-		final OCModel mod = new OCModel(bigraph, config.getModelMask());
-		if (config.isReport()) {
-			mod.setExportPath(LignesClaires.getFilenameWithoutExtension(config.getGraphFile()));
-		}
+		final OCModel mod = new OCModel(bigraph, config);
 		mod.buildModel();
 		mod.postUpperBound(initialSolution.getObjective());
 
-		mod.configureSearch(config.getSearch());
-		if (config.isWithRestarts()) {
+		mod.configureSearch();
+		if (config.contains(OCSearchFlag.RESTARTS)) {
 			mod.configureRestarts();
 		}
 

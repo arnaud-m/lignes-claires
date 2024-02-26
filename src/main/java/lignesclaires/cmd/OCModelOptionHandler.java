@@ -38,6 +38,10 @@ public class OCModelOptionHandler extends OneArgumentOptionHandler<EnumSet<OCMod
 			flag *= 2;
 		}
 		return set;
+	}
 
+	public static <T> int order(Class<T> clazz) {
+		final int n = clazz.getEnumConstants().length;
+		return (1 << n) - 1;
 	}
 }

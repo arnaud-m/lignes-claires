@@ -8,6 +8,7 @@
  */
 package lignesclaires;
 
+import java.io.File;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -36,6 +37,16 @@ public final class ToStringUtil {
 
 	public static String toString(Object[] o, CharSequence delimiter) {
 		return toString(Stream.of(o), delimiter);
+	}
+
+	public static String getFilenameWithoutExtension(File file) {
+		final String name = file.getName();
+		final int idx = name.lastIndexOf('.');
+		return idx < 0 ? name : name.substring(0, idx);
+	}
+
+	public static String getFilenameWithoutExtension(String path) {
+		return getFilenameWithoutExtension(new File(path));
 	}
 
 }

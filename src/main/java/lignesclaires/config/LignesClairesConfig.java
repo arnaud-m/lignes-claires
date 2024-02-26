@@ -13,15 +13,17 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 
+import lignesclaires.ToStringUtil;
 import lignesclaires.cmd.OCModelOptionHandler;
 import lignesclaires.cmd.OCSearchOptionHandler;
 import lignesclaires.cmd.Verbosity;
 import lignesclaires.solver.OCModelFlag;
-import lignesclaires.solver.OCSearch;
+import lignesclaires.solver.OCSearchFlag;
 
 /**
  * A bean object that stores the common configuration. This is designed for
@@ -35,32 +37,19 @@ public class LignesClairesConfig {
 	@Option(name = "-v", aliases = { "--verbose" }, usage = "Increase the verbosity of the program.")
 	private Verbosity verbosity = Verbosity.NORMAL;
 
-	@Option(name = "-r", aliases = { "--report" }, usage = "Report on analysis and processing of the input graph.")
+	@Option(name = "-e", aliases = { "--export" }, usage = "Export analysis and processing of the input graph.")
 	private boolean report;
 
 	@Option(name = "-d", aliases = { "--dry-run" }, usage = "Report on analysis and processing of the input graph.")
 	private boolean dryRun;
 
-	// TODO Replace by a search mask?
-	@Option(name = "-s", aliases = { "--search" }, usage = "Set the search strategy of the solver.")
-	private OCSearch search = OCSearch.DEFAULT;
+	@Option(name = "-m", aliases = {
+			"--model" }, handler = OCModelOptionHandler.class, usage = "Set the building strategy of the model.")
+	private EnumSet<OCModelFlag> modelMask = EnumSet.allOf(OCModelFlag.class);
 
-	@Option(name = "-m", aliases = { "--model" }, usage = "Set the building strategy of the model.")
-	private int modelMask = ~0; // Using bitwise NOT operator to set all bits to 1.
-
-	@Option(name = "-m2", aliases = {
-			"--model2" }, handler = OCModelOptionHandler.class, usage = "Set the building strategy of the model.")
-	private EnumSet<OCModelFlag> modelMask2 = EnumSet.allOf(OCModelFlag.class);
-
-	@Option(name = "-s2", aliases = {
-			"--search2" }, handler = OCSearchOptionHandler.class, usage = "Set the search strategy of the solver.")
-	private EnumSet<OCSearch> search2 = EnumSet.allOf(OCSearch.class);
-
-	@Option(name = "--restart", usage = "Activate geometrical restarts.")
-	private boolean withRestarts;
-
-	@Option(name = "--heuristics", usage = "Activate heuristics.")
-	private boolean withHeuristics;
+	@Option(name = "-s", aliases = {
+			"--search" }, handler = OCSearchOptionHandler.class, usage = "Set the search strategy of the solver.")
+	private EnumSet<OCSearchFlag> searchMask = EnumSet.allOf(OCSearchFlag.class);
 
 	@Option(name = "--solution", usage = "Limit the number of solutions returned by the solver.")
 	private int solutionLimit;
@@ -90,6 +79,12 @@ public class LignesClairesConfig {
 		return report;
 	}
 
+	public final void report(Consumer<String> reporter) {
+		if (isReport()) {
+			reporter.accept(getGraphFileWithoutExt());
+		}
+	}
+
 	public final void setReport(boolean report) {
 		this.report = report;
 	}
@@ -102,36 +97,6 @@ public class LignesClairesConfig {
 		this.dryRun = dryRun;
 	}
 
-	public final OCSearch getSearch() {
-		// System.out.println(search2);
-		return search;
-	}
-
-	public final void setSearch(OCSearch search) {
-		this.search = search;
-	}
-
-	public final int getModelMask() {
-		// System.out.println(modelMask2);
-		return modelMask;
-	}
-
-	public final void setModelMask(int modelMask) {
-		this.modelMask = modelMask;
-	}
-
-	public final boolean isWithRestarts() {
-		return withRestarts;
-	}
-
-	public final boolean isWithHeuristics() {
-		return withHeuristics;
-	}
-
-	public final void setWithRestarts(boolean withRestarts) {
-		this.withRestarts = withRestarts;
-	}
-
 	public final int getSolutionLimit() {
 		return solutionLimit;
 	}
@@ -141,11 +106,11 @@ public class LignesClairesConfig {
 	}
 
 	public boolean contains(OCModelFlag flag) {
-		return modelMask2.contains(flag);
+		return modelMask.contains(flag);
 	}
 
-	public boolean contains(OCSearch flag) {
-		return search2.contains(flag);
+	public boolean contains(OCSearchFlag flag) {
+		return searchMask.contains(flag);
 	}
 
 	public final void setSolutionLimit(final int solutionLimit) {
@@ -164,7 +129,28 @@ public class LignesClairesConfig {
 		return arguments.get(0);
 	}
 
+	public final String getGraphFileWithoutExt() {
+		return ToStringUtil.getFilenameWithoutExtension(arguments.get(0));
+	}
+
 	public final Optional<String> getSolutionFile() {
 		return arguments.size() < 2 ? Optional.empty() : Optional.of(arguments.get(1));
 	}
+
+	public void setModelMask(int mask) {
+		modelMask = OCModelOptionHandler.of(OCModelFlag.class, mask);
+	}
+
+	public void setSearchMask(int mask) {
+		searchMask = OCModelOptionHandler.of(OCSearchFlag.class, mask);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder b = new StringBuilder();
+		b.append("c MODEL_FLAGS ").append(modelMask);
+		b.append("\nc SEARCH_FLAGS ").append(searchMask);
+		return b.toString();
+	}
+
 }

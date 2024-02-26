@@ -20,12 +20,13 @@ import org.jgrapht.nio.ImportException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import lignesclaires.cmd.OCModelOptionHandler;
 import lignesclaires.config.LignesClairesConfig;
 import lignesclaires.graph.JGraphtUtil;
 import lignesclaires.parser.PACEImporter;
 import lignesclaires.parser.PaceInputParser;
 import lignesclaires.solver.OCModelFlag;
-import lignesclaires.solver.OCSearch;
+import lignesclaires.solver.OCSearchFlag;
 import lignesclaires.solver.OCSolution;
 import lignesclaires.solver.OCSolver;
 import lignesclaires.solver.OCSolverException;
@@ -61,10 +62,12 @@ public class TestSolver {
 	public void testAll(String resourcePath, int optimum)
 			throws OCSolverException, ImportException, FileNotFoundException, ImportException, FileNotFoundException {
 		final IBipartiteGraph graph = getResourceGraph(resourcePath);
-		for (OCSearch search : OCSearch.values()) {
-			config.setSearch(search);
-			for (int modelMask = 0; modelMask < OCModelFlag.getAllFlags(); modelMask++) {
-				config.setModelMask(modelMask);
+		final int n = OCModelOptionHandler.order(OCModelFlag.class);
+		final int m = OCModelOptionHandler.order(OCSearchFlag.class);
+		for (int modelMask = 0; modelMask < n; modelMask++) {
+			config.setModelMask(modelMask);
+			for (int searchMask = 0; searchMask < m; searchMask++) {
+				config.setSearchMask(searchMask);
 				final OCSolution sol = solver.solve(graph, config);
 				assertEquals(Status.OPTIMUM, sol.getStatus());
 				assertTrue(sol.getObjective().isPresent());

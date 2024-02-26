@@ -28,6 +28,7 @@ import lignesclaires.graph.BGraph;
 import lignesclaires.graph.JGraphtUtil;
 import lignesclaires.parser.PaceInputParser;
 import lignesclaires.solver.HeuristicSolver;
+import lignesclaires.solver.OCSearchFlag;
 import lignesclaires.solver.OCSolution;
 import lignesclaires.solver.OCSolver;
 import lignesclaires.solver.OCSolverException;
@@ -63,7 +64,7 @@ public final class LignesClaires {
 
 			final Optional<IBipartiteGraph> optGraph = parse(config.getGraphFile());
 			if (optGraph.isPresent()) {
-
+				LOGGER.log(Level.INFO, "Read configuration [OK]\n{0}", config);
 				((BGraph) optGraph.get()).logOnGraphMetrics();
 				if (config.isReport()) {
 					exportBlockCutGraph(optGraph.get(), config.getGraphFile());
@@ -122,7 +123,7 @@ public final class LignesClaires {
 			final IBipartiteGraph bigraph = parser.parse(file);
 			if (LOGGER.isLoggable(Level.INFO)) {
 				LOGGER.log(Level.INFO, "Parse graph [OK]\ni {0}\n{1}",
-						new Object[] { getFilenameWithoutExtension(file), toDimacs(bigraph) });
+						new Object[] { ToStringUtil.getFilenameWithoutExtension(file), toDimacs(bigraph) });
 				LOGGER.log(Level.FINER, "Display graph:\n{0}", bigraph);
 			}
 			return Optional.of(bigraph);
@@ -145,26 +146,17 @@ public final class LignesClaires {
 		}
 	}
 
-	public static String getFilenameWithoutExtension(String path) {
-		return getFilenameWithoutExtension(new File(path));
-	}
-
-	public static String getFilenameWithoutExtension(File file) {
-		final String name = file.getName();
-		final int idx = name.lastIndexOf('.');
-		return idx < 0 ? name : name.substring(0, idx);
-	}
-
 	private static void exportBlockCutGraph(IBipartiteGraph graph, final String graphfile) {
 		exportGraph(graph.getBlockCutGraph(), JGraphtUtil.blockCutExporter(),
-				getFilenameWithoutExtension(graphfile) + "-blockcut.dot");
+				ToStringUtil.getFilenameWithoutExtension(graphfile) + "-blockcut.dot");
 
 	}
 
 	private static OCSolution solve(final IBipartiteGraph bigraph, final LignesClairesConfig config) {
 		try {
 			final IOCSolver heuristics = new HeuristicSolver();
-			final OCSolution initialSolution = config.isWithHeuristics() ? heuristics.solve(bigraph, config)
+			final OCSolution initialSolution = config.contains(OCSearchFlag.HEURISTICS)
+					? heuristics.solve(bigraph, config)
 					: OCSolution.getUnknownInstance();
 
 			final IOCSolver solver = buildSolver(config);

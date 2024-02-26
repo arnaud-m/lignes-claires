@@ -7,6 +7,7 @@ src/main/benchmarks/results*.tar.gz
 src/main/benchmarks/oar-stderr.log
 src/main/benchmarks/nohup.out
 src/main/datasets/*/
+src/main/sage/*.gr
 
 #### joe made this: http://goel.io/joe
 

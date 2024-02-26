@@ -8,8 +8,8 @@
  */
 package lignesclaires.solver;
 
-public enum OCSearch {
+public enum OCSearchFlag {
 
-	DEFAULT, MEDIAN, BARYCENTER, PMEDIAN, PBARYCENTER; // , RESTARTS, HEURISTICS;
+	DEFAULT, MEDIAN, BARYCENTER, SEQUENCE, RESTARTS, HEURISTICS;
 
 }

@@ -15,17 +15,17 @@ import org.kohsuke.args4j.OptionDef;
 import org.kohsuke.args4j.spi.OneArgumentOptionHandler;
 import org.kohsuke.args4j.spi.Setter;
 
-import lignesclaires.solver.OCSearch;
+import lignesclaires.solver.OCSearchFlag;
 
-public class OCSearchOptionHandler extends OneArgumentOptionHandler<EnumSet<OCSearch>> {
+public class OCSearchOptionHandler extends OneArgumentOptionHandler<EnumSet<OCSearchFlag>> {
 
-	public OCSearchOptionHandler(CmdLineParser parser, OptionDef option, Setter<EnumSet<OCSearch>> setter) {
+	public OCSearchOptionHandler(CmdLineParser parser, OptionDef option, Setter<EnumSet<OCSearchFlag>> setter) {
 		super(parser, option, setter);
 	}
 
 	@Override
-	protected EnumSet<OCSearch> parse(String argument) throws NumberFormatException {
-		return OCModelOptionHandler.of(OCSearch.class, Integer.parseInt(argument));
+	protected EnumSet<OCSearchFlag> parse(String argument) throws NumberFormatException {
+		return OCModelOptionHandler.of(OCSearchFlag.class, Integer.parseInt(argument));
 	}
 
 }
