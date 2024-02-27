@@ -13,10 +13,11 @@ import java.util.function.IntToDoubleFunction;
 
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
-import org.jgrapht.alg.connectivity.BlockCutpointGraph;
 import org.jgrapht.graph.DefaultEdge;
 
 import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.TIntHashSet;
 import lignesclaires.specs.IBipartiteGraph;
 
 public class BGraph extends DefaultGraph<Integer, DefaultEdge> implements IBipartiteGraph {
@@ -25,13 +26,11 @@ public class BGraph extends DefaultGraph<Integer, DefaultEdge> implements IBipar
 	private final int freeCount;
 	private final int freeOffset;
 
-	Optional<TIntArrayList[]> freeAdjLists;
+	private Optional<TIntArrayList[]> freeAdjLists;
 
-	Optional<CrossingCounts> crossingCounts;
+	private Optional<CrossingCounts> crossingCounts;
 
-	Optional<CrossingCounts> reducedCrossingCounts;
-
-	Optional<BlockCutpointGraph<Integer, DefaultEdge>> blockCutGraph;
+	private Optional<CrossingCounts> reducedCrossingCounts;
 
 	public BGraph(Graph<Integer, DefaultEdge> graph, int fixedCount, int freeCount) {
 		super(graph);
@@ -41,7 +40,6 @@ public class BGraph extends DefaultGraph<Integer, DefaultEdge> implements IBipar
 		freeAdjLists = Optional.empty();
 		crossingCounts = Optional.empty();
 		reducedCrossingCounts = Optional.empty();
-		blockCutGraph = Optional.empty();
 	}
 
 	@Override
@@ -83,6 +81,33 @@ public class BGraph extends DefaultGraph<Integer, DefaultEdge> implements IBipar
 		return freeAdjLists.get();
 	}
 
+	public void computeCutwidth() {
+		final int n = getFixedCount();
+		final int m = getFreeCount();
+		final int[] cut = new int[m];
+		TIntArrayList[] adjLists = getFreeAdjacencyLists();
+		TIntSet freeIn = new TIntHashSet();
+		TIntSet freeCut = new TIntHashSet();
+		TIntArrayList fixedCut = new TIntArrayList();
+		for (int i = 1; i <= n; i++) {
+			for (int free : Graphs.successorListOf(graph, i)) {
+				int j = free - freeOffset;
+				if (cut[j] == 0) {
+					cut[j] = adjLists[j].size();
+					freeCut.add(j);
+				}
+				cut[j]--;
+				if (cut[j] == 0) {
+					freeCut.remove(j);
+					freeIn.add(j);
+				}
+
+			}
+			System.out.println(i + "\n" + freeIn + "\n" + freeCut + "\n");
+		}
+		System.err.println("Test");
+	}
+
 	@Override
 	public final int getFreeDegree(final int free) {
 		return graph.degreeOf(freeOffset + free);
@@ -117,11 +142,6 @@ public class BGraph extends DefaultGraph<Integer, DefaultEdge> implements IBipar
 	public Integer[] permutateBarycenters() {
 		final TIntArrayList[] adjLists = getFreeAdjacencyLists();
 		return TListUtil.permutate(getFreeCount(), i -> TListUtil.getBarycenter(adjLists[i]));
-	}
-
-	public void logOnGraphMetrics() {
-		GraphLogger.logOnConnectedComponents(graph);
-		GraphLogger.logOnDegreeDistribution(graph);
 	}
 
 	protected void buildCrossingCounts() {
@@ -160,15 +180,6 @@ public class BGraph extends DefaultGraph<Integer, DefaultEdge> implements IBipar
 			GraphLogger.logOnCrossingCounts(this);
 		}
 		return crossingCounts.get();
-	}
-
-	@Override
-	public final BlockCutpointGraph<Integer, DefaultEdge> getBlockCutGraph() {
-		if (blockCutGraph.isEmpty()) {
-			blockCutGraph = Optional.of(new BlockCutpointGraph<>(graph));
-			GraphLogger.logOnBlockCutGraph(blockCutGraph.get());
-		}
-		return blockCutGraph.get();
 	}
 
 }

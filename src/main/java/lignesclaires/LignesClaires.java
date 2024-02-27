@@ -24,7 +24,7 @@ import org.jgrapht.nio.ImportException;
 import lignesclaires.cmd.OptionsParser;
 import lignesclaires.cmd.Verbosity;
 import lignesclaires.config.LignesClairesConfig;
-import lignesclaires.graph.BGraph;
+import lignesclaires.graph.GraphLogger;
 import lignesclaires.graph.JGraphtUtil;
 import lignesclaires.parser.PaceInputParser;
 import lignesclaires.solver.HeuristicSolver;
@@ -65,7 +65,8 @@ public final class LignesClaires {
 			final Optional<IBipartiteGraph> optGraph = parse(config.getGraphFile());
 			if (optGraph.isPresent()) {
 				LOGGER.log(Level.INFO, "Read configuration [OK]\n{0}", config);
-				((BGraph) optGraph.get()).logOnGraphMetrics();
+				// ((BGraph) optGraph.get()).computeCutwidth();
+
 				if (config.isReport()) {
 					exportBlockCutGraph(optGraph.get(), config.getGraphFile());
 				}
@@ -124,6 +125,8 @@ public final class LignesClaires {
 			if (LOGGER.isLoggable(Level.INFO)) {
 				LOGGER.log(Level.INFO, "Parse graph [OK]\ni {0}\n{1}",
 						new Object[] { ToStringUtil.getFilenameWithoutExtension(file), toDimacs(bigraph) });
+				GraphLogger.logOnGraphMetrics(bigraph.getGraph());
+				// TODO Log Block-Cut Graph
 				LOGGER.log(Level.FINER, "Display graph:\n{0}", bigraph);
 			}
 			return Optional.of(bigraph);

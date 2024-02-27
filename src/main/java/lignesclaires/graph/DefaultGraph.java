@@ -8,7 +8,10 @@
  */
 package lignesclaires.graph;
 
+import java.util.Optional;
+
 import org.jgrapht.Graph;
+import org.jgrapht.alg.connectivity.BlockCutpointGraph;
 
 import lignesclaires.specs.IGraph;
 
@@ -16,8 +19,11 @@ public class DefaultGraph<V, E> implements IGraph<V, E> {
 
 	protected final Graph<V, E> graph;
 
+	private Optional<BlockCutpointGraph<V, E>> blockCutGraph;
+
 	protected DefaultGraph(final Graph<V, E> graph) {
 		this.graph = graph;
+		blockCutGraph = Optional.empty();
 	}
 
 	public final Graph<V, E> getGraph() {
@@ -32,6 +38,14 @@ public class DefaultGraph<V, E> implements IGraph<V, E> {
 	@Override
 	public final int getEdgeCount() {
 		return graph.edgeSet().size();
+	}
+
+	public final BlockCutpointGraph<V, E> getBlockCutGraph() {
+		if (blockCutGraph.isEmpty()) {
+			blockCutGraph = Optional.of(new BlockCutpointGraph<>(graph));
+			GraphLogger.logOnBlockCutGraph(blockCutGraph.get());
+		}
+		return blockCutGraph.get();
 	}
 
 	@Override

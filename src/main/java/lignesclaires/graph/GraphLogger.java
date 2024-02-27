@@ -62,6 +62,11 @@ public final class GraphLogger {
 		}
 	}
 
+	public static <V, E> void logOnGraphMetrics(Graph<V, E> graph) {
+		GraphLogger.logOnConnectedComponents(graph);
+		GraphLogger.logOnDegreeDistribution(graph);
+	}
+
 	public static void logOnCrossingCounts(IBipartiteGraph graph) {
 		if (LOGGER.isLoggable(Level.INFO)) {
 			final CrossingCounts rcounts = graph.getReducedCrossingCounts();
