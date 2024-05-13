@@ -35,7 +35,7 @@ public class LignesClairesConfig {
 	private boolean displayHelp;
 
 	@Option(name = "-v", aliases = { "--verbose" }, usage = "Increase the verbosity of the program.")
-	private Verbosity verbosity = Verbosity.NORMAL;
+	private Verbosity verbosity = Verbosity.QUIET;
 
 	@Option(name = "-e", aliases = { "--export" }, usage = "Export analysis and processing of the input graph.")
 	private boolean report;

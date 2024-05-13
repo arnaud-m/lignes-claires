@@ -72,9 +72,7 @@ public final class LignesClaires {
 				}
 				final OCSolution solution = solve(optGraph.get(), config);
 				final Optional<String> optsol = config.getSolutionFile();
-				if (optsol.isPresent()) {
-					exportSolution(optsol.get(), solution);
-				}
+				exportPaceOutput(optsol, solution);
 				return solution.getStatus() == Status.ERROR ? 1 : 0;
 			} else {
 				return 1;
@@ -172,12 +170,18 @@ public final class LignesClaires {
 		return OCSolution.getErrorInstance();
 	}
 
-	private static void exportSolution(final String solfile, final OCSolution solution) {
-		try (FileWriter fileWriter = new FileWriter(new File(solfile), false)) {
-			fileWriter.append(solution.toPaceOutputString());
-			LOGGER.log(Level.INFO, "Export solution to file {0} [OK]", solfile);
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE, e, () -> "Export solution to file " + solfile + " [FAIL]");
+	private static void exportPaceOutput(final Optional<String> solfile, final OCSolution solution) {
+		if (solution.getStatus() == Status.OPTIMUM) {
+			if (solfile.isPresent()) {
+				try (FileWriter fileWriter = new FileWriter(new File(solfile.get()), false)) {
+					fileWriter.append(solution.toPaceOutputString());
+					LOGGER.log(Level.INFO, "Export solution to file {0} [OK]", solfile);
+				} catch (IOException e) {
+					LOGGER.log(Level.SEVERE, e, () -> "Export solution to file " + solfile + " [FAIL]");
+				}
+			} else if (LignesClaires.LOGGER.getLevel() == Level.WARNING) {
+				System.out.println(solution.toPaceOutputString());
+			}
 		}
 	}
 
