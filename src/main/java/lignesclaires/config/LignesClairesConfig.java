@@ -13,12 +13,12 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 
-import lignesclaires.ToStringUtil;
 import lignesclaires.cmd.OCModelOptionHandler;
 import lignesclaires.cmd.OCSearchOptionHandler;
 import lignesclaires.cmd.Verbosity;
@@ -63,6 +63,8 @@ public class LignesClairesConfig {
 	@Argument
 	private List<String> arguments = new ArrayList<>();
 
+	private String inputName;
+
 	public final boolean isDisplayHelp() {
 		return displayHelp;
 	}
@@ -81,7 +83,7 @@ public class LignesClairesConfig {
 
 	public final void report(Consumer<String> reporter) {
 		if (isReport()) {
-			reporter.accept(getGraphFileWithoutExt());
+			reporter.accept(getInputName());
 		}
 	}
 
@@ -125,16 +127,32 @@ public class LignesClairesConfig {
 		return Collections.unmodifiableList(arguments);
 	}
 
-	public final String getGraphFile() {
-		return arguments.get(0);
+	private final Optional<String> getArgument(int i) {
+		try {
+			final String arg = arguments.get(i);
+			if (!arg.isBlank()) {
+				return Optional.of(arg);
+			}
+		} catch (IndexOutOfBoundsException e) {
+			// Do nothing
+		}
+		return Optional.empty();
+
 	}
 
-	public final String getGraphFileWithoutExt() {
-		return ToStringUtil.getFilenameWithoutExtension(arguments.get(0));
+	public final Optional<String> getInputFile() {
+		return getArgument(0);
 	}
 
-	public final Optional<String> getSolutionFile() {
-		return arguments.size() < 2 ? Optional.empty() : Optional.of(arguments.get(1));
+	public final String getInputName() {
+		if (inputName == null) {
+			inputName = getInputFile().orElseGet(() -> "stdin-" + UUID.randomUUID());
+		}
+		return inputName;
+	}
+
+	public final Optional<String> getOutputFile() {
+		return getArgument(1);
 	}
 
 	public void setModelMask(int mask) {

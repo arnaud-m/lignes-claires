@@ -67,8 +67,7 @@ public class OptionsParser {
 	}
 
 	protected boolean checkArguments() {
-		final int n = config.getArguments().size();
-		return n > 0 && n < 3;
+		return config.getArguments().size() < 2;
 	}
 
 	public final LignesClairesConfig getConfig() {
@@ -84,9 +83,6 @@ public class OptionsParser {
 			configureLoggers();
 			if (config.isDisplayHelp()) {
 				logManual(parser);
-				return EXIT_CODE;
-			} else if (config.getArguments().isEmpty()) {
-				logHelp(parser);
 				return EXIT_CODE;
 			} else if (checkConfiguration()) {
 				getLogger().log(Level.CONFIG, "Parse options [OK]");

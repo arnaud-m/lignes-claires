@@ -203,7 +203,7 @@ public class OCModel implements IOCModel {
 		rules.forEachIncomparableEdge(objBuilder::addIncomparable);
 		if (config.isReport()) {
 			LignesClaires.exportPlainDotGraph(objBuilder.disjGraph,
-					config.getGraphFileWithoutExt() + "-disjunctive.dot");
+					config.getInputName() + "-disjunctive.dot");
 		}
 		LignesClaires.LOGGER.log(Level.INFO, "Reduction rules:\nd ORDERED {0,number,#}\nd INCPOMPARABLE {1,number,#}",
 				new Object[] { rules.getOrderedGraph().edgeSet().size(),

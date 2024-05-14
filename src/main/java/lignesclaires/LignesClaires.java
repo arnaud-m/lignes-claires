@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.logging.Level;
@@ -61,18 +62,14 @@ public final class LignesClaires {
 			}
 			final LignesClairesConfig config = optparser.getConfig();
 			configureVerbosity(config.getVerbosity());
-
-			final Optional<IBipartiteGraph> optGraph = parse(config.getGraphFile());
+			LOGGER.log(Level.INFO, "Read configuration [OK]\n{0}", config);
+			final Optional<IBipartiteGraph> optGraph = parse(config.getInputFile(), config.getInputName());
 			if (optGraph.isPresent()) {
-				LOGGER.log(Level.INFO, "Read configuration [OK]\n{0}", config);
-				// ((BGraph) optGraph.get()).computeCutwidth();
-
 				if (config.isReport()) {
-					exportBlockCutGraph(optGraph.get(), config.getGraphFile());
+					exportBlockCutGraph(optGraph.get(), config.getInputName());
 				}
 				final OCSolution solution = solve(optGraph.get(), config);
-				final Optional<String> optsol = config.getSolutionFile();
-				exportPaceOutput(optsol, solution);
+				exportPaceOutput(config.getOutputFile(), solution);
 				return solution.getStatus() == Status.ERROR ? 1 : 0;
 			} else {
 				return 1;
@@ -115,21 +112,23 @@ public final class LignesClaires {
 		return new OCSolver();
 	}
 
-	private static Optional<IBipartiteGraph> parse(final String graphfile) {
+	private static void logOnInputGraph(final String inputName, final IBipartiteGraph inputGraph) {
+		if (LOGGER.isLoggable(Level.INFO)) {
+			LOGGER.log(Level.INFO, "Parse graph [OK]\ni {0}\n{1}", new Object[] { inputName, toDimacs(inputGraph) });
+			GraphLogger.logOnGraphMetrics(inputGraph.getGraph());
+			LOGGER.log(Level.FINER, "Display graph:\n{0}", inputGraph);
+		}
+	}
+
+	private static Optional<IBipartiteGraph> parse(Optional<String> inputFile, String inputName) {
 		try {
 			final PaceInputParser parser = new PaceInputParser();
-			final File file = new File(graphfile);
-			final IBipartiteGraph bigraph = parser.parse(file);
-			if (LOGGER.isLoggable(Level.INFO)) {
-				LOGGER.log(Level.INFO, "Parse graph [OK]\ni {0}\n{1}",
-						new Object[] { ToStringUtil.getFilenameWithoutExtension(file), toDimacs(bigraph) });
-				GraphLogger.logOnGraphMetrics(bigraph.getGraph());
-				// TODO Log Block-Cut Graph
-				LOGGER.log(Level.FINER, "Display graph:\n{0}", bigraph);
-			}
+			final IBipartiteGraph bigraph = inputFile.isPresent() ? parser.parse(inputFile.get())
+					: parser.parse(new InputStreamReader(System.in));
+			logOnInputGraph(inputName, bigraph);
 			return Optional.of(bigraph);
 		} catch (ImportException | FileNotFoundException e) {
-			LOGGER.log(Level.SEVERE, e, () -> "Parse file " + graphfile + FAIL);
+			LOGGER.log(Level.SEVERE, e, () -> "Parse file " + inputFile + FAIL);
 		}
 		return Optional.empty();
 	}
@@ -177,7 +176,7 @@ public final class LignesClaires {
 					fileWriter.append(solution.toPaceOutputString());
 					LOGGER.log(Level.INFO, "Export solution to file {0} [OK]", solfile);
 				} catch (IOException e) {
-					LOGGER.log(Level.SEVERE, e, () -> "Export solution to file " + solfile + " [FAIL]");
+					LOGGER.log(Level.SEVERE, e, () -> "Export solution to file " + solfile + FAIL);
 				}
 			} else if (LignesClaires.LOGGER.getLevel() == Level.WARNING) {
 				System.out.println(solution.toPaceOutputString());
