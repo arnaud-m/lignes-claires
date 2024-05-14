@@ -67,7 +67,7 @@ public class OptionsParser {
 	}
 
 	protected boolean checkArguments() {
-		return config.getArguments().size() < 2;
+		return config.getArguments().size() < 3;
 	}
 
 	public final LignesClairesConfig getConfig() {
@@ -140,8 +140,8 @@ public class OptionsParser {
 	}
 
 	private void appendFooter(final StringBuilder b) {
-		b.append("\nReport bugs: <https://github.com/arnaud-m/cryptator/issues>\n");
-		b.append("Cryptator home page: <https://github.com/arnaud-m/cryptator>\n");
+		b.append("\nReport bugs: <https://github.com/arnaud-m/lignes-claires/issues>\n");
+		b.append("Lignes-claires home page: <https://github.com/arnaud-m/lignes-claires>\n");
 	}
 
 	private void appendShortFooter(final StringBuilder b) {

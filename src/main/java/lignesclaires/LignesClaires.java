@@ -69,7 +69,7 @@ public final class LignesClaires {
 					exportBlockCutGraph(optGraph.get(), config.getInputName());
 				}
 				final OCSolution solution = solve(optGraph.get(), config);
-				exportPaceOutput(config.getOutputFile(), solution);
+				exportPaceOutput(solution, config);
 				return solution.getStatus() == Status.ERROR ? 1 : 0;
 			} else {
 				return 1;
@@ -169,19 +169,21 @@ public final class LignesClaires {
 		return OCSolution.getErrorInstance();
 	}
 
-	private static void exportPaceOutput(final Optional<String> solfile, final OCSolution solution) {
+	private static void exportPaceOutput(final OCSolution solution, final LignesClairesConfig config) {
+		final Optional<String> outfile = config.getOutputFile();
 		if (solution.getStatus() == Status.OPTIMUM) {
-			if (solfile.isPresent()) {
-				try (FileWriter fileWriter = new FileWriter(new File(solfile.get()), false)) {
+			if (outfile.isPresent()) {
+				try (FileWriter fileWriter = new FileWriter(new File(outfile.get()), false)) {
 					fileWriter.append(solution.toPaceOutputString());
-					LOGGER.log(Level.INFO, "Export solution to file {0} [OK]", solfile);
+					LOGGER.log(Level.INFO, "Export solution to file {0} [OK]", outfile);
 				} catch (IOException e) {
-					LOGGER.log(Level.SEVERE, e, () -> "Export solution to file " + solfile + FAIL);
+					LOGGER.log(Level.SEVERE, e, () -> "Export solution to file " + outfile + FAIL);
 				}
-			} else if (LignesClaires.LOGGER.getLevel() == Level.WARNING) {
+			} else if (config.getVerbosity() == Verbosity.QUIET) {
 				System.out.println(solution.toPaceOutputString());
 			}
 		}
+
 	}
 
 	public static String toDimacs(final IBipartiteGraphDimension dim) {
