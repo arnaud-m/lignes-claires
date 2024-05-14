@@ -19,6 +19,7 @@ import java.util.function.Consumer;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 
+import lignesclaires.ToStringUtil;
 import lignesclaires.cmd.OCModelOptionHandler;
 import lignesclaires.cmd.OCSearchOptionHandler;
 import lignesclaires.cmd.Verbosity;
@@ -52,10 +53,10 @@ public class LignesClairesConfig {
 	private EnumSet<OCSearchFlag> searchMask = EnumSet.allOf(OCSearchFlag.class);
 
 	@Option(name = "--solution", usage = "Limit the number of solutions returned by the solver.")
-	private int solutionLimit;
+	private int solutionLimit = 0;
 
 	@Option(name = "--time", usage = "Limit the time taken by the solver (in seconds).")
-	private long timeLimit;
+	private long timeLimit = 1740;
 
 	/**
 	 * Receives other command line parameters than options.
@@ -146,7 +147,8 @@ public class LignesClairesConfig {
 
 	public final String getInputName() {
 		if (inputName == null) {
-			inputName = getInputFile().orElseGet(() -> "stdin-" + UUID.randomUUID());
+			inputName = getInputFile().isPresent() ? ToStringUtil.getFilenameWithoutExtension(getInputFile().get())
+					: "stdin-" + UUID.randomUUID();
 		}
 		return inputName;
 	}
