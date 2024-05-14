@@ -31,7 +31,7 @@ public class HeuristicSolver implements IOCSolver {
 			final Integer[] permB = gr.permutateBarycenters();
 			final int ccountB = solve(bigraph, permB, "Barycenter");
 
-			final int n = bigraph.getFreeCount();
+			final int n = bigraph.getFixedCount() + 1;
 			return ccountM <= ccountB ? new OCSolution(ccountM, permM, n) : new OCSolution(ccountB, permB, n);
 		} else {
 			return OCSolution.getUnknownInstance();
